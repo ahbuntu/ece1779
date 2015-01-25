@@ -16,6 +16,11 @@ Rails.application.routes.draw do
   #   resources :products
   resources :users
 
+  namespace :manager do
+    get '/' => 'workers#index'
+    resources :workers, :only => [:index, :show]
+  end
+
   # Example resource route with options:
   #   resources :products do
   #     member do

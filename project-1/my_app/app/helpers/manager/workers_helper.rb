@@ -1,0 +1,2 @@
+module Manager::WorkersHelper
+end
