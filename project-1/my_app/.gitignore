@@ -68,3 +68,4 @@ gem-ecr/
 gem-themebuilder/
 .ruby-version
 .tm_properties
+*.war
