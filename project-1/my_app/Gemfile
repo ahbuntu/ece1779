@@ -23,6 +23,13 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'warbler'
 gem 'haml'
+gem 'haml-rails'
+gem 'mini_magick'
+gem 'aws-sdk', '< 2'
+
+# Twitter Bootstrap
+gem "less-rails" #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
+gem "twitter-bootstrap-rails"
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
@@ -32,13 +39,6 @@ gem 'haml'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
-
-# Bootstrap
-# gem 'therubyracer'  # If using Ruby
-# gem 'therubyrhino'  # If using JRuby # Included above
-# gem 'jquery-rails'  # If using Bootstrap's JS plugins. # Included above
-gem 'less-rails-bootstrap'
-
 
 group :development, :test do
 end
