@@ -11,7 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150122052847) do
+ActiveRecord::Schema.define(version: 20150128215412) do
+
+  create_table "images", force: :cascade do |t|
+    t.integer "userId"
+    t.string  "key1",   limit: 255
+    t.string  "key2",   limit: 255
+    t.string  "key3",   limit: 255
+    t.string  "key4",   limit: 255
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "login",    limit: 255, null: false
