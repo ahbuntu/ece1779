@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  #get 'sessions/new'
+  get 'login' => 'sessions#new'
+  post 'login' => 'sessions#create'
+  delete 'logout' => 'sessions#destroy'
+
   resources :images
 
   # The priority is based upon order of creation: first created -> highest priority.
@@ -6,7 +11,7 @@ Rails.application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
-  root 'users#index'
+  root 'sessions#new'
 
   post '/ece1779/servlet/FileUpload' => 'images#create'
 

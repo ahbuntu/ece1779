@@ -1,0 +1,30 @@
+%h1 New User
+
+= provide(:title, "Sign up")
+
+= form_for(@user) do |f|
+
+  - if @user.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@user.errors.count, "error")} prohibited this user from being saved"
+
+      %ul
+        - @user.errors.full_messages.each do |message| 
+          %li= message
+
+  .form_group
+    = f.label :login
+    .form_control
+      = f.text_field :login
+
+  .form_group
+    = f.label :password
+    .form_control
+      = f.text_field :password
+
+  .btn.btn_primary
+    = f.submit "Create"
+
+Returning user? 
+= link_to('Log in', login_path)
+

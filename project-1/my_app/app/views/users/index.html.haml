@@ -1,2 +1,24 @@
 %h1 Users
-%b THIS IS A TEST
+
+#notice
+  = notice
+
+
+.row
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Login
+        %th Password
+        %th{:colspan => 3}
+    %tbody
+      - @users.each do |user|
+        %tr
+          %td= user.login
+          %td= user.password
+          %td= link_to 'Show', user
+          %td= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' }
+          %td= link_to 'Upload', user
+
+
+= link_to 'New user', new_user_path
