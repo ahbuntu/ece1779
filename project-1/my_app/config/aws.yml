@@ -2,3 +2,8 @@ development:
   access_key_id: 123
   secret_access_key: 456
   region: 'us-east-1'
+
+production:
+  access_key_id: 123
+  secret_access_key: 456
+  region: 'us-east-1'
