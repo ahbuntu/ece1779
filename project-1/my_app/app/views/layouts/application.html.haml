@@ -30,7 +30,10 @@
           %ul.nav.navbar-nav
             %li= link_to "Users", "/users"
             %li= link_to "Manager", "/manager"
-
+            - if !session[:user_id].nil?
+              %li= link_to "Log out", logout_path, method: "delete"
+            - else
+              %li= link_to "Log in", login_path
     .container
       .row
         .col-lg-9

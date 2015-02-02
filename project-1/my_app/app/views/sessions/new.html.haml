@@ -1,0 +1,22 @@
+%h1 Welcome! 
+
+
+= provide(:title, "Log in")
+
+= form_for(:session, url: login_path) do |f|
+
+  .form_group
+    = f.label :login
+    .form_control
+      = f.text_field :login
+
+  .form_group
+    = f.label :password
+    .form_control
+      = f.text_field :password
+
+  .btn
+    = f.submit "Login"
+
+New user? 
+= link_to('Sign up now', new_user_path)
