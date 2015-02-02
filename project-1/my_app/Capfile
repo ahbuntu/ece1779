@@ -8,6 +8,9 @@ require 'capistrano/rails'
 require 'capistrano/bundler'
 require 'capistrano/rbenv'
 require 'capistrano/puma'
+require 'capistrano/git'
+require './lib/capistrano/remote_cache_with_project_root_strategy'
+
 
 # Include tasks from other gems included in your Gemfile
 #
@@ -30,3 +33,4 @@ require 'capistrano/puma'
 
 # Load custom tasks from `lib/capistrano/tasks' if you have any defined
 Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }
+
