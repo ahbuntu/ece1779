@@ -1,5 +1,6 @@
 class ImagesController < ApplicationController
   before_action :set_image, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:new, :create]
   protect_from_forgery :except => :create 
 
   def index
@@ -13,12 +14,10 @@ class ImagesController < ApplicationController
   # Test this with something like: 
   #   "curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload"
   def create
-
     @image = Image.new(image_params)
-
     respond_to do |format|
       if @image.save
-        format.html { redirect_to @image, notice: 'Image was successfully created.' }
+        format.html { redirect_to new_user_image_path(@user), notice: 'Image was successfully uploaded.' }
         format.json { render :show, status: :created, location: @image }
       else
         format.html { render :new }
@@ -52,6 +51,10 @@ class ImagesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_image
     @image = Image.find params[:id]
+  end
+
+  def set_user
+    @user = User.find_by params[:user_id]
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
