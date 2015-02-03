@@ -27,11 +27,7 @@ class UsersController < ApplicationController
     end
   end
 
-  # = user_upload_path(@user)
-  def upload
-  end
-
-  def choose
+  def show
   end
   
   # DELETE /users/1

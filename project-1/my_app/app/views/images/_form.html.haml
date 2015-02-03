@@ -6,5 +6,11 @@
         - @image.errors.full_messages.each do |msg|
           %li= msg
 
-  .actions
+  .form_group
+    = hidden_field_tag 'userID', params[:user_id]
+    = f.label "Select an image file to upload"
+    .form_control
+      = f.file_field :theFile
+
+  .btn
     = f.submit 'Save'

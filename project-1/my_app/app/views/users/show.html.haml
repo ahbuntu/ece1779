@@ -7,6 +7,10 @@
 %p
   %strong= "Password: #{@user.password} "
 
-%h1 TODO: link to upload images
-%h1 TODO: link to view images
 
+%br
+= link_to('Upload an image', new_user_image_path(:user_id => @user.id))
+
+%br
+%br
+= link_to('View all images', user_images_path(:user_id => @user.id))

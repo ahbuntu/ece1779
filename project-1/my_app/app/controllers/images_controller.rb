@@ -1,6 +1,5 @@
 class ImagesController < ApplicationController
   before_action :set_image, only: [:show, :edit, :update, :destroy]
-
   protect_from_forgery :except => :create 
 
   def index
@@ -62,9 +61,10 @@ class ImagesController < ApplicationController
     # field1 name = userID type = string
     # field2 name = theFile type = file
 
-    user = User.find params[:userID]
     user_id = params[:userID]
     file = params[:theFile]
+
+    user = User.find user_id
     {user: user}
   end
 
