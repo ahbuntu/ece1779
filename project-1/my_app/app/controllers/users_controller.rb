@@ -3,6 +3,8 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :destroy]
   before_action :correct_user, only: [:show]
 
+  skip_before_filter :authenticate, only: [:new, :create]
+
   def index
     @users = User.all
   end
@@ -19,6 +21,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.save
+        log_in(@user)
         format.html { redirect_to @user, notice: 'User was successfully created.' }
         format.json { render :show, status: :created, location: @user }
       else
