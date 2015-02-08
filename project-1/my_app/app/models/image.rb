@@ -89,6 +89,7 @@ class Image < ActiveRecord::Base
   end
 
   def delete_assets
+    logger.debug "Deleting Image #{id} assets"
     image_keys.each do |k|
       v = self.send(k) && DeleteImageWorker.perform_async(v)
     end
