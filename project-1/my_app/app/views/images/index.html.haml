@@ -1,19 +1,20 @@
 %h1 Listing images
 
-%table
-  %thead
-    %tr
-      %th
-      %th
-      %th
-      
-  %tbody
-    - @images.each do |image|
+.row
+  %table.table.table-striped
+    %thead
       %tr
-        %td= link_to 'Show', image
-        %td= link_to 'Edit', edit_image_path(image)
-        %td= link_to 'Destroy', image, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %th
+        %th
+        %th      
+    %tbody
+      - @images.each do |image|
+        %tr
+          %td= image.key1
+          %td= link_to 'Show',    user_image_path(current_user, image)
+          %td= link_to 'Edit',    edit_user_image_path(current_user, image)
+          %td= link_to 'Destroy', user_image_path(current_user, image), :method => :delete, :data => { :confirm => 'Are you sure?' }
 
-%br
+  %br
 
-= link_to 'New Image', new_image_path
+  = link_to 'New Image', new_user_image_path(current_user)
