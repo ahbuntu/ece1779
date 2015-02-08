@@ -69,8 +69,8 @@ class Image < ActiveRecord::Base
   def dispatch_image_transformations!
     logger.info "[Image] Dispatching TransformImageWorker jobs"
     self.key2.nil? && TransformImageWorker.perform_async(id, :key2, 100, 100)
-    self.key3.nil? && TransformImageWorker.perform_async(id, :key3, 200, 300)
-    self.key4.nil? && TransformImageWorker.perform_async(id, :key4, 200, 300)
+    self.key3.nil? && TransformImageWorker.perform_async(id, :key3, 200, 200)
+    self.key4.nil? && TransformImageWorker.perform_async(id, :key4, 300, 300)
   end
 
   private
