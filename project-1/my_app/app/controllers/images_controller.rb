@@ -1,7 +1,8 @@
 class ImagesController < ApplicationController
-  
+  ImagesController::BUCKET = "ece1779"
+
   before_action :set_image, only: [:show, :edit, :update, :destroy]
-  before_action :set_user, only: [:new, :create]
+  before_action :correct_user, only: [:new]
   protect_from_forgery :except => :create 
 
   def index
@@ -10,28 +11,45 @@ class ImagesController < ApplicationController
 
   def new
     @image = Image.new
+    if !current_user.present?
+      set_user_noauth
+    end
   end
 
   # Test this with something like: 
   #   "curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload"
   def create
     @image = Image.new(image_params)
-    
+    @image.save
+
+    if !current_user.present?
+      set_user_noauth
+    end
+
     uploadedFile = params[:image][:theFile]
-    uploadedFileKey1 = File.join('images',params[:userID], uploadedFile.original_filename)
+    #follow virtual directory structure /images/<user_id>/<image_id>/<transformation>
+    awsFilePath = File.join('images',params[:userID], @image.id.to_s)
+    awskey1 = File.join(awsFilePath, 'original')
 
     s3 = AWS::S3.new
     #TODO: rename the base bucket
-    bucket = s3.buckets['ece1779']
-    #follow virtual directory structure /images/<user_id>/<fileName>
-    object = bucket.objects[uploadedFileKey1] 
+    bucket = s3.buckets[ImagesController::BUCKET]    
+    object = bucket.objects[awskey1] 
     object.write(:file => uploadedFile.path)
     #update S3 key1 for the image
-    @image.key1 = uploadedFileKey1
+    @image.key1 = awskey1
+    #TODO: need to store the original filename into database
+
+    #open creates a copy of the image
+    image = MiniMagick::Image.open(uploadedFile.path)
+    #image.path #prints the path of the copied image
+    image.resize "100x100"
+    image.format "png"
+    image.write "public/output.png"
 
     respond_to do |format|
       if @image.save
-        format.html { redirect_to new_user_image_path(@user), notice: 'Image was successfully uploaded.' }
+        format.html { redirect_to new_user_image_path(@current_user), notice: 'Image was successfully uploaded.' }
         format.json { render :show, status: :created, location: @image }
       else
         format.html { render :new }
@@ -67,8 +85,16 @@ class ImagesController < ApplicationController
     @image = Image.find params[:id]
   end
 
-  def set_user
-    @user = User.find_by params[:user_id]
+  def set_user_noauth
+    @current_user = User.find_by params[:userID]
+  end
+
+  def correct_user
+    user = User.find(params[:user_id])
+    if !current_user?(user)
+      # Redirect to log in with error message
+      redirect_to(root_url, alert: 'You are not authorized. Please log in.') 
+    end
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
