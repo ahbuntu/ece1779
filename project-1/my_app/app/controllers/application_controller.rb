@@ -3,4 +3,15 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   include SessionsHelper
+
+  before_action :authenticate
+
+  private
+
+  def authenticate
+    unless current_user.present?
+      redirect_to(root_url, alert: 'You are not authorized. Please log in.') 
+    end
+  end
+
 end
