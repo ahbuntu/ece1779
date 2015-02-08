@@ -34,7 +34,7 @@ class ImagesController < ApplicationController
     @image = Image.new(safe_params)
     respond_to do |format|
       if @image.save # this dispatches UploadImageOriginalWorker
-        format.html { redirect_to user_image_path(@current_user, @image), notice: 'Image was successfully uploaded.' }
+        format.html { redirect_to user_images_path(@current_user), notice: 'Image was successfully uploaded.' }
         format.json { render :show, status: :created, location: @image }
       else
         @image.file = nil # cleanup
