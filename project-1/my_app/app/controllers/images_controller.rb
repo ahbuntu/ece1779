@@ -13,27 +13,15 @@ class ImagesController < ApplicationController
   end
 
   # Test this with something like: 
-  #   "curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload"
+  #   curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload
   def create
     @image = Image.new(image_params)
-    
-    uploadedFile = params[:image][:theFile]
-    uploadedFileKey1 = File.join('images',params[:userID], uploadedFile.original_filename)
-
-    s3 = AWS::S3.new
-    #TODO: rename the base bucket
-    bucket = s3.buckets['ece1779']
-    #follow virtual directory structure /images/<user_id>/<fileName>
-    object = bucket.objects[uploadedFileKey1] 
-    object.write(:file => uploadedFile.path)
-    #update S3 key1 for the image
-    @image.key1 = uploadedFileKey1
-
     respond_to do |format|
-      if @image.save
+      if @image.save # this dispatches UploadImageOriginalWorker
         format.html { redirect_to new_user_image_path(@user), notice: 'Image was successfully uploaded.' }
         format.json { render :show, status: :created, location: @image }
       else
+        @image.file = nil # cleanup
         format.html { render :new }
         format.json { render json: @image.errors, status: :unprocessable_entity }
       end
@@ -80,9 +68,11 @@ class ImagesController < ApplicationController
 
     user_id = params[:userID]
     file = params[:theFile]
+    original_filename = file.original_filename
+    extension = File.extname(original_filename)
 
     user = User.find user_id
-    {user: user}
+    {user: user, file: file, original_filename: original_filename, extension: extension}
   end
 
 end

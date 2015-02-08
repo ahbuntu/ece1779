@@ -43,6 +43,8 @@ gem 'sidekiq'
 gem 'puma'
 gem 'foreman'
 
+gem 'uuid'
+
 group :development, :test do
   # gem 'puma',               require: false
   gem 'capistrano',         require: false
@@ -50,6 +52,8 @@ group :development, :test do
   gem 'capistrano-rails',   require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano3-puma',   require: false
+  gem 'ruby-debug'
+  # gem 'pry-debugger'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
