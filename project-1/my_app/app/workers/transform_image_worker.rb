@@ -14,11 +14,15 @@ class TransformImageWorker
       return
     end
 
-    file = File.open(image.tempfile_path)
-    object = Image.s3_object_for_key(key)
-
-    # TODO: image transforms
     logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
+    thumb = MiniMagick::Image.open(image.tempfile_path)  # open creates a copy of the image
+    thumb.resize "#{width}x#{height}"
+    # thumb.format "png" # force to PNG?
+    # thumb.path #prints the path of the copied image
+
+    # Upload to S3
+    object = Image.s3_object_for_key(key)
+    obj.write(:file => tmpfile)
 
     # FIXME: if the Image was destroyed prior to this finishing then we need to delete the S3 object
 
