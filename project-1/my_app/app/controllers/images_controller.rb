@@ -3,6 +3,7 @@ class ImagesController < ApplicationController
 
   # Assumption: the load-testing utility doesn't login or maintain a session
   skip_before_action :authenticate, only: :create
+  before_filter :validate_current_user, except: :create
 
   before_action :set_image, only: [:show, :edit, :update, :destroy]
   protect_from_forgery :except => :create 
@@ -74,7 +75,7 @@ class ImagesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_image
-    @image = Image.find params[:id]
+    @image = current_user.images.find params[:id]
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
@@ -90,6 +91,13 @@ class ImagesController < ApplicationController
     extension = File.extname(original_filename)
 
     {user: @current_user, file: file, original_filename: original_filename, extension: extension}
+  end
+
+  def validate_current_user
+    user = User.find params[:user_id]
+    unless current_user?(user)
+      redirect_to root_path
+    end
   end
 
 end

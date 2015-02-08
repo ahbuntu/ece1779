@@ -1,9 +1,7 @@
 class UsersController < ApplicationController
 
-  before_action :set_user, only: [:show, :destroy]
-  before_action :correct_user, only: [:show]
-
   skip_before_filter :authenticate, only: [:new, :create]
+  before_filter :validate_current_user, except: [:new, :create]
 
   def index
     @users = User.all
@@ -32,22 +30,17 @@ class UsersController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_user
-    @user = User.find(params[:id])
-  end
-
-  def correct_user
-    user = User.find(params[:id])
-    if !current_user?(user)
-      # Redirect to log in with error message
-      redirect_to(root_url, alert: 'You are not authorized. Please log in.') 
-    end
-  end
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def user_params
     params.require(:user).permit(:login, :password)
+  end
+
+  def validate_current_user
+    user = User.find params[:id]
+    unless current_user?(user)
+      redirect_to root_path
+    end
   end
 
 end

@@ -2,15 +2,15 @@
   = notice
 
 %p
-  %strong=  "Login: #{@user.login}"
+  %strong=  "Login: #{current_user.login}"
 
 %p
-  %strong= "Password: #{@user.password} "
+  %strong= "Password: #{current_user.password} "
 
 
 %br
-= link_to('Upload an image', new_user_image_path(@user))
+= link_to('Upload an image', new_user_image_path(current_user))
 
 %br
 %br
-= link_to('View all images', user_images_path(@user))
+= link_to('View all images', user_images_path(current_user))
