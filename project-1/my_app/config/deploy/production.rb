@@ -17,6 +17,22 @@
 # server '192.168.33.10', user: 'vagrant', roles: %w{web app db}, my_property: :my_value
 server '192.168.33.10', user:'vagrant', port: 22, roles: [:web, :app, :db], primary: true
 
+set :ssh_options, {
+  user: "ubuntu",
+  keys: %w(../ece1779-general-keypair.pem),
+  forward_agent: false,
+}
+
+set :user, 'ubuntu'
+set :use_sudo, false
+set :deploy_to, "/var/www/#{fetch(:application)}"
+set :deploy_via, :remote_cache
+
+set :linked_files, %w{
+  config/database.yml
+  config/aws.yml
+  puma.rb
+}
 
 # Custom SSH Options
 # ==================
