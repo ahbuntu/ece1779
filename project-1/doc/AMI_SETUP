@@ -1,0 +1,97 @@
+# The following are the steps taken to transform an Ubuntu 14 LTS AMI instance
+# into a JRuby-on-Rails server running nginx, puma, & sidekiq.
+
+> Boot an Ubuntu 14 LTS AMI instance...
+
+sudo apt-get update
+sudo apt-get install curl git-core nginx build-essential -y
+
+# Install rbenv as 'root' user (system-wide)
+# From: https://gist.github.com/jnx/1256593
+sudo su -
+git clone git://github.com/sstephenson/rbenv.git /usr/local/rbenv
+ 
+# Add rbenv to the path:
+echo '# rbenv setup' > /etc/profile.d/rbenv.sh
+echo 'export RBENV_ROOT=/usr/local/rbenv' >> /etc/profile.d/rbenv.sh
+echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
+echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
+ 
+chmod +x /etc/profile.d/rbenv.sh
+source /etc/profile.d/rbenv.sh
+ 
+# Install ruby-build:
+pushd /tmp
+  git clone git://github.com/sstephenson/ruby-build.git
+  cd ruby-build
+  ./install.sh
+popd
+
+# From: http://www.webupd8.org/2012/01/install-oracle-java-jdk-7-in-ubuntu-via.html
+# install Java (Oracle Java 1.7)
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java7-installer
+# echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+
+# setup Oracle Java 7 env. vars
+sudo apt-get install oracle-java7-set-default
+
+# Install JRuby
+sudo su -
+rbenv install jruby-1.7.19
+rbenv global jruby-1.7.19
+ 
+# Rehash:
+rbenv rehash
+
+# completely logout, then log back in as 'vagrant' user; verify jruby is default ruby
+ruby -v
+
+# install bundler as root
+sudo su -
+gem install bundler --no-ri --no-rdoc -V
+
+
+# install your own SSH public key
+# ...
+
+# install the server's SSH public key in GitHub as a Deploy Key
+# ...
+
+# Create a /var/www directory and assign it to the 'ubuntu' user
+sudo su -
+mkdir /var/www
+chown -R ubuntu /var/www
+
+# copy aws.yml over to the server
+scp ./config/aws.yml /var/www/my_app#/shared/app/config/
+scp ./config/database.yml /var/www/my_app#/shared/app/config/
+
+# Create a tmpdir for Puma
+mkdir -p /var/www/my_app/shared/tmp/sockets/
+
+# Install Sidekiq as a system service
+# From https://github.com/mperham/sidekiq/tree/master/examples/upstart/manage-many
+sudo apt-get install redis-server
+mkdir -p /var/www/my_app/shared/pids
+# TODO: install sidekiq scrips in ./deploy/production/... into AWS with Capistrano
+# Otherwise, copy the sidekiq scripts from ./deploy/production/... onto the server manually
+
+# Start the sidekiq workers
+sudo start sidekiq-manager
+
+# Install Puma upstart scripts (./deploy/production) so that Puma starts on reboot
+# TODO: automate this in Capistrano
+
+# TODO: get nginx.conf installed via capistrano
+# Otherwise, install manually in sites-enabled afterwards
+
+# Test Capistrano
+bundle exec cap --dry-run production deploy:initial
+
+# Setup the deploy with Capistrano
+bundle exec cap production deploy:initial
+
+# Later, actually deploy...
+bundle exec cap production deploy

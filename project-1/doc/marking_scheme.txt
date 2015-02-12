@@ -1,0 +1,18 @@
+Functionality 
+  - account creation and login 5% 
+
+  - userUI 30% 
+    - upload new image 
+    - thumbnails 
+    - image detail and versions 
+
+  - managerUI 50% 
+    - list workers 
+    - manually grow worker pool 
+    - manually shrink worker pool 
+    - auto-scalling 
+    - delete all data 
+
+User experience 10% 
+
+Documentation 5%
