@@ -1,7 +1,7 @@
 class Image < ActiveRecord::Base
 
   S3_BUCKET_NAME = 'ece1779'
-  FAKE_UPLOADS = true # for testing
+  FAKE_UPLOADS = false # for testing
 
   belongs_to :user, foreign_key: "userId"
 
