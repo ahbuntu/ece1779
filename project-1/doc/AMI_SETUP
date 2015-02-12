@@ -87,6 +87,10 @@ sudo start sidekiq-manager
 # TODO: get nginx.conf installed via capistrano
 # Otherwise, install manually in sites-enabled afterwards
 
+# Point the Capistrano config at the AWS instance:
+# Update config/deploy/production.rb
+> server '52.1.84.18', user:'ubuntu', port: 22, roles: [:web, :app, :db], primary: true
+
 # Test Capistrano
 bundle exec cap --dry-run production deploy:initial
 
