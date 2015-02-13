@@ -1,16 +1,20 @@
-= form_for @image, :url => user_images_path(@current_user) do |f|
+
+
+= form_for @image, :url => user_images_path(@current_user), :html => {class: "form-signin"} do |f|
   - if @image.errors.any?
     #error_explanation
       %h2= "#{pluralize(@image.errors.count, "error")} prohibited this image from being saved:"
       %ul
         - @image.errors.full_messages.each do |msg|
           %li= msg
-
+  %h3.form-signin-heading New Image
+  %br
   .form_group
     = hidden_field_tag 'userID', params[:user_id]
-    = f.label "Select an image file to upload"
-    .form_control
-      = f.file_field :theFile
-
-  .btn
-    = f.submit 'Save'
+    = f.file_field :theFile
+  %br
+  %p.help-block Select an image to upload
+  
+  .form_group
+    = f.button 'Save', class: "btn btn-primary btn-sm btn-block"
+  
