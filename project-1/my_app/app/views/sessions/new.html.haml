@@ -1,22 +1,18 @@
-%h1 Welcome! 
-
 
 = provide(:title, "Log in")
 
-= form_for(:session, url: login_path) do |f|
+= form_for(:session, url: login_path, :html => {class: "form-signin"}) do |f|
+  %h3.form-signin-heading Please sign in
+  
+  .input-group
+    = f.label :login, class: "sr-only"
+    = f.text_field :login, class: "form-control", placeholder: "Login", autofocus: true
+    = f.label :password, class: "sr-only"
+    = f.text_field :password, class: "form-control", placeholder: "Password"
+  .form-group
+  .form-group
+    = f.button "Login", class: "btn btn-primary btn-block"
 
-  .form_group
-    = f.label :login
-    .form_control
-      = f.text_field :login
-
-  .form_group
-    = f.label :password
-    .form_control
-      = f.text_field :password
-
-  .btn
-    = f.submit "Login"
-
-New user? 
-= link_to('Sign up now', new_user_path)
+%p
+  New user? 
+  = link_to('Sign up now', new_user_path)
