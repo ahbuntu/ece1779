@@ -9,8 +9,10 @@
 
 
 %br
-= link_to('Upload an image', new_user_image_path(current_user))
-
+= link_to(new_user_image_path(current_user), class: "btn btn-primary btn-block") do
+  %span.glyphicon.glyphicon-upload 
+  Upload an image
 %br
-%br
-= link_to('View all images', user_images_path(current_user))
+= link_to(user_images_path(current_user), class: "btn btn-primary btn-block") do
+  %span.glyphicon.glyphicon-picture
+  View all images

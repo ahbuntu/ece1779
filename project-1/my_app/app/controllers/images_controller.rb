@@ -16,6 +16,21 @@ class ImagesController < ApplicationController
     @image = Image.new
   end
 
+  def show
+    # Request presigned URLs from S3 for each image
+    # urls will expire after defined duration, 10 min by default
+    url_expiry = 10*60
+
+    object = Image.s3_object_for_key(@image.key1)
+    @key1_url = object.url_for(:read, :expires => url_expiry)
+    object = Image.s3_object_for_key(@image.key2)
+    @key2_url = object.url_for(:read, :expires => url_expiry)
+    object = Image.s3_object_for_key(@image.key3)
+    @key3_url = object.url_for(:read, :expires => url_expiry)
+    object = Image.s3_object_for_key(@image.key4)
+    @key4_url = object.url_for(:read, :expires => url_expiry)
+  end
+
   def create
     # We get two kinds of POSTs here:
     # 1) regular users (who have logged in) and are POSTing with the standard form on the browser
