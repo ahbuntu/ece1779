@@ -22,7 +22,7 @@ class TransformImageWorker
 
     # Upload to S3
     object = Image.s3_object_for_key(key)
-    obj.write(:file => tmpfile)
+    object.write(:file => thumb.path)
 
     # FIXME: if the Image was destroyed prior to this finishing then we need to delete the S3 object
 
