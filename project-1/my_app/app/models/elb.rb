@@ -19,6 +19,18 @@ class Elb
           :instance_port => 80,
           :instance_protocol => :http,
         }])
+
+      # change health check to HTTP
+      load_balancer.configure_health_check({:target=>"HTTP:80/"})
+
+      # enable stickiness
+      policy = elb.client.create_lb_cookie_stickiness_policy({
+        :load_balancer_name => load_balancer.name, 
+        :policy_name => 'sticky-sessions'
+        # :cookie_expiration_period # no expiry
+        })
+
+      load_balancer
     end
 
     def load_balancer
