@@ -8,7 +8,7 @@
     %tbody
       %tr
         %td= @elb.name
-        %td= link_to @elb.load_balancer.dns_name, @elb.url
+        %td= link_to @elb.load_balancer.dns_name, @elb.url, :target => "_blank"
 
 %h1 Worker Pool
 .row
@@ -19,14 +19,14 @@
         %td IP
         %td Hostname
         %th Status
-        %th CPU
+        %th CPU %
     %tbody
       - @workers.each do |w|
         %tr
           %td= w.instance.id
-          %td= link_to w.instance.public_ip_address, "http://#{w.instance.public_ip_address}"
-          %td= link_to w.instance.public_dns_name, "http://#{w.instance.public_dns_name}"
+          %td= link_to w.instance.public_ip_address, "http://#{w.instance.public_ip_address}", :target => "_blank"
+          %td= link_to w.instance.public_dns_name, "http://#{w.instance.public_dns_name}", :target => "_blank"
           %td= w.status
-          %td= w.latest_cpu_utilization.to_f
+          %td= w.latest_cpu_utilization.to_f.round(2)
 
 
