@@ -1,7 +1,6 @@
 class UsersController < ApplicationController
 
   skip_before_filter :authenticate, only: [:new, :create]
-  before_filter :validate_current_user, except: [:new, :create]
 
   def index
     @users = User.all
@@ -34,13 +33,6 @@ class UsersController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def user_params
     params.require(:user).permit(:login, :password)
-  end
-
-  def validate_current_user
-    user = User.find params[:id]
-    unless current_user?(user)
-      redirect_to root_path
-    end
   end
 
 end
