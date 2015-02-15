@@ -10,8 +10,8 @@ class Manager::WorkersController < ManagerController
   end
 
   def start_instance
-    worker = Worker.launch_instance
-    elb.register_instance(worker)
+    worker = Worker.launch_worker
+    elb.register_instance(worker.instance_id)
     redirect_to manager_workers_path
   end
 
@@ -21,8 +21,8 @@ class Manager::WorkersController < ManagerController
     raise "Worker cannot be stopped" unless worker.can_stop?
 
     worker.stop!
-    elb.deregister_instance(worker)
-    elb.remove_instance(worker)
+    elb.deregister_instance(worker.instance_id)
+    elb.remove_instance(worker.instance_id)
 
     redirect_to manager_workers_path
   end
@@ -33,8 +33,8 @@ class Manager::WorkersController < ManagerController
     raise "Worker cannot be stopped" unless worker.can_terminate?
 
     worker.terminate!
-    elb.deregister_instance(worker)
-    elb.remove_instance(worker)
+    elb.deregister_instance(worker.instance_id)
+    elb.remove_instance(worker.instance_id)
 
     redirect_to manager_workers_path
   end

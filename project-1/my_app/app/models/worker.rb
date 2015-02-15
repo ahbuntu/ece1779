@@ -20,7 +20,7 @@ class Worker
     end
   end
 
-  def self.launch_instance(with_detailed_monitoring = false)
+  def self.launch_worker(with_detailed_monitoring = false)
     raise "Default image does not exist (#{default_image.id})" unless default_image.exists?
 
     # TODO: add support for with_detailed_monitoring
@@ -32,8 +32,8 @@ class Worker
       :count           => 1, 
       :security_groups => security_group, 
       :key_pair        => key_pair)
-    logger.info "Launching instance #{instance.id}"
-    instance
+    Rails.logger.info "Launching instance #{instance.id}"
+    Worker.new(instance.id, instance.id, instance.image_id)
   end
 
   def self.security_group
@@ -83,12 +83,12 @@ class Worker
   end
 
   def stop!
-    logger.info "Stopping instance #{instance.id}"
+    Rails.logger.info "Stopping instance #{instance.id}"
     instance.stop
   end
 
   def terminate!
-    logger.info "Terminating instance #{instance.id}"
+    Rails.logger.info "Terminating instance #{instance.id}"
     instance.terminate
   end
 
