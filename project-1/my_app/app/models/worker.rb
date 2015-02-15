@@ -56,7 +56,7 @@ class Worker
   end
 
   def self.default_instance_type
-    't2.micro'
+    't2.small'
   end
 
   def initialize(name, instance_id, image_id)
