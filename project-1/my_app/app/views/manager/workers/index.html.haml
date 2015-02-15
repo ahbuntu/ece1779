@@ -16,12 +16,16 @@
     %thead
       %tr
         %th Name
+        %td IP
+        %td Hostname
         %th Status
         %th CPU
     %tbody
       - @workers.each do |w|
         %tr
           %td= w.instance.id
+          %td= link_to w.instance.public_ip_address, w.instance.public_ip_address
+          %td= link_to w.instance.public_dns_name, w.instance.public_dns_name
           %td= w.status
           %td= w.latest_cpu_utilization.to_f
 
