@@ -30,6 +30,10 @@ Rails.application.routes.draw do
   namespace :manager do
     get '/' => 'workers#index'
     resources :workers, :only => [:index, :show]
+    post   :start_elb # singleton
+    put    :start_instance
+    delete :stop_instance
+    delete :terminate_instance
   end
 
   # Example resource route with options:

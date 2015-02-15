@@ -1,11 +1,28 @@
-%h1 Worker Pool
-
+%h1 Load Balancer
 .row
   %table.table.table-striped
     %thead
       %tr
         %th Name
+        %th URL
+    %tbody
+      %tr
+        %td= @elb.name
+        %td= link_to @elb.load_balancer.dns_name, @elb.url
+
+%h1 Worker Pool
+.row
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Name
+        %th Status
+        %th CPU
     %tbody
       - @workers.each do |w|
         %tr
-          %td= w.name
+          %td= w.instance.id
+          %td= w.status
+          %td= w.latest_cpu_utilization.to_f
+
+
