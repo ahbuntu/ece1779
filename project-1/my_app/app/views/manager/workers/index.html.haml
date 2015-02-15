@@ -16,9 +16,10 @@
     %thead
       %tr
         %th Name
-        %td IP
-        %td Hostname
+        %th IP
+        %th Hostname
         %th Status
+        %th ELB Health
         %th CPU %
     %tbody
       - @workers.each do |w|
@@ -27,6 +28,8 @@
           %td= link_to w.instance.public_ip_address, "http://#{w.instance.public_ip_address}", :target => "_blank"
           %td= link_to w.instance.public_dns_name, "http://#{w.instance.public_dns_name}", :target => "_blank"
           %td= w.status
+          %td= @health[w.instance.id][:state]
           %td= w.latest_cpu_utilization.to_f.round(2)
 
 
+= link_to "Launch Another Instance", manager_start_instance_path, {:method => :put, :confirm => "Are you sure?"}

@@ -68,4 +68,13 @@ class Elb
     "http://#{load_balancer.dns_name}"
   end
 
+  # returns health status in a hash keyed by instance_id
+  def health
+    load_balancer.instances.health.inject({}) do |h,i|
+      instance = i[:instance]
+      h[instance.id] = i
+      h
+    end
+  end
+
 end

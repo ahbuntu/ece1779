@@ -2,6 +2,7 @@ class Manager::WorkersController < ManagerController
   def index
     @elb = elb
     @workers = Worker.all
+    @health = @elb.health
   end
 
   def start_elb
