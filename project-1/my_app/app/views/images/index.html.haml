@@ -1,20 +1,24 @@
-%h1 Listing images
+%h2 Listing images
 
 .row
   %table.table.table-striped
     %thead
       %tr
-        %th
+        %th ID
+        %th File name
         %th
         %th      
     %tbody
       - @images.each do |image|
         %tr
-          %td= image.key1
+          %td.text-muted
+            = image.id
+          %td
+            = image.original_filename
           %td= link_to 'Show',    user_image_path(current_user, image)
-          %td= link_to 'Edit',    edit_user_image_path(current_user, image)
+          / %td= link_to 'Edit',    edit_user_image_path(current_user, image)
           %td= link_to 'Destroy', user_image_path(current_user, image), :method => :delete, :data => { :confirm => 'Are you sure?' }
 
   %br
 
-  = link_to 'New Image', new_user_image_path(current_user)
+  = link_to 'Upload New Image', new_user_image_path(current_user)

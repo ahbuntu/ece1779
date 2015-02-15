@@ -4,3 +4,24 @@
 = link_to 'Edit', edit_user_image_path(current_user, @image)
 \|
 = link_to 'Back', user_images_path(current_user)
+
+.thumbnail
+  =link_to "#" do 
+    =image_tag(@key1_url, alt: "Original")
+  .caption
+    %h3 Original
+.thumbnail
+  =link_to "#" do 
+    =image_tag(@key2_url, alt: "First")
+  .caption
+    %h3 First Transformation
+.thumbnail
+  =link_to "#" do 
+    =image_tag(@key3_url, alt: "Second")
+  .caption
+    %h3 Second Transformation
+.thumbnail
+  =link_to "#" do 
+    =image_tag(@key4_url, alt: "Third")
+  .caption
+    %h3 Third  Transformation
