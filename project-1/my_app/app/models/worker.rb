@@ -82,6 +82,14 @@ class Worker
     status == :running || status == :stopped
   end
 
+  def terminated?
+    status == :terminated
+  end
+
+  def stopped?
+    status == :stopped
+  end
+
   def stop!
     Rails.logger.info "Stopping instance #{instance.id}"
     instance.stop
