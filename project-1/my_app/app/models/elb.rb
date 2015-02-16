@@ -34,9 +34,7 @@ class Elb
     end
 
     def load_balancer
-      @load_balancer ||= elb.load_balancers["my-load-balancer"]
-      @load_balancer = nil unless @load_balancer.exists?
-      @load_balancer
+      elb.load_balancers["my-load-balancer"]
     end
   end
 
@@ -44,8 +42,17 @@ class Elb
     Elb.load_balancer
   end
 
-  def instances
-    load_balancer.instances
+  def workers
+    Rails.logger.info("workers")
+    workers = AWS.memoize do
+      load_balancer.instances.map do |i|
+        Worker.new(i)
+      end
+    end rescue []
+  end
+
+  def configured?
+    Elb.load_balancer.present?
   end
 
   def register_instance(i)
@@ -70,11 +77,14 @@ class Elb
 
   # returns health status in a hash keyed by instance_id
   def health
-    load_balancer.instances.health.inject({}) do |h,i|
-      instance = i[:instance]
-      h[instance.id] = i
-      h
-    end
+    Rails.logger.info("health")
+    health = AWS.memoize do
+      load_balancer.instances.health.inject({}) do |h,i|
+        instance = i[:instance]
+        h[instance.id] = i
+        h
+      end
+    end rescue nil
   end
 
 end

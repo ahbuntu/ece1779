@@ -25,13 +25,16 @@ module AwsBoilerplate
     end
 
     def instances_for_ami_id(ami_id)
-      ec2.instances.select do |i|
-        i.image.id == ami_id
+      Rails.logger.info("instances_for_ami_id")
+      instances = AWS.memoize do
+        ec2.instances.select do |i|
+          i.image.id == ami_id
+        end
       end
     end
 
     def cloudwatch
-      @cloudwatch ||= Aws::CloudWatch::Client.new(region: default_availability_zone)
+      @cloudwatch ||= AWS::CloudWatch::Client.new(region: default_availability_zone)
     end
   end
 end

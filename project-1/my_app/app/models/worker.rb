@@ -4,19 +4,19 @@ class Worker
 
   include AwsBoilerplate
 
-  attr_reader :name, :instance_id, :image_id
+  attr_reader :instance
 
   AMI_IMAGE_ID="ami-3899d250" # name: "ece1779-puma-001"
 
   def self.all
     instances_for_ami_id(AMI_IMAGE_ID).map do |i|
-      Worker.new(i.image.name, i.id, i.image.id)
+      Worker.new(i)
     end
   end
 
   def self.with_id(id)
     all.detect do |w|
-      w.instance_id == id
+      w.instance.id == id
     end
   end
 
@@ -33,7 +33,7 @@ class Worker
       :security_groups => security_group, 
       :key_pair        => key_pair)
     Rails.logger.info "Launching instance #{instance.id}"
-    Worker.new(instance.id, instance.id, instance.image_id)
+    Worker.new(instance)
   end
 
   def self.security_group
@@ -59,10 +59,8 @@ class Worker
     't2.small'
   end
 
-  def initialize(name, instance_id, image_id)
-    @name = name
-    @instance_id = instance_id
-    @image_id = image_id
+  def initialize(instance)
+    @instance = instance
   end
 
   def latest_cpu_utilization
@@ -104,16 +102,10 @@ class Worker
     instance.terminate
   end
 
-  def instance
-    @instance ||= Worker.ec2.instances[instance_id]
-    @instance = nil unless @instance.exists?
-    @instance
-  end
-
   private
 
   def cpu_metric
-    @metric ||= AWS::CloudWatch::Metric.new( 'AWS/EC2', 'CPUUtilization', :dimensions => [{:name => "InstanceId", :value => instance_id}])
+    @metric ||= AWS::CloudWatch::Metric.new( 'AWS/EC2', 'CPUUtilization', :dimensions => [{:name => "InstanceId", :value => instance.id}])
   end
 
   def sorted_historical_cpu_utilization_samples(start_time = 10.minutes.ago)
