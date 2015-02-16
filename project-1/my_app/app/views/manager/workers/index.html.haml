@@ -33,9 +33,9 @@
           %td= w.latest_cpu_utilization.to_f.round(2)
           %td
             - if safe_to_stop?(w)
-              = link_to "Stop", manager_stop_instance_path, :method => :delete, :confirm => "Are you sure?"
+              = link_to "Stop", manager_worker_stop_worker_path(w.instance_id), :method => :delete, :confirm => "Are you sure?"
               |
             - if safe_to_terminate?(w)
-              = link_to "Terminate", manager_terminate_instance_path, :method => :delete, :confirm => "Are you sure?"
+              = link_to "Terminate", manager_worker_terminate_worker_path(w.instance_id), :method => :delete, :confirm => "Are you sure?"
 
-= link_to "Launch Another Instance", manager_start_instance_path, :method => :put, :confirm => "Are you sure?"
+= link_to "Launch Another Instance", manager_start_worker_path, :method => :put, :confirm => "Are you sure?"
