@@ -39,10 +39,10 @@
                 %td= worker_health(w)
                 %td= w.latest_cpu_utilization.to_f.round(2)
                 %td
-                  - if safe_to_stop?(w)
+                  - if w.safe_to_stop?
                     = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), :data => {:method => :delete, :confirm => "Are you sure?"}
                     |
-                  - if safe_to_terminate?(w)
+                  - if w.safe_to_terminate?
                     = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), :data => {:method => :delete, :confirm => "Are you sure?"}
 
     = link_to "Launch Another Instance", manager_start_worker_path, :data => {:method => :put, :confirm => "Are you sure?"}

@@ -1,4 +1,6 @@
 class Manager::WorkersController < ManagerController
+  skip_before_filter :authenticate
+
   def index
     @elb = elb
     @workers = @elb.workers # Worker.all

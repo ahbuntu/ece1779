@@ -1,5 +1,6 @@
 class ManagerController < ApplicationController
-
+  skip_before_filter :authenticate
+  
   def start_worker
     worker = Worker.launch_worker
     elb.register_instance(worker.instance.id)
