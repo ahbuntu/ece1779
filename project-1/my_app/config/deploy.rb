@@ -81,6 +81,9 @@ namespace :deploy do
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       invoke 'puma:restart'
+      # execute "sudo restart sidekiq app=/var/www/my_app/current index=0"
+      # execute "sudo restart sidekiq app=/var/www/my_app/current index=1"
+      execute "sudo restart sidekiq-manager"
     end
   end
 
