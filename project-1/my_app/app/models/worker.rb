@@ -6,7 +6,7 @@ class Worker
 
   attr_reader :instance
 
-  AMI_IMAGE_ID="ami-3899d250" # name: "ece1779-puma-001"
+  AMI_IMAGE_ID="ami-fcca9e94" # name: "ece1779-puma-002"
 
   def self.all
     instances_for_ami_id(AMI_IMAGE_ID).map do |i|
