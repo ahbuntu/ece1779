@@ -102,6 +102,18 @@ class Worker
     instance.terminate
   end
 
+  # TODO: Dave to review [move this to the model layer. This isn't exactly "safe"]
+  def safe_to_stop?
+    workers = Elb.instance.workers
+    can_stop? && workers.select{|w| w.running?}.size >= 2
+  end
+
+  # TODO: Dave to review [move this to the model layer. This isn't exactly "safe"]
+  def safe_to_terminate?
+    workers = Elb.instance.workers
+    can_terminate? && workers.select{|w| w.running?}.size >= 2
+  end
+
   private
 
   def cpu_metric

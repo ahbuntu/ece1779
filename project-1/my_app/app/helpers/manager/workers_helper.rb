@@ -19,13 +19,4 @@ module Manager::WorkersHelper
     end
   end
 
-  # TODO: move this to the model layer. This isn't exactly "safe"
-  def safe_to_stop?(worker)
-    worker.can_stop? && @workers.select{|w| w.running?}.size >= 2
-  end
-
-  # TODO: move this to the model layer. This isn't exactly "safe"
-  def safe_to_terminate?(worker)
-    worker.can_terminate? && @workers.select{|w| w.running?}.size >= 2
-  end
 end
