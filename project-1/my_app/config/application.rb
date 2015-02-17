@@ -24,3 +24,9 @@ module MyApp
     config.active_record.raise_in_transactional_callbacks = true
   end
 end
+
+# Important for mysql to work
+if defined? JRUBY_VERSION
+  require 'jdbc/mysql'
+  Jdbc::MySQL.load_driver
+end

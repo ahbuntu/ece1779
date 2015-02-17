@@ -14,14 +14,14 @@
 ActiveRecord::Schema.define(version: 20150208195738) do
 
   create_table "images", force: :cascade do |t|
-    t.integer "userId"
+    t.integer "userId",            limit: 11
     t.string  "key1",              limit: 255
     t.string  "key2",              limit: 255
     t.string  "key3",              limit: 255
     t.string  "key4",              limit: 255
     t.string  "original_filename", limit: 255
-    t.string  "uuid",              limit: 255
-    t.string  "extension",         limit: 255
+    t.string  "uuid",              limit: 36
+    t.string  "extension",         limit: 10
   end
 
   create_table "users", force: :cascade do |t|

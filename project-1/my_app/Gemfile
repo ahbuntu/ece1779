@@ -2,8 +2,6 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
-# Use jdbcsqlite3 as the database for Active Record
-gem 'activerecord-jdbcsqlite3-adapter'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -21,15 +19,19 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+# gem 'mysql2'
+gem 'activerecord-jdbc-adapter'
+gem 'jdbc-mysql'
+
+# SQLite support
+# Use jdbcsqlite3 as the database for Active Record
+# gem 'activerecord-jdbcsqlite3-adapter'
+
 gem 'warbler'
 gem 'haml'
 gem 'haml-rails'
 gem 'mini_magick'
 gem 'aws-sdk', '< 2'
-
-# gem 'mysql2'
-gem 'activerecord-jdbc-adapter'
-gem 'jdbc-mysql'
 
 # Twitter Bootstrap
 gem "less-rails" #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
@@ -50,6 +52,7 @@ gem 'foreman'
 gem 'uuid'
 
 group :development, :test do
+
   # gem 'puma',               require: false
   gem 'capistrano',         require: false
   gem 'capistrano-rbenv',   require: false
