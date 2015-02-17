@@ -21,7 +21,7 @@ class TransformImageWorker
     # thumb.path #prints the path of the copied image
 
     # Upload to S3
-    thumb_key = Image.s3_key_for_thumb(key)
+    thumb_key = image.s3_key_for_thumb(key)
     object = Image.s3_object_for_key(thumb_key)
     object.write(:file => thumb.path)
 
