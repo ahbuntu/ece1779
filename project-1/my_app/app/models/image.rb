@@ -1,6 +1,5 @@
 class Image < ActiveRecord::Base
 
-  S3_BUCKET_NAME = 'ece1779'
   FAKE_UPLOADS = false # for testing
 
   belongs_to :user, foreign_key: "userId"
@@ -54,8 +53,12 @@ class Image < ActiveRecord::Base
     s3_key("original#{extension}")
   end
 
+  def self.s3_bucket_name
+    YAML.load(File.read('config/aws.yml'))[Rails.env.to_s]["bucket"]
+  end
+
   def self.s3_bucket
-    @bucket ||= AWS::S3.new.buckets[Image::S3_BUCKET_NAME]
+    @bucket ||= AWS::S3.new.buckets[Image.s3_bucket_name]
   end
 
   def self.s3_object_for_key(key)
