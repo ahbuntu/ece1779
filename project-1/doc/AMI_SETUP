@@ -78,6 +78,16 @@ mkdir -p /var/www/my_app/shared/pids
 # TODO: install sidekiq scrips in ./deploy/production/... into AWS with Capistrano
 # Otherwise, copy the sidekiq scripts from ./deploy/production/... onto the server manually
 
+# enable non-root control of sidekiq upstart
+# (from: https://gist.github.com/mitio/6320725)
+#
+# Add this to your /etc/sudoers file in order to allow the user
+# # www-data to control the Sidekiq worker daemon via Upstart:
+# #
+# #   www-data ALL = (root) NOPASSWD: /sbin/start sidekiq, /sbin/stop sidekiq, /sbin/status sidekiq
+#
+# NOTE: change www-data to 'ubuntu' (or whatever user is deploying)
+
 # Start the sidekiq workers
 sudo start sidekiq-manager
 
