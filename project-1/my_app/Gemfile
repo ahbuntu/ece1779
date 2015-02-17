@@ -27,6 +27,10 @@ gem 'haml-rails'
 gem 'mini_magick'
 gem 'aws-sdk', '< 2'
 
+# gem 'mysql2'
+gem 'activerecord-jdbc-adapter'
+gem 'jdbc-mysql'
+
 # Twitter Bootstrap
 gem "less-rails" #Sprockets (what Rails 3.1 uses for its asset pipeline) supports LESS
 gem "twitter-bootstrap-rails"
