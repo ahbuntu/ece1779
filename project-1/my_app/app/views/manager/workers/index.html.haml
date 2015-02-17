@@ -47,3 +47,16 @@
 
     = link_to "Launch Another Instance", manager_start_worker_path, :data => {:method => :put, :confirm => "Are you sure?"}
 
+%h1 Image Stats
+%p
+  There are a total of
+  %strong= Image.s3_bucket.objects.count
+  objects (images, thumbnails) in the 
+  %strong #{Image.s3_bucket_name}
+  S3 bucket, across
+  %strong= Image.count
+  (database) images.
+%p
+  = link_to "Purge Images", manager_purge_images_path, :data => {:method => :post, :confirm => "Are you sure?"}
+
+

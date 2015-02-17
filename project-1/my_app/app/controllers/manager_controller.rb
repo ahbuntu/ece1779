@@ -12,6 +12,12 @@ class ManagerController < ApplicationController
     redirect_to manager_workers_path
   end
 
+  def purge_images
+    Image.delete_all
+    Image.s3_bucket.objects.delete_all
+    redirect_to manager_workers_path
+  end
+
   private
 
   def elb
