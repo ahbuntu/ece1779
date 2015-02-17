@@ -4,7 +4,7 @@
 > Boot an Ubuntu 14 LTS AMI instance...
 
 sudo apt-get update
-sudo apt-get install curl git-core nginx build-essential -y
+sudo apt-get install curl git-core nginx build-essential imagemagick -y
 
 # Install rbenv as 'root' user (system-wide)
 # From: https://gist.github.com/jnx/1256593
