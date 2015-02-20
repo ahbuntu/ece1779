@@ -1,0 +1,38 @@
+:javascript
+  $.ajax({
+      url: "/manager/worker_status",
+      cache: false,
+      success: function(html){
+        $("#worker-status").html(html);
+      }
+  });
+
+  $.ajax({
+      url: "/manager/elb_status",
+      cache: false,
+      success: function(html){
+        $("#elb-status").html(html);
+      }
+  });
+
+  $.ajax({
+      url: "/manager/image_stats",
+      cache: false,
+      success: function(html){
+        $("#image-stats").html(html);
+      }
+  });
+
+%h2 Load Balancer
+#elb-status
+  Loading...
+
+%hr
+%h2 Worker Pool
+#worker-status
+  Loading...
+
+%hr
+%h2 Image Stats
+#image-stats
+  Loading...
