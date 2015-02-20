@@ -40,7 +40,10 @@ class ManagerController < ApplicationController
   def auto_scale
     AutoScale.set_options(params[:cpu_grow_threshold], params[:cpu_shrink_threshold], 
       params[:ratio_grow_threshold], params[:ratio_shrink_threshold])
-  
+    AutoScale.set_values(params[:cpu_grow_val], params[:cpu_shrink_val], 
+      params[:ratio_grow_val], params[:ratio_shrink_val])
+
+    print AutoScale.grow_cpu_thresh
     respond_to do |format|
       format.js   {render :layout => false}
     end
