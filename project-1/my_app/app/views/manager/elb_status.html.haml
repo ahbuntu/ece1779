@@ -1,0 +1,17 @@
+- AWS.memoize do
+  - if !@elb.load_balancer.exists?
+    = link_to "Launch Load Balancer", manager_start_elb_path, data: {method: :post, confirm: "Are you sure?"}, class: "btn btn-success"
+    %p
+      %strong You must launch a load balancer before adding Workers.
+  - else
+    .container-fluid
+      .row
+        %table.table.table-striped
+          %thead
+            %tr
+              %th Name
+              %th URL
+          %tbody
+            %tr
+              %td= @elb.name
+              %td= link_to @elb.load_balancer.dns_name, @elb.url, :target => "_blank"

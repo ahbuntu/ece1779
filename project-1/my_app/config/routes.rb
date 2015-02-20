@@ -40,6 +40,11 @@ Rails.application.routes.draw do
     post   :start_elb # singleton
     put    :start_worker
     post   :purge_images
+
+    # AJAX stuff
+    get    :worker_status
+    get    :elb_status
+    get    :image_stats
   end
 
   # Example resource route with options:

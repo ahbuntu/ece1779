@@ -2,9 +2,6 @@ class Manager::WorkersController < ManagerController
   skip_before_filter :authenticate
 
   def index
-    @elb = elb
-    @workers = @elb.workers # Worker.all
-    @health = @elb.health
   end
 
   def stop_worker
@@ -29,12 +26,6 @@ class Manager::WorkersController < ManagerController
     elb.remove_instance(worker.instance.id)
 
     redirect_to manager_workers_path
-  end
-
-  private
-
-  def elb
-    @elb ||= Elb.instance
   end
 
 end

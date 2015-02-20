@@ -18,6 +18,25 @@ class ManagerController < ApplicationController
     redirect_to manager_workers_path
   end
 
+  def image_stats
+    @elb = elb
+    @workers = @elb.workers # Worker.all
+    @health = @elb.health
+    render :layout => false
+  end
+
+  def elb_status
+    @elb = elb
+    render :layout => false
+  end
+
+  def worker_status
+    @elb = elb
+    @workers = @elb.workers # Worker.all
+    @health = @elb.health
+    render :layout => false
+  end
+
   private
 
   def elb
