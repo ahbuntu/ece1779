@@ -29,24 +29,25 @@
         .navbar-collapse.collapse.navbar-responsive-collapse
           %ul.nav.navbar-nav
             %li= link_to "Users", "/users"
+            - if current_user
+              %li= link_to "My Images", user_images_path(current_user)
             %li= link_to "Manager", "/manager"
             - if logged_in?
-              %li= link_to "Log out", logout_path, method: "delete"
+              %li= link_to "Log out (#{current_user.login})", logout_path, method: "delete"
             - else
               %li= link_to "Log in", login_path
     .container
       .row
-        .col-sm-4
+        .col-lg-9
           = bootstrap_flash
           = yield
-        .col-sm-4
-        .col-sm-3
-          .well.sidebar-nav
-            %h3 Sidebar
-            %ul.nav.nav-list
-              %li.nav-header Sidebar
-              %li= link_to "Link 1", "/path1"
-              %li= link_to "Link 2", "/path2"
-              %li= link_to "Link 3", "/path3"
+        .col-lg-3
+          / .well.sidebar-nav
+          /   %h3 Sidebar
+          /   %ul.nav.nav-list
+          /     %li.nav-header Sidebar
+          /     %li= link_to "Link 1", "/path1"
+          /     %li= link_to "Link 2", "/path2"
+          /     %li= link_to "Link 3", "/path3"
       %footer
         / %p &copy; Company 2015

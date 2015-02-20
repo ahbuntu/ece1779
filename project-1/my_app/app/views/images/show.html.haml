@@ -1,9 +1,6 @@
 %p#notice= notice
 
-
-= link_to 'Edit', edit_user_image_path(current_user, @image)
-\|
-= link_to 'Back', user_images_path(current_user)
+%h3= "#{@image.original_filename} (ID: #{@image.id})"
 
 .thumbnail
   =link_to "#" do 
@@ -24,4 +21,6 @@
   =link_to "#" do 
     =image_tag(@key4_url, alt: "Third")
   .caption
-    %h3 Third  Transformation
+    %h3 Third Transformation
+
+= link_to 'Back to Images', user_images_path(current_user), class: "btn btn-info"

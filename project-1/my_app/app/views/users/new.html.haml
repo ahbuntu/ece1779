@@ -1,4 +1,4 @@
-%h1 New User
+%h3 New User
 
 = provide(:title, "Sign up")
 
@@ -12,19 +12,16 @@
         - @user.errors.full_messages.each do |message| 
           %li= message
 
-  .form_group
-    = f.label :login
-    .form_control
-      = f.text_field :login
+  .input-group
+    = f.label :login, class: "sr-only"
+    = f.text_field :login, class: "form-control", placeholder: "Login", autofocus: true
+    = f.label :password, class: "sr-only"
+    = f.text_field :password, class: "form-control", placeholder: "Password"
 
-  .form_group
-    = f.label :password
-    .form_control
-      = f.text_field :password
-
-  .btn.btn_primary
-    = f.submit "Create"
-
+  .form-group
+  .foo
+    = f.submit "Create", class: "btn btn-primary"
+%br
 Returning user? 
 = link_to('Log in', login_path)
 

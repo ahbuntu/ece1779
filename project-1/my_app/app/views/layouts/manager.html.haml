@@ -29,9 +29,10 @@
         .navbar-collapse.collapse.navbar-responsive-collapse
           %ul.nav.navbar-nav
             %li= link_to "Users", "/users"
+            %li= link_to "My Images", user_images_path(current_user)
             %li= link_to "Manager", "/manager"
             - if logged_in?
-              %li= link_to "Log out", logout_path, method: "delete"
+              %li= link_to "Log out (#{current_user.login})", logout_path, method: "delete"
             - else
               %li= link_to "Log in", login_path
     .container
@@ -41,11 +42,10 @@
           = yield
         .col-lg-3
           .well.sidebar-nav
-            %h3 Sidebar
+            %h3 Handy Links
             %ul.nav.nav-list
-              %li.nav-header Sidebar
+              / %li.nav-header Sidebar
+              %li= link_to 'Sidekiq Queue Monitor', sidekiq_web_path
               %li= link_to "AWS Console", "https://console.aws.amazon.com/ec2/v2/home?region=us-east-1", :target => "_blank"
-              %li= link_to 'Sidekiq', sidekiq_web_path
-              %li= link_to "Link 3", "/path3"
       %footer
         / %p &copy; Company 2015

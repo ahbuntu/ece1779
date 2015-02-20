@@ -1,8 +1,7 @@
 = provide(:title, "Upload image")
 
-
 = render 'form'
 
 %br
 %br
-= link_to 'Back', user_path(@current_user)
+= link_to 'Back to Images', user_images_path(current_user), class: "btn btn-info"

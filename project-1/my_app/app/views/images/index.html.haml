@@ -1,24 +1,27 @@
-%h2 Listing images
+%h1 My Images
 
-.row
-  %table.table.table-striped
-    %thead
-      %tr
-        %th ID
-        %th File name
-        %th
-        %th      
-    %tbody
-      - @images.each do |image|
-        %tr
-          %td.text-muted
-            = image.id
-          %td
-            = image.original_filename
-          %td= link_to 'Show',    user_image_path(current_user, image)
-          / %td= link_to 'Edit',    edit_user_image_path(current_user, image)
-          %td= link_to 'Destroy', user_image_path(current_user, image), :method => :delete, :data => { :confirm => 'Are you sure?' }
+%br
+= link_to(new_user_image_path(current_user), class: "btn btn-primary") do
+  %span.glyphicon.glyphicon-upload 
+  Upload an Image
 
-  %br
-
-  = link_to 'Upload New Image', new_user_image_path(current_user)
+- if @images.any?
+  .container-fluid
+    .row
+      %table.table.table-striped
+        %thead
+          %tr
+            %th ID
+            %th File name
+            %th Preview
+            %th Actions
+        %tbody
+          - @images.each do |image|
+            %tr
+              %td.text-muted
+                = link_to image.id, user_image_path(current_user, image)
+              %td
+                = link_to image.original_filename, user_image_path(current_user, image)
+              %td= link_to image_tag(thumbnail_for_image(image)), user_image_path(current_user, image)
+              / %td= link_to 'Edit',    edit_user_image_path(current_user, image)
+              %td= link_to 'Delete', user_image_path(current_user, image), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger"

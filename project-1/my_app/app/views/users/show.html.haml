@@ -1,17 +1,10 @@
 #notice
   = notice
 
-%p
-  %strong=  "Login: #{current_user.login}"
-
-%p
-  %strong= "Password: #{current_user.password} "
-
-
 %br
 = link_to(new_user_image_path(current_user), class: "btn btn-primary btn-block") do
   %span.glyphicon.glyphicon-upload 
-  Upload an image
+  Upload an Image
 %br
 = link_to(user_images_path(current_user), class: "btn btn-primary btn-block") do
   %span.glyphicon.glyphicon-picture
