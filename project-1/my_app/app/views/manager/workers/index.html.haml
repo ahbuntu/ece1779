@@ -36,3 +36,25 @@
 %h2 Image Stats
 #image-stats
   Loading...
+
+%hr
+%h3 Auto-Scaling: Configuration
+#form-autoscale
+  = form_tag manager_auto_scale_path, remote: true do
+    .checkbox
+      %label 
+        = check_box_tag 'cpu_grow_threshold', true, AutoScale.grow_cpu.present?
+        CPU threshold for growing the working pool
+    .checkbox
+      %label 
+        = check_box_tag 'cpu_shrink_threshold', true, AutoScale.shrink_cpu.present?
+        CPU threshold for shrinking the working pool
+    .checkbox
+      %label 
+        = check_box_tag 'ratio_grow_threshold', true, AutoScale.grow_ratio.present?
+        Ratio for growing the working pool
+    .checkbox
+      %label 
+        = check_box_tag 'ratio_shrink_threshold', true, AutoScale.shrink_ratio.present?
+        Ratio for shrinking the working pool
+    = submit_tag "Update",  class: "btn btn-info"

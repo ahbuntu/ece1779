@@ -45,6 +45,9 @@ Rails.application.routes.draw do
     get    :worker_status
     get    :elb_status
     get    :image_stats
+
+    # AWS Alarms
+    post   :auto_scale
   end
 
   # Example resource route with options:
