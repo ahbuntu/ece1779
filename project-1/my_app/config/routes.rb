@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     post   :start_elb # singleton
     put    :start_worker
     post   :purge_images
+    post   :auto_scale
   end
 
   # Example resource route with options:

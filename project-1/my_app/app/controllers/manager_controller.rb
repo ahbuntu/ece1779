@@ -18,6 +18,15 @@ class ManagerController < ApplicationController
     redirect_to manager_workers_path
   end
 
+  def auto_scale
+    AutoScale.set_options(params[:cpu_grow_threshold], params[:cpu_shrink_threshold], 
+      params[:ratio_grow_threshold], params[:ratio_shrink_threshold])
+  
+    respond_to do |format|
+      format.js   {render :layout => false}
+    end
+  end
+
   private
 
   def elb
