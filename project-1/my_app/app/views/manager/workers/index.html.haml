@@ -1,10 +1,10 @@
 - AWS.memoize do
+  %h1 Load Balancer
   - if !@elb.load_balancer.exists?
-    = link_to "Launch Load Balancer", manager_start_elb_path, :data => {:method => :post, :confirm => "Are you sure?"}
+    = link_to "Launch Load Balancer", manager_start_elb_path, data: {method: :post, confirm: "Are you sure?"}, class: "btn btn-success"
     %p
       %strong You must first launch an ELB before adding workers.
   - else
-    %h1 Load Balancer
     .row
       %table.table.table-striped
         %thead
@@ -40,12 +40,12 @@
                 %td= w.latest_cpu_utilization.to_f.round(2)
                 %td
                   - if w.safe_to_stop?
-                    = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), :data => {:method => :delete, :confirm => "Are you sure?"}
+                    = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
                     |
                   - if w.safe_to_terminate?
-                    = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), :data => {:method => :delete, :confirm => "Are you sure?"}
+                    = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
 
-    = link_to "Launch Another Instance", manager_start_worker_path, :data => {:method => :put, :confirm => "Are you sure?"}
+    = link_to "Launch Another Instance", manager_start_worker_path, data: {method: :put, confirm: "Are you sure?"}, class: "btn btn-info"
 
 %h1 Image Stats
 %p
@@ -57,6 +57,6 @@
   %strong= Image.count
   (database) images.
 %p
-  = link_to "Purge Images", manager_purge_images_path, :data => {:method => :post, :confirm => "Are you sure?"}
+  = link_to "Purge Images", manager_purge_images_path, data: {method: :post, confirm: "This will delete all original images and associated transformations. Are you sure?"}, class: "btn btn-danger"
 
 
