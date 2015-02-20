@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
     if user.present?
       # Log the user in and redirect to the user's show page.
       log_in(user)
-      redirect_to user
+      redirect_to user_images_path(user)
     else 
       # Create an error message.
       flash.now[:danger] = 'Incorrect login/password combination'

@@ -1,49 +1,51 @@
 - AWS.memoize do
-  %h1 Load Balancer
+  %h2 Load Balancer
   - if !@elb.load_balancer.exists?
     = link_to "Launch Load Balancer", manager_start_elb_path, data: {method: :post, confirm: "Are you sure?"}, class: "btn btn-success"
     %p
       %strong You must first launch an ELB before adding workers.
   - else
-    .row
-      %table.table.table-striped
-        %thead
-          %tr
-            %th Name
-            %th URL
-        %tbody
-          %tr
-            %td= @elb.name
-            %td= link_to @elb.load_balancer.dns_name, @elb.url, :target => "_blank"
-
-    %h1 Worker Pool
-    .row
-      %table.table.table-striped
-        %thead
-          %tr
-            %th Name
-            %th IP
-            %th Hostname
-            %th Status
-            %th ELB Health
-            %th CPU %
-            %th Actions
-        %tbody
-          - @workers.each do |w|
-            - AWS.memoize do
-              %tr
-                %td= w.instance.id
-                %td= worker_public_ip(w)
-                %td= worker_public_dns(w)
-                %td= w.status
-                %td= worker_health(w)
-                %td= w.latest_cpu_utilization.to_f.round(2)
-                %td
-                  - if w.safe_to_stop?
-                    = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
-                    |
-                  - if w.safe_to_terminate?
-                    = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
+    .container-fluid
+      .row
+        %table.table.table-striped
+          %thead
+            %tr
+              %th Name
+              %th URL
+          %tbody
+            %tr
+              %td= @elb.name
+              %td= link_to @elb.load_balancer.dns_name, @elb.url, :target => "_blank"
+    %hr
+    %h2 Worker Pool
+    .container-fluid
+      .row
+        %table.table.table-striped
+          %thead
+            %tr
+              %th Name
+              %th IP
+              %th Hostname
+              %th Status
+              %th ELB Health
+              %th CPU %
+              %th Actions
+          %tbody
+            - @workers.each do |w|
+              - AWS.memoize do
+                %tr
+                  %td= w.instance.id
+                  %td= worker_public_ip(w)
+                  %td= worker_public_dns(w)
+                  %td= w.status
+                  %td= worker_health(w)
+                  %td= w.latest_cpu_utilization.to_f.round(2)
+                  %td
+                    - if w.safe_to_stop?
+                      = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
+                      |
+                    - if w.safe_to_terminate?
+                      = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure?"}, class: "btn btn-danger"
 
     = link_to "Launch Another Instance", manager_start_worker_path, data: {method: :put, confirm: "Are you sure?"}, class: "btn btn-info"
 
@@ -69,15 +71,17 @@
             Ratio for shrinking the working pool
         = submit_tag "Update",  class: "btn btn-info"
 
-/ %h1 Image Stats
-/ %p
-/   There are a total of
-/   %strong= Image.s3_bucket.objects.count
-/   objects (images, thumbnails) in the 
-/   %strong #{Image.s3_bucket_name}
-/   S3 bucket, across
-/   %strong= Image.count
-/   (database) images.
-/ %p
-/   = link_to "Purge Images", manager_purge_images_path, data: {method: :post, confirm: "This will delete all original images and associated transformations. Are you sure?"}, class: "btn btn-danger"
+%hr
+%h2 Image Stats
+%p
+  There are a total of
+  %strong= Image.s3_bucket.objects.count
+  objects (images, thumbnails) in the 
+  %strong #{Image.s3_bucket_name}
+  S3 bucket, across
+  %strong= Image.count
+  (database) images.
+%p
+  = link_to "Purge Images", manager_purge_images_path, data: {method: :post, confirm: "This will delete all original images and associated transformations. Are you sure?"}, class: "btn btn-danger"
+
 

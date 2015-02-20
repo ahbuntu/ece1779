@@ -1,5 +1,3 @@
-
-
 = form_for @image, :url => user_images_path(@current_user), :html => {class: "form-signin"} do |f|
   - if @image.errors.any?
     #error_explanation
@@ -7,14 +5,13 @@
       %ul
         - @image.errors.full_messages.each do |msg|
           %li= msg
-  %h3.form-signin-heading New Image
-  %br
+  %h3.form-signin-heading Upload An Image
+  %p.help-block Select an image to upload
   .form_group
     = hidden_field_tag 'userID', params[:user_id]
     = f.file_field :theFile
   %br
-  %p.help-block Select an image to upload
   
   .form_group
-    = f.button 'Save', class: "btn btn-primary btn-sm btn-block"
+    = f.button 'Save', class: "btn btn-primary"
   

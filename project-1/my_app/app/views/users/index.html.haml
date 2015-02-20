@@ -3,22 +3,19 @@
 #notice
   = notice
 
-
-.row
-  %table.table.table-striped
-    %thead
-      %tr
-        %th Login
-        %th Password
-        %th{:colspan => 3}
-    %tbody
-      - @users.each do |user|
+.container-fluid
+  .row
+    %table.table.table-striped
+      %thead
         %tr
-          %td= user.login
-          %td= user.password
-          %td= link_to 'Show', user
-          %td= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' }
-          %td= link_to 'Upload', user
-
-
-= link_to 'New user', new_user_path
+          %th User ID
+          %th Login
+          %th Password
+          %th # Images
+      %tbody
+        - @users.each do |user|
+          %tr
+            %td= user.id
+            %td= user.login
+            %td= user.password
+            %td= user.images.count

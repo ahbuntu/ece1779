@@ -1,8 +1,8 @@
 
-= provide(:title, "Log in")
+= provide(:title, "Log In")
 
 = form_for(:session, url: login_path, :html => {class: "form-signin"}) do |f|
-  %h3.form-signin-heading Please sign in
+  %h3.form-signin-heading Please Log In
   
   .input-group
     = f.label :login, class: "sr-only"
@@ -11,8 +11,8 @@
     = f.text_field :password, class: "form-control", placeholder: "Password"
   .form-group
   .form-group
-    = f.button "Login", class: "btn btn-primary btn-block"
+    = f.button "Log In", class: "btn btn-primary"
 
 %br
-  New user? 
-  = link_to('Sign up now', new_user_path)
+New user? 
+= link_to('Sign up now', new_user_path)
