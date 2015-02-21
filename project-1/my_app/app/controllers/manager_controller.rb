@@ -68,7 +68,7 @@ class ManagerController < ApplicationController
     end
 
     if amz_message_type.to_s.downcase == 'notification'
-      #DO WORK HERE
+      #TODO: implement auto-scaling logic based on alarm and auto-scale config
       #do_work request_body
     end
     render :layout => false
