@@ -1,5 +1,6 @@
 class ManagerController < ApplicationController
   skip_before_filter :authenticate
+  protect_from_forgery :except => :aws_alarm
   
   def start_worker
     worker = Worker.launch_worker
