@@ -6,7 +6,7 @@ class Manager::WorkersController < ManagerController
 
   def stop_worker
     instance_id = params[:worker_id]
-    worker = Worker.with_id(instance.id)
+    worker = Worker.with_id(instance_id)
     raise "Worker cannot be stopped" unless worker.can_stop?
 
     worker.stop!
@@ -18,7 +18,7 @@ class Manager::WorkersController < ManagerController
 
   def terminate_worker
     instance_id = params[:worker_id]
-    worker = Worker.with_id(instance.id)
+    worker = Worker.with_id(instance_id)
     raise "Worker cannot be stopped" unless worker.can_terminate?
 
     worker.terminate!
