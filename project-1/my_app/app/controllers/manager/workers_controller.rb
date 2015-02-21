@@ -12,7 +12,7 @@ class Manager::WorkersController < ManagerController
     worker.stop!
     elb.deregister_instance(worker.instance.id)
     elb.remove_instance(worker.instance.id)
-
+    
     redirect_to manager_workers_path
   end
 
