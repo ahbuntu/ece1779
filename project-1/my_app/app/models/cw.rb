@@ -36,6 +36,10 @@ class CW
     end
   end
 
+  def cw
+    CW.cw
+  end
+
   def delete_alarm(i)
     alarm = cw.alarms.delete(alarm_name(i))
   end
