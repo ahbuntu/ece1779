@@ -29,6 +29,9 @@
 
 %hr
 %h2 Worker Pool
+/TODO: investigate why this isn't working
+= form_tag manager_worker_status_path, method: 'get', remote: true do
+  = button_tag "Refresh", class: "btn btn-default"
 #worker-status
   Loading...
 

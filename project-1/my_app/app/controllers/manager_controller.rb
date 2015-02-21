@@ -5,7 +5,17 @@ class ManagerController < ApplicationController
   def start_worker
     worker = Worker.launch_worker
     elb.register_instance(worker.instance.id)
-    CW.create_alarm(worker.instance.id)
+
+    ## this entire block needs to happen ONLY after the instace gets a public IP - so not here. but where?
+    # current_workers = Elb.instance.workers
+    # if current_workers.size == 1
+    #   current_workers.each do |w|
+    #     # this should be called only once and only for the very first instance in the ELB (i.e. the master)
+    #     SNS.create_topic_subscription(w)
+    #   end
+    # end
+    # CW.create_alarm(worker.instance.id)
+
     redirect_to manager_workers_path
   end
 
