@@ -54,6 +54,9 @@ gem 'foreman'
 
 gem 'uuid'
 
+# https://github.com/jnunemaker/httparty
+gem 'httparty'
+
 group :development, :test do
 
   # gem 'puma',               require: false

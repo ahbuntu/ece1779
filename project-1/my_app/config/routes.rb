@@ -48,6 +48,7 @@ Rails.application.routes.draw do
 
     # AWS Alarms
     post   :auto_scale
+    post   :aws_alarm
   end
 
   # Example resource route with options:

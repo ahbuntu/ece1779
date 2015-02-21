@@ -49,10 +49,42 @@ class ManagerController < ApplicationController
     end
   end
 
+  def aws_alarm
+    # taken from: http://tech.xogroupinc.com/post/79166302844/creating-sns-subscription-endpoints-with-ruby-on
+    
+    # get amazon message type and topic
+    amz_message_type = request.headers['x-amz-sns-message-type']
+    amz_sns_topic = request.headers['x-amz-sns-topic-arn']
+
+    return unless !amz_sns_topic.nil? &&
+      amz_sns_topic.to_s.downcase ==  'arn:aws:sns:us-east-1:460932295327:cpu_threshold'
+
+    request_body = JSON.parse request.body.read
+
+    # if this is the first time confirmation of subscription, then confirm it
+    if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
+        send_subscription_confirmation request.body
+        return
+    end
+
+    if amz_message_type.to_s.downcase == 'notification'
+      #DO WORK HERE
+      #do_work request_body
+    end
+    render :layout => false
+  end
+
+
   private
 
   def elb
     @elb ||= Elb.instance
   end
+
+  def send_subscription_confirmation(request_body)
+    subscribe_url = request_body['SubscribeURL']
+    return nil unless !subscribe_url.to_s.empty? && !subscribe_url.nil?
+    subscribe_confirm = HTTParty.get subscribe_url
+end
 
 end
