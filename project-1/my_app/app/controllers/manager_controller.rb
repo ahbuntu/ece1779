@@ -4,6 +4,7 @@ class ManagerController < ApplicationController
   def start_worker
     worker = Worker.launch_worker
     elb.register_instance(worker.instance.id)
+    CW.create_alarm(worker.instance.id)
     redirect_to manager_workers_path
   end
 
@@ -43,7 +44,6 @@ class ManagerController < ApplicationController
     AutoScale.set_values(params[:cpu_grow_val], params[:cpu_shrink_val], 
       params[:ratio_grow_val], params[:ratio_shrink_val])
 
-    print AutoScale.grow_cpu_thresh
     respond_to do |format|
       format.js   {render :layout => false}
     end

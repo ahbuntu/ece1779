@@ -24,6 +24,7 @@ class Manager::WorkersController < ManagerController
     worker.terminate!
     elb.deregister_instance(worker.instance.id)
     elb.remove_instance(worker.instance.id)
+    cw.delete_alarm(worker.instance.id)
 
     redirect_to manager_workers_path
   end
