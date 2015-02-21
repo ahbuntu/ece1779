@@ -75,7 +75,6 @@ class ManagerController < ApplicationController
     render :layout => false
   end
 
-
   private
 
   def elb
@@ -86,6 +85,6 @@ class ManagerController < ApplicationController
     subscribe_url = request_body['SubscribeURL']
     return nil unless !subscribe_url.to_s.empty? && !subscribe_url.nil?
     subscribe_confirm = HTTParty.get subscribe_url
-end
+  end
 
 end
