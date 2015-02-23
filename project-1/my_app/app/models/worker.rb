@@ -32,6 +32,7 @@ class Worker
       :count           => 1, 
       :security_groups => security_group, 
       :key_pair        => key_pair)
+
     Rails.logger.info "Launching instance #{instance.id}"
     Worker.new(instance)
   end
@@ -61,6 +62,8 @@ class Worker
 
   def initialize(instance)
     @instance = instance
+    create_alarms!
+    instance
   end
 
   def latest_cpu_utilization
