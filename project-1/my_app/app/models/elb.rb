@@ -43,7 +43,6 @@ class Elb
   end
 
   def workers
-    Rails.logger.info("workers")
     workers = AWS.memoize do
       load_balancer.instances.map do |i|
         Worker.new(i)
@@ -51,20 +50,52 @@ class Elb
     end rescue []
   end
 
+  def master_worker
+    @master_worker
+  end
+
+  def master_worker=(value)
+    return value if @master_worker == value
+
+    # Initialize and point SNS subscriptions to master_worker
+    SNS.instance.unsubscribe_all_topics!
+
+    @master_worker = value
+    if @master_worker.present?
+      ip_address = @master_worker.instance.public_ip_address
+      raise "No public IP address for instance #{@master_worker.instance.id}" unless ip_address.present?
+      SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(ip_address))
+    end
+
+    @master_worker
+  end
+
   def configured?
     Elb.load_balancer.present?
   end
 
-  def register_instance(i)
-    load_balancer.instances.register(i)
+  def register_worker(w)
+    retval = load_balancer.instances.register(w.instance.id)
+    if master_worker.nil?
+      master_worker = w # handles initialization
+    end
+    retval
   end
 
-  def deregister_instance(i)
-    load_balancer.instances.deregister(i)
+  def deregister_worker(w)
+    retval = load_balancer.instances.deregister(w.instance.id)
+    if master_worker == w
+      master_worker = workers.first
+    end
+    retval
   end
 
-  def remove_instance(i)
-    load_balancer.instances.remove(i)
+  def remove_worker(w)
+    retval = load_balancer.instances.remove(w.instance.id)
+    if master_worker == w
+      master_worker = workers.first
+    end
+    retval
   end
 
   def name
@@ -77,7 +108,6 @@ class Elb
 
   # returns health status in a hash keyed by instance_id
   def health
-    Rails.logger.info("health")
     health = AWS.memoize do
       load_balancer.instances.health.inject({}) do |h,i|
         instance = i[:instance]

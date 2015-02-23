@@ -10,8 +10,8 @@ class Manager::WorkersController < ManagerController
     raise "Worker cannot be stopped" unless worker.can_stop?
 
     worker.stop!
-    elb.deregister_instance(worker.instance.id)
-    elb.remove_instance(worker.instance.id)
+    elb.deregister_worker(worker)
+    elb.remove_worker(worker)
     
     redirect_to manager_workers_path
   end
@@ -22,8 +22,8 @@ class Manager::WorkersController < ManagerController
     raise "Worker cannot be stopped" unless worker.can_terminate?
 
     worker.terminate!
-    elb.deregister_instance(worker.instance.id)
-    elb.remove_instance(worker.instance.id)
+    elb.deregister_worker(worker)
+    elb.remove_worker(worker)
     cw.delete_alarm(worker.instance.id)
 
     redirect_to manager_workers_path

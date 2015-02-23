@@ -4,7 +4,7 @@ class ManagerController < ApplicationController
   
   def start_worker
     worker = Worker.launch_worker
-    elb.register_instance(worker.instance.id)
+    elb.register_worker(worker)
 
     ## this entire block needs to happen ONLY after the instace gets a public IP - so not here. but where?
     # current_workers = Elb.instance.workers
@@ -67,22 +67,27 @@ class ManagerController < ApplicationController
     amz_message_type = request.headers['x-amz-sns-message-type']
     amz_sns_topic = request.headers['x-amz-sns-topic-arn']
 
-    return unless !amz_sns_topic.nil? &&
-      amz_sns_topic.to_s.downcase ==  'arn:aws:sns:us-east-1:460932295327:cpu_threshold'
+    # return unless !amz_sns_topic.nil? &&
+    #   amz_sns_topic.to_s.downcase ==  'arn:aws:sns:us-east-1:460932295327:cpu_threshold'
+
+    return unless amz_sns_topic.present?
+    Rails.logger.info "[AWS ALARM] Received for topic #{amz_sns_topic} (type: #{amz_message_type})"
 
     request_body = JSON.parse request.body.read
 
     # if this is the first time confirmation of subscription, then confirm it
     if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
-        send_subscription_confirmation request.body
-        return
+      send_subscription_confirmation request.body
+      head status: :accepted and return
+      # render :layout => false and return
     end
 
     if amz_message_type.to_s.downcase == 'notification'
       #TODO: implement auto-scaling logic based on alarm and auto-scale config
       #do_work request_body
     end
-    render :layout => false
+    head status: :accepted
+    # render :layout => false
   end
 
   private

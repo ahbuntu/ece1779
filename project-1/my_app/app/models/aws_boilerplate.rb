@@ -33,8 +33,8 @@ module AwsBoilerplate
       end
     end
 
-    def cloudwatch
-      @cloudwatch ||= AWS::CloudWatch::Client.new(region: default_availability_zone)
+    def cloudwatch_client
+      @cloudwatch_client ||= AWS::CloudWatch::Client.new(region: default_availability_zone)
     end
   end
 end

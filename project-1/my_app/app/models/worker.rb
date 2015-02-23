@@ -116,6 +116,13 @@ class Worker
 
   private
 
+  def create_alarms!
+    cw = Cloudwatch.instance
+    high_cpu = cw.create_high_cpu_alarm(instance.id, 85)
+    low_cpu  = cw.create_low_cpu_alarm(instance.id, 15)
+    [high_cpu, low_cpu]
+  end
+
   def cpu_metric
     @metric ||= AWS::CloudWatch::Metric.new( 'AWS/EC2', 'CPUUtilization', :dimensions => [{:name => "InstanceId", :value => instance.id}])
   end
