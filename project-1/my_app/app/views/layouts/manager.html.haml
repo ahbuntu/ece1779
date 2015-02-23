@@ -29,7 +29,8 @@
         .navbar-collapse.collapse.navbar-responsive-collapse
           %ul.nav.navbar-nav
             %li= link_to "Users", "/users"
-            %li= link_to "My Images", user_images_path(current_user)
+            - if current_user
+              %li= link_to "My Images", user_images_path(current_user)
             %li= link_to "Manager", "/manager"
             - if logged_in?
               %li= link_to "Log out (#{current_user.login})", logout_path, method: "delete"
