@@ -88,6 +88,8 @@ class ManagerController < ApplicationController
     if amz_message_type.to_s.downcase == 'notification'
       #TODO: implement auto-scaling logic based on alarm and auto-scale config
       #do_work request_body
+
+      rebalance_cluster
     end
     head status: :accepted
   end
@@ -106,6 +108,40 @@ class ManagerController < ApplicationController
     subscribe_url = request_body['SubscribeURL']
     return nil unless !subscribe_url.to_s.empty? && !subscribe_url.nil?
     subscribe_confirm = HTTParty.get subscribe_url
+  end
+
+  ###
+  # TODO: move this into a service
+
+  # Also, do we care about serializing all this on a single thread? There's
+  # a small chance of a race condition if 2+ notifications come in at the same
+  # time.
+  def rebalance_cluster
+    if @@cooldown_until.present? && @@cooldown_until > Time.now
+      Rails.logger.info "[rebalance_cluster] Still cooling down (until #{@cooldown_until})..."
+      return
+    end
+
+    workers = Worker.all
+    cpu = workers.map(&:latest_cpu_utilization)
+    return if cpu.size == 0
+    avg_cpu = cpu.sum.to_f / cpu.count
+
+    if avg_cpu > AutoScale.grow_cpu_thresh.to_f
+      grow_cluster
+    elsif avg_cpu < AutoScale.shrink_cpu_thresh.to_f
+      shrink_cluster
+    end
+  end
+
+  def grow_cluster
+    @@cooldown_until = 300.seconds.from_now
+    # Do some stuff
+  end
+
+  def shrink_cluster
+    @@cooldown_until = 300.seconds.from_now
+    # Do some stuff
   end
 
 end
