@@ -62,6 +62,7 @@ class ManagerController < ApplicationController
     end
   end
 
+  # TODO: this could use some security since anything can POST to it...
   def aws_alarm
     # taken from: http://tech.xogroupinc.com/post/79166302844/creating-sns-subscription-endpoints-with-ruby-on
     
@@ -82,7 +83,6 @@ class ManagerController < ApplicationController
     if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
       send_subscription_confirmation request_body
       head status: :accepted and return
-      # render :layout => false and return
     end
 
     if amz_message_type.to_s.downcase == 'notification'
@@ -90,7 +90,6 @@ class ManagerController < ApplicationController
       #do_work request_body
     end
     head status: :accepted
-    # render :layout => false
   end
 
   private
