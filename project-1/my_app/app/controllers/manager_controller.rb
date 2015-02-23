@@ -76,6 +76,7 @@ class ManagerController < ApplicationController
     Rails.logger.info "[AWS ALARM] Received for topic #{amz_sns_topic} (type: #{amz_message_type})"
 
     request_body = JSON.parse request.body.read
+    Rails.logger.info "[AWS ALARM] Request body: #{request_body}"
 
     # if this is the first time confirmation of subscription, then confirm it
     if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
