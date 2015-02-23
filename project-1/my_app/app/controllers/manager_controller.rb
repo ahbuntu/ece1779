@@ -1,3 +1,5 @@
+require 'httparty'
+
 class ManagerController < ApplicationController
   skip_before_filter :authenticate
   protect_from_forgery :except => :aws_alarm
@@ -77,7 +79,7 @@ class ManagerController < ApplicationController
 
     # if this is the first time confirmation of subscription, then confirm it
     if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
-      send_subscription_confirmation request.body
+      send_subscription_confirmation request_body
       head status: :accepted and return
       # render :layout => false and return
     end
