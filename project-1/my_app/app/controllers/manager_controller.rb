@@ -52,8 +52,6 @@ class ManagerController < ApplicationController
   end
 
   def auto_scale
-    growth_thresh = [params[:cpu_grow_val], params[:cpu_shrink_val]].map(&:to_f).max
-
     wants_to_enable = params[:enable_autoscale].to_i == 1
 
     AutoScale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
