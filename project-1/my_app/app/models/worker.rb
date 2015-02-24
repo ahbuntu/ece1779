@@ -34,7 +34,9 @@ class Worker
       :key_pair        => key_pair)
 
     Rails.logger.info "Launching instance #{instance.id}"
-    Worker.new(instance)
+    w = Worker.new(instance)
+    w.create_alarms!
+    w
   end
 
   def self.security_group
@@ -62,7 +64,6 @@ class Worker
 
   def initialize(instance)
     @instance = instance
-    create_alarms!
     instance
   end
 
@@ -117,14 +118,14 @@ class Worker
     can_terminate? && workers.select{|w| w.running?}.size >= 2
   end
 
-  private
-
   def create_alarms!
     cw = Cloudwatch.instance
     high_cpu = cw.create_high_cpu_alarm(instance.id, 85)
     low_cpu  = cw.create_low_cpu_alarm(instance.id, 15)
     [high_cpu, low_cpu]
   end
+
+  private
 
   def cpu_metric
     @metric ||= AWS::CloudWatch::Metric.new( 'AWS/EC2', 'CPUUtilization', :dimensions => [{:name => "InstanceId", :value => instance.id}])
