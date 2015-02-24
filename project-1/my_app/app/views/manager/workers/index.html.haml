@@ -23,6 +23,9 @@
       }
   });
 
+
+
+
 %h2 Load Balancer
 #elb-status
   Loading...
@@ -44,29 +47,22 @@
 %h3 Auto-Scaling: Configuration
 #form-autoscale
   = form_tag manager_auto_scale_path, remote: true do
-    .form-group.col-xs-12
-      .checkbox
-        %label 
-          = check_box_tag 'cpu_grow_threshold', true, AutoScale.is_grow_cpu.present?
-          CPU threshold for growing the working pool
-      = text_field_tag 'cpu_grow_val', AutoScale.grow_cpu_thresh
-    .form-group.col-xs-12
-      .checkbox
-        %label 
-          = check_box_tag 'cpu_shrink_threshold', true, AutoScale.is_shrink_cpu.present?
-          CPU threshold for shrinking the working pool
-      = text_field_tag 'cpu_shrink_val', AutoScale.shrink_cpu_thresh
-    .form-group.col-xs-12
-      .checkbox
-        %label 
-          = check_box_tag 'ratio_grow_threshold', true, AutoScale.is_grow_ratio.present?
-          Ratio for growing the working pool
-      = text_field_tag 'ratio_grow_val', AutoScale.grow_ratio_thresh
-    .form-group.col-xs-12
-      .checkbox
-        %label 
-          = check_box_tag 'ratio_shrink_threshold', true, AutoScale.is_shrink_ratio.present?
-          Ratio for shrinking the working pool
-      = text_field_tag 'ratio_shrink_val', AutoScale.shrink_ratio_thresh
-    .form-group.col-xs-12
-      = submit_tag "Update",  class: "btn btn-info"
+    .checkbox
+      %label 
+        = check_box_tag 'enable_autoscale', true, AutoScale.is_enabled?
+        Enable Auto-Scaling
+    #autoscale-config
+      .form-group
+        CPU threshold for growing the working pool
+        = text_field_tag 'cpu_grow_val', AutoScale.grow_cpu_thresh
+      .form-group
+        CPU threshold for shrinking the working pool
+        = text_field_tag 'cpu_shrink_val', AutoScale.shrink_cpu_thresh
+      .form-group
+        Ratio for growing the working pool
+        = text_field_tag 'ratio_grow_val', AutoScale.grow_ratio_thresh
+      .form-group
+        Ratio for shrinking the working pool
+        = text_field_tag 'ratio_shrink_val', AutoScale.shrink_ratio_thresh
+    .form-group
+      = submit_tag "Update",  class: "btn btn-info", id: "update"

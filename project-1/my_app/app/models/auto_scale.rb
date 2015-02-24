@@ -3,13 +3,13 @@ class AutoScale
   
   class << self
 
-    def set_options (grow_cpu_val, shrink_cpu_val, grow_ratio_val, shrink_ratio_val)
-      @grow_cpu = grow_cpu_val
-      @shrink_cpu = shrink_cpu_val
-      @grow_ratio = grow_ratio_val
-      @shrink_ratio = shrink_ratio_val
+    def set_state (state)
+      @auto_scale = state
     end
     
+    def is_enabled?
+      @auto_scale
+    end
 
     def set_values (grow_cpu_threshVal, shrink_cpu_threshVal, grow_ratio_threshVal, shrink_ratio_threshVal)
       @grow_cpu_thresh = grow_cpu_threshVal
@@ -20,19 +20,19 @@ class AutoScale
     
 
     def is_grow_cpu
-      @grow_cpu
+      grow_cpu_thresh.present?
     end
 
     def is_shrink_cpu
-      @shrink_cpu
+      @shrink_cpu_thresh.present?
     end
 
     def is_grow_ratio
-      @grow_ratio
+      @grow_ratio_thresh.present?
     end
 
     def is_shrink_ratio
-      @shrink_ratio
+      @shrink_ratio_thresh.present?
     end
 
     def grow_cpu_thresh

@@ -52,11 +52,13 @@ class ManagerController < ApplicationController
   end
 
   def auto_scale
-    AutoScale.set_options(params[:cpu_grow_threshold], params[:cpu_shrink_threshold], 
-      params[:ratio_grow_threshold], params[:ratio_shrink_threshold])
-    AutoScale.set_values(params[:cpu_grow_val], params[:cpu_shrink_val], 
-      params[:ratio_grow_val], params[:ratio_shrink_val])
-
+    AutoScale.set_state(params[:enable_autoscale])
+    if AutoScale.is_enabled?
+      AutoScale.set_values(params[:cpu_grow_val], params[:cpu_shrink_val], 
+        params[:ratio_grow_val], params[:ratio_shrink_val])
+    else 
+      AutoScale.set_values(nil,nil,nil,nil)
+    end
     respond_to do |format|
       format.js   {render :layout => false}
     end
