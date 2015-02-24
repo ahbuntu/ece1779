@@ -52,15 +52,25 @@ class ManagerController < ApplicationController
   end
 
   def auto_scale
-    AutoScale.set_state(params[:enable_autoscale])
-    if AutoScale.is_enabled?
-      AutoScale.set_values(params[:cpu_grow_val], params[:cpu_shrink_val], 
-        params[:ratio_grow_val], params[:ratio_shrink_val])
-    else 
-      AutoScale.set_values(nil,nil,nil,nil)
-    end
-    respond_to do |format|
-      format.js   {render :layout => false}
+    growth_thresh = [params[:cpu_grow_val], params[:cpu_shrink_val]].map(&:to_f).max
+
+    wants_to_enable = params[:enable_autoscale].to_i == 1
+
+    AutoScale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
+    AutoScale.shrink_cpu_thresh   = params[:cpu_shrink_val].to_f
+    AutoScale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
+    AutoScale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
+
+    AutoScale.enabled             = wants_to_enable && AutoScale.valid?
+
+    if wants_to_enable && !AutoScale.valid?
+      respond_to do |format|
+        format.js { render :js => "alert('Validation Error: #{AutoScale.errors.first}');", :status => 400 }
+      end
+    else
+      respond_to do |format|
+        format.js   {render :layout => false}
+      end
     end
   end
 

@@ -1,55 +1,36 @@
 class AutoScale
-  include Singleton
-  
+
+  cattr_accessor :grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh
+  cattr_accessor :enabled, :errors
+
   class << self
 
-    def set_state (state)
-      @auto_scale = state
-    end
-    
-    def is_enabled?
-      @auto_scale
-    end
-
-    def set_values (grow_cpu_threshVal, shrink_cpu_threshVal, grow_ratio_threshVal, shrink_ratio_threshVal)
-      @grow_cpu_thresh = grow_cpu_threshVal
-      @shrink_cpu_thresh = shrink_cpu_threshVal
-      @grow_ratio_thresh = grow_ratio_threshVal
-      @shrink_ratio_thresh = shrink_ratio_threshVal
-    end
-    
-
-    def is_grow_cpu
-      grow_cpu_thresh.present?
-    end
-
-    def is_shrink_cpu
-      @shrink_cpu_thresh.present?
-    end
-
-    def is_grow_ratio
-      @grow_ratio_thresh.present?
-    end
-
-    def is_shrink_ratio
-      @shrink_ratio_thresh.present?
+    def valid?
+      self.errors = []
+      self.errors << "Growth threshold must be > shrink threshold" unless self.grow_cpu_thresh > self.shrink_cpu_thresh
+      self.errors << "Growth threshold must be <= 100.0" unless self.grow_cpu_thresh <= 100.0
+      self.errors << "Shrink threshold must be >= 0" unless self.shrink_cpu_thresh >= 0.0
+      self.errors << "Growth ratio must be >= 1.0" unless self.grow_ratio_thresh >= 1.0
+      self.errors << "Shrink ratio must be <= 1.0" unless self.shrink_ratio_thresh <= 1.0
+      self.errors.empty?      
     end
 
     def grow_cpu_thresh
-      @grow_cpu_thresh
+      @@grow_cpu_thresh || 100.0
     end
 
     def shrink_cpu_thresh
-      @shrink_cpu_thresh
+      @@shrink_cpu_thresh || 0.0
     end
 
     def grow_ratio_thresh
-      @grow_ratio_thresh
+      @@grow_ratio_thresh || 1.0
     end
 
     def shrink_ratio_thresh
-      @shrink_ratio_thresh
+      @@shrink_ratio_thresh || 1.0
     end
+
   end
 
 end
