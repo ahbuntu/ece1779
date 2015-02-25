@@ -127,10 +127,6 @@ class ManagerController < ApplicationController
     @elb ||= Elb.instance
   end
 
-  def cw
-    @cw ||= CW.instance
-  end
-
   def send_subscription_confirmation(request_body)
     subscribe_url = request_body['SubscribeURL']
     return nil unless !subscribe_url.to_s.empty? && !subscribe_url.nil?
@@ -205,9 +201,9 @@ class ManagerController < ApplicationController
       if worker.can_terminate? && worker.instance.id != elb.master_instance_id
         Rails.logger.info "Terminating instance #{worker.instance.id}"
         worker.terminate!
+        worker.delete_alarms!
         elb.deregister_worker(worker)
         elb.remove_worker(worker)
-        cw.delete_alarm(worker.instance.id)
         start_size -= 1
       end
     end

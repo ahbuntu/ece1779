@@ -23,9 +23,9 @@ class Manager::WorkersController < ManagerController
     raise "Worker cannot be stopped" unless worker.can_terminate?
 
     worker.terminate!
+    worker.delete_alarms!
     elb.deregister_worker(worker)
     elb.remove_worker(worker)
-    cw.delete_alarm(worker.instance.id)
 
     redirect_to manager_workers_path
   end

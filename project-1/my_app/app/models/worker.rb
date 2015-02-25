@@ -125,6 +125,11 @@ class Worker
     [high_cpu, low_cpu]
   end
 
+  def delete_alarms!
+    cw = Cloudwatch.instance
+    cw.delete_alarms_for_instance_id!(instance.id)
+  end
+
   private
 
   def cpu_metric
