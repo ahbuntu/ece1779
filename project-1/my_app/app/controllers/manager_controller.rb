@@ -1,9 +1,30 @@
 require 'httparty'
 
 class ManagerController < ApplicationController
-  skip_before_filter :authenticate
-  protect_from_forgery :except => :aws_alarm
+  skip_before_filter    :authenticate
+  before_action         :authenticate_manager, :except => [:new, :create]
+  protect_from_forgery  :except => :aws_alarm
   
+  def new
+    redirect_to manager_path if manager_logged_in?
+  end
+
+  def create 
+    if is_manager?(params["login"], params["password"])
+      log_in_manager
+      redirect_to manager_path
+    else
+      # Create an error message.
+      flash.now[:danger] = 'Incorrect login/password combination'
+      render 'new'
+    end
+  end
+
+  def destroy
+    log_out_manager if manager_logged_in?        
+    redirect_to manager_login_path
+  end
+
   def start_worker
     worker = Worker.launch_worker
     elb.register_worker(worker)

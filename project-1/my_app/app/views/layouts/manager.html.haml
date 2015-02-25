@@ -31,11 +31,13 @@
             %li= link_to "Users", "/users"
             - if current_user
               %li= link_to "My Images", user_images_path(current_user)
-            %li= link_to "Manager", "/manager"
+            %li= link_to "Manager", manager_login_path
             - if logged_in?
               %li= link_to "Log out (#{current_user.login})", logout_path, method: "delete"
             - else
               %li= link_to "Log in", login_path
+            - if manager_logged_in?
+              %li= link_to "Log out (manager)", manager_logout_path, method: "delete"
     .container
       .row
         .col-lg-9
