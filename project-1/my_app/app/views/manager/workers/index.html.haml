@@ -15,6 +15,13 @@
       }
   });
 
+  $.ajax({
+      url: "/manager/worker_status",
+      cache: false,
+      success: function(html){
+        $("#worker-status").html(html);
+      }
+  });
 =#{ #$(document).ready(function() {setInterval(function() {$("#worker-status").load("/manager/worker_status");}, 30000);});}
 
 %h2 Load Balancer
@@ -23,9 +30,9 @@
 
 %hr
 %h2 Worker Pool
-/TODO: investigate why this isn't working
-= form_tag manager_worker_status_path, method: 'get', remote: true do
-  = button_tag "Refresh", class: "btn btn-default"
+#form-worker-refresh
+  = form_tag manager_worker_status_path, method: 'get', remote: true do
+    = submit_tag "Refresh", class: "btn btn-default"
 #worker-status
   Loading...
 
