@@ -15,11 +15,7 @@
       }
   });
 
-  $(document).ready(function() {
-    setInterval(function() {
-      $("#worker-status").load("/manager/worker_status");
-    }, 30000);
-  });
+=#{ #$(document).ready(function() {setInterval(function() {$("#worker-status").load("/manager/worker_status");}, 30000);});}
 
 %h2 Load Balancer
 #elb-status
