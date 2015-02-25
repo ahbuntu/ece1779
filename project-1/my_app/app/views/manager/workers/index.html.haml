@@ -44,7 +44,7 @@
   = form_tag manager_auto_scale_path, remote: true do
     .checkbox
       %label 
-        = check_box_tag 'enable_autoscale', 1, @autoscale.enabled
+        = check_box_tag 'enable_autoscale', 1, @autoscale.enabled?
         Enable Auto-Scaling
     #autoscale-config
       .form-group
