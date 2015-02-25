@@ -68,6 +68,8 @@ class ManagerController < ApplicationController
     autoscale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
     autoscale.enabled             = params[:enable_autoscale].to_i == 1
 
+    # update_cw_alarms
+
     if !autoscale.save
       respond_to do |format|
         format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}');", :status => 400 }
@@ -77,6 +79,15 @@ class ManagerController < ApplicationController
         format.js   {render :layout => false}
       end
     end
+  end
+
+  def update_cw_alarms
+    autoscale = AutoScale.instance
+    return unless autoscale.enabled?
+
+    cw ||= Cloudwatch.instance
+    cw.update_all_high_cpu_alarms(Worker.all, autoscale.grow_cpu_thresh) unless autoscale.grow_cpu_thresh == 100.0
+    cw.update_all_low_cpu_alarms(Worker.all, autoscale.shrink_cpu_thresh) unless autoscale.shrink_cpu_thresh == 0.0
   end
 
   # TODO: this could use some security since anything can POST to it...
