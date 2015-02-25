@@ -2,7 +2,7 @@ require 'httparty'
 
 class ManagerController < ApplicationController
   skip_before_filter    :authenticate
-  before_action         :authenticate_manager, :except => [:new, :create]
+  before_action         :authenticate_manager, :except => [:new, :create, :aws_alarm]
   protect_from_forgery  :except => :aws_alarm
   
   def new
