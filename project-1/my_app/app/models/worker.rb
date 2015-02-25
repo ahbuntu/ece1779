@@ -8,6 +8,7 @@ class Worker
 
   AMI_IMAGE_ID="ami-5e1b4c36" # name: "ece1779-puma-003"
 
+  # NOTE: this can include terminated workers
   def self.all
     instances_for_ami_id(AMI_IMAGE_ID).map do |i|
       Worker.new(i)
@@ -35,7 +36,7 @@ class Worker
 
     Rails.logger.info "Launching instance #{instance.id}"
     w = Worker.new(instance)
-    w.create_alarms!
+    w.create_alarms! unless terminated?
     w
   end
 
