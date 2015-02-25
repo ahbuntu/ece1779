@@ -68,6 +68,18 @@ class Cloudwatch
     @cw.alarms
   end
 
+  def update_all_high_cpu_alarms(workers, threshold)
+    workers.each do |w|
+      update_high_cpu_alarm(w.instance.id, threshold)
+    end
+  end
+
+  def update_all_low_cpu_alarms(workers, threshold)
+    workers.each do |w|
+      update_low_cpu_alarm(w.instance.id, threshold)
+    end
+  end
+
   def delete_all_alarms!
     alarm_collection.delete(alarm_collection.map(&:name))
   end
