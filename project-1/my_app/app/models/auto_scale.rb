@@ -11,7 +11,7 @@ class AutoScale < ActiveRecord::Base
 
   validates_numericality_of :cooldown_period_in_seconds, greater_than_or_equal_to: 0
 
-  before_validation :set_defaults
+  before_validation :set_defaults, on: :create
 
   def enabled?
     enabled.to_i == 1
