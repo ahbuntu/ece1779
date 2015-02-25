@@ -2,7 +2,9 @@ class DrainQueueAndTerminateWorker
   include Sidekiq::Worker
 
   # This expects to be executed on the instance being terminated
-  # I.e. the Sidekiq queue is also local
+  # I.e. the Sidekiq queue is also local.
+  #
+  # ALSO: it assumes that all alarm deletion and ELB deregistration has already been handled.
   def perform(instance_id, terminate_by)
     worker = Worker.with_id(instance_id)
     if worker.nil?
