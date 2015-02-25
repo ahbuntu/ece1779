@@ -11,14 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150225025456) do
+ActiveRecord::Schema.define(version: 20150225035938) do
 
   create_table "auto_scales", force: :cascade do |t|
-    t.float   "grow_cpu_thresh"
-    t.float   "shrink_cpu_thresh"
-    t.float   "grow_ratio_thresh"
-    t.float   "shrink_ratio_thresh"
-    t.integer "enabled",             limit: 1
+    t.float    "grow_cpu_thresh"
+    t.float    "shrink_cpu_thresh"
+    t.float    "grow_ratio_thresh"
+    t.float    "shrink_ratio_thresh"
+    t.integer  "enabled",                    limit: 1
+    t.integer  "cooldown_period_in_seconds", limit: 11, default: 0
+    t.datetime "cooldown_expires_at"
   end
 
   create_table "images", force: :cascade do |t|
