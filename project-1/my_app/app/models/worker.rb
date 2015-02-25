@@ -21,18 +21,18 @@ class Worker
     end
   end
 
-  def self.launch_worker(with_detailed_monitoring = false)
+  def self.launch_worker(monitoring_enabled = false, disable_api_termination = false)
     raise "Default image does not exist (#{default_image.id})" unless default_image.exists?
 
-    # TODO: add support for with_detailed_monitoring
-    raise "with_detailed_monitoring not supported" if with_detailed_monitoring
-
     instance = ec2.instances.create(
-      :image_id        => default_image.id,
-      :instance_type   => default_instance_type,
-      :count           => 1, 
-      :security_groups => security_group, 
-      :key_pair        => key_pair)
+      :image_id                => default_image.id,
+      :instance_type           => default_instance_type,
+      :count                   => 1, 
+      :security_groups         => security_group, 
+      :key_pair                => key_pair,
+      :monitoring_enabled      => monitoring_enabled,
+      :disable_api_termination => disable_api_termination # useful for the master instance
+      )
 
     Rails.logger.info "Launching instance #{instance.id}"
     w = Worker.new(instance)
@@ -82,7 +82,7 @@ class Worker
   end
 
   def can_terminate?
-    status == :running || status == :stopped
+    !instance.api_termination_disabled? && (status == :running || status == :stopped)
   end
 
   def terminated?
