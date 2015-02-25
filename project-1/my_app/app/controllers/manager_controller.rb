@@ -198,10 +198,12 @@ class ManagerController < ApplicationController
       # I.e. it is only called on the master_instance
       if worker.can_terminate? && worker.instance.id != elb.master_instance_id
         Rails.logger.info "Terminating instance #{worker.instance.id}"
-        worker.terminate!
         worker.delete_alarms!
         elb.deregister_worker(worker)
         start_size -= 1
+
+        # instead of outright terminating the worker, we give it time to drain the image upload/processing jobs
+        DrainQueueAndTerminateWorker.perform_async(worker.instance.id, Time.now + 3.minutes)
       end
     end
   end
