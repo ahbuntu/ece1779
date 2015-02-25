@@ -11,16 +11,16 @@
   =link_to "#" do 
     =image_tag(@key2_url, alt: "First")
   .caption
-    %h3 First Transformation
+    %h3 First Transformation - Resized to 100x100
 .thumbnail
   =link_to "#" do 
     =image_tag(@key3_url, alt: "Second")
   .caption
-    %h3 Second Transformation
+    %h3 Second Transformation - Resized to 200x200
 .thumbnail
   =link_to "#" do 
     =image_tag(@key4_url, alt: "Third")
   .caption
-    %h3 Third Transformation
+    %h3 Third Transformation - Resized to 300x300
 
 = link_to 'Back to Images', user_images_path(current_user), class: "btn btn-info"
