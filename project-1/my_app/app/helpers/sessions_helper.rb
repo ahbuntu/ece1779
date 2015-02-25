@@ -24,4 +24,36 @@ module SessionsHelper
   def current_user?(user)
     user == current_user
   end
+
+##########################################
+  
+  def managerCreds
+    creds = YAML.load(File.read('config/manager.yml'))[Rails.env.to_s]
+    {"login" => creds["manager"]["login"], "password" => creds["manager"]["password"]}
+  end
+
+  def adminCreds
+    creds = YAML.load(File.read('config/manager.yml'))[Rails.env.to_s]
+    {"login" => creds["admin"]["login"], "password" => creds["admin"]["password"]}
+  end
+
+  # Logs in the given manager
+  def log_in_manager
+    session[:manager_id] = "manager"
+  end
+
+  def is_manager?(login, password)
+    managerCreds["login"] == login && managerCreds["password"] == password
+  end
+
+  # Returns true if a manager is logged in, false otherwise.
+  def manager_logged_in?
+    !session[:manager_id].nil?
+  end
+  
+  # Logs out the current user.
+  def log_out_manager
+    session.delete(:manager_id)
+  end
+
 end

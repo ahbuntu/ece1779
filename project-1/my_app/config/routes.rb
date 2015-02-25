@@ -49,6 +49,11 @@ Rails.application.routes.draw do
     # AWS Alarms
     post   :auto_scale
     post   :aws_alarm
+
+    # Login
+    get    'login'  => :new
+    post   'login'  => :create
+    delete 'logout' => :destroy
   end
 
   # Example resource route with options:

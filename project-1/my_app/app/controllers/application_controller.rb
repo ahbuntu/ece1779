@@ -14,4 +14,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def authenticate_manager
+    unless manager_logged_in?
+      redirect_to(manager_login_path, alert: 'You are not a manager. Please log in with manager credentials.') 
+    end
+  end
+
 end

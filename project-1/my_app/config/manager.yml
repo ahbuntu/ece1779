@@ -1,0 +1,15 @@
+development:
+  manager:
+    login: 'manager'
+    password: 'manager'
+  admin:
+    login: 'admin'
+    password: 'admin'
+
+production:
+  manager:
+    login: 'manager'
+    password: 'manager'
+  admin:
+    login: 'manager'
+    password: 'manager'
