@@ -4,6 +4,8 @@ class Cloudwatch
   include Singleton
   include AwsBoilerplate
 
+  ALARM_PERIOD_IN_SECONDS = 1.minute.to_i
+
   def create_cpu_alarm(type, instance_id, threshold, topic)
     type = type.upcase
     raise "type (#{type}) not supported: expects 'high' or 'low'" unless %w(HIGH LOW).include?(type)
@@ -15,7 +17,7 @@ class Cloudwatch
         :metric_name         => 'CPUUtilization',
         :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
         :evaluation_periods  => 3,
-        :period              => 5.minutes.to_i, # in seconds
+        :period              => ALARM_PERIOD_IN_SECONDS,
         :statistic           => 'Average',
         :threshold           => threshold, 
         :actions_enabled     => true,
@@ -37,7 +39,7 @@ class Cloudwatch
         :namespace           => 'AWS/EC2',
         :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
         :evaluation_periods  => 3,
-        :period              => 5.minutes.to_i, # in seconds
+        :period              => ALARM_PERIOD_IN_SECONDS,
         :statistic           => 'Average',
         :threshold           => threshold, 
         :actions_enabled     => true,
