@@ -51,6 +51,11 @@ class Elb
   end
 
   def master_instance_id
+    # default to the instance with the earliest launch_time
+    if @master_instance_id.nil?
+      instance = Elb.instance.load_balancer.instances.sort{|a,b| a.launch_time <=> b.launch_time}.first rescue nil
+      @master_instance_id = instance.try(:id)
+    end
     @master_instance_id
   end
 
