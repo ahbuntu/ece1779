@@ -89,7 +89,7 @@ class Cloudwatch
   end
 
   def delete_alarms_for_instance_id!(instance_id)
-    alarm_collection.delete(alarms_for_instance_id.map(&:name))
+    alarm_collection.delete(alarms_for_instance_id(instance_id).map(&:name))
   end
 
 end
