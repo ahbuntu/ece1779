@@ -147,11 +147,26 @@ class ManagerController < ApplicationController
   def grow_cluster
     @@cooldown_until = 300.seconds.from_now
     # Do some stuff
+    start_size = Elb.instance.workers.size
+    target_size = (start_size * AutoScale.grow_ratio_thresh.to_f).to_i
+    
+    while start_size <= target_size
+      start_worker
+      start_size += 1
+    end
   end
 
   def shrink_cluster
     @@cooldown_until = 300.seconds.from_now
     # Do some stuff
+    start_size = Elb.instance.workers.size
+    target_size = (start_size / AutoScale.shrink_ratio_thresh.to_f).to_i
+    target_size = 1 if target_size == 0
+    
+    while start_size > target_size
+      # need to find list of instances that are not the master and terminate them
+      start_size -= 1
+    end
   end
 
 end
