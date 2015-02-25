@@ -36,7 +36,7 @@ class Worker
 
     Rails.logger.info "Launching instance #{instance.id}"
     w = Worker.new(instance)
-    w.create_alarms! unless terminated?
+    w.create_alarms! unless w.terminated?
     w
   end
 
