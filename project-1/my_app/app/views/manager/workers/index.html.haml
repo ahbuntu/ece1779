@@ -44,20 +44,20 @@
   = form_tag manager_auto_scale_path, remote: true do
     .checkbox
       %label 
-        = check_box_tag 'enable_autoscale', 1, AutoScale.enabled
+        = check_box_tag 'enable_autoscale', 1, @autoscale.enabled
         Enable Auto-Scaling
     #autoscale-config
       .form-group
         CPU threshold for growing the working pool
-        = text_field_tag 'cpu_grow_val', AutoScale.grow_cpu_thresh
+        = text_field_tag 'cpu_grow_val', @autoscale.grow_cpu_thresh
       .form-group
         CPU threshold for shrinking the working pool
-        = text_field_tag 'cpu_shrink_val', AutoScale.shrink_cpu_thresh
+        = text_field_tag 'cpu_shrink_val', @autoscale.shrink_cpu_thresh
       .form-group
         Ratio for growing the working pool
-        = text_field_tag 'ratio_grow_val', AutoScale.grow_ratio_thresh
+        = text_field_tag 'ratio_grow_val', @autoscale.grow_ratio_thresh
       .form-group
         Ratio for shrinking the working pool
-        = text_field_tag 'ratio_shrink_val', AutoScale.shrink_ratio_thresh
+        = text_field_tag 'ratio_shrink_val', @autoscale.shrink_ratio_thresh
     .form-group
       = submit_tag "Update",  class: "btn btn-info", id: "update"

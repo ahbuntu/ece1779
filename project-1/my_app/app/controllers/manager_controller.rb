@@ -54,16 +54,18 @@ class ManagerController < ApplicationController
   def auto_scale
     wants_to_enable = params[:enable_autoscale].to_i == 1
 
-    AutoScale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
-    AutoScale.shrink_cpu_thresh   = params[:cpu_shrink_val].to_f
-    AutoScale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
-    AutoScale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
+    autoscale = AutoScale.instance
 
-    AutoScale.enabled             = wants_to_enable && AutoScale.valid?
+    autoscale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
+    autoscale.shrink_cpu_thresh   = params[:cpu_shrink_val].to_f
+    autoscale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
+    autoscale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
 
-    if wants_to_enable && !AutoScale.valid?
+    autoscale.enabled             = wants_to_enable
+
+    if !autoscale.save
       respond_to do |format|
-        format.js { render :js => "alert('Validation Error: #{AutoScale.errors.first}');", :status => 400 }
+        format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}');", :status => 400 }
       end
     else
       respond_to do |format|
@@ -148,7 +150,7 @@ class ManagerController < ApplicationController
     @@cooldown_until = 300.seconds.from_now
     # Do some stuff
     start_size = Elb.instance.workers.size
-    target_size = (start_size * AutoScale.grow_ratio_thresh.to_f).to_i
+    target_size = (start_size * AutoScale.instance.grow_ratio_thresh.to_f).to_i
     
     while start_size <= target_size
       start_worker
@@ -160,7 +162,7 @@ class ManagerController < ApplicationController
     @@cooldown_until = 300.seconds.from_now
     # Do some stuff
     start_size = Elb.instance.workers.size
-    target_size = (start_size / AutoScale.shrink_ratio_thresh.to_f).to_i
+    target_size = (start_size / AutoScale.instance.shrink_ratio_thresh.to_f).to_i
     target_size = 1 if target_size == 0
     
     while start_size > target_size

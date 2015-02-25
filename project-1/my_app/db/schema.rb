@@ -11,7 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150208195738) do
+ActiveRecord::Schema.define(version: 20150225025456) do
+
+  create_table "auto_scales", force: :cascade do |t|
+    t.float   "grow_cpu_thresh"
+    t.float   "shrink_cpu_thresh"
+    t.float   "grow_ratio_thresh"
+    t.float   "shrink_ratio_thresh"
+    t.integer "enabled",             limit: 1
+  end
 
   create_table "images", force: :cascade do |t|
     t.integer "userId",            limit: 11

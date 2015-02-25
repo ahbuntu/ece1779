@@ -2,6 +2,7 @@ class Manager::WorkersController < ManagerController
   skip_before_filter :authenticate
 
   def index
+    @autoscale = AutoScale.instance
   end
 
   def stop_worker
