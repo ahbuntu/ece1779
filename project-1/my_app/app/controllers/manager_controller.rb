@@ -61,16 +61,12 @@ class ManagerController < ApplicationController
   end
 
   def auto_scale
-    wants_to_enable = params[:enable_autoscale].to_i == 1
-
     autoscale = AutoScale.instance
-
     autoscale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
     autoscale.shrink_cpu_thresh   = params[:cpu_shrink_val].to_f
     autoscale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
     autoscale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
-
-    autoscale.enabled             = wants_to_enable
+    autoscale.enabled             = params[:enable_autoscale].to_i == 1
 
     if !autoscale.save
       respond_to do |format|
@@ -195,6 +191,8 @@ class ManagerController < ApplicationController
       if !autoscale.cooling_down? # paranoia
         raise "Cooldown expired while shrinking cluster!"
       end
+
+      raise "ELB master_instance_id is nil" unless elb.master_instance_id.present?
 
       # This assumes that shrink_cluster is never called by an instance that is going to be terminated
       # I.e. it is only called on the master_instance
