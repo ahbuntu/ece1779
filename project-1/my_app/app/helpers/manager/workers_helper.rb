@@ -19,4 +19,8 @@ module Manager::WorkersHelper
     end
   end
 
+  def worker_is_master?(worker)
+    Elb.instance.master_instance_id == worker.instance.id
+  end
+
 end
