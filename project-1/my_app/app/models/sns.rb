@@ -4,8 +4,8 @@ class SNS
   include Singleton
   include AwsBoilerplate
 
-  HIGH_CPU_TOPIC_NAME = "cpu_threshold_high"
-  LOW_CPU_TOPIC_NAME = "cpu_threshold_low"
+  HIGH_CPU_TOPIC_NAME = "cpu_threshold_high2"
+  LOW_CPU_TOPIC_NAME = "cpu_threshold_low2"
 
   def topic_names
     [HIGH_CPU_TOPIC_NAME, LOW_CPU_TOPIC_NAME]
