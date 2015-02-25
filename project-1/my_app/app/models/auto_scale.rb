@@ -8,7 +8,8 @@ class AutoScale < ActiveRecord::Base
   validate :grow_gt_shrink
   validates_numericality_of :grow_ratio_thresh, greater_than_or_equal_to: 1.0
   validates_numericality_of :shrink_ratio_thresh, greater_than_or_equal_to: 1.0
-
+  validates_numericality_of :max_instances, greater_than_or_equal_to: 1
+  validates_numericality_of :max_instances, less_than_or_equal_to: 20  # http://aws.amazon.com/ec2/faqs/#How_many_instances_can_I_run_in_Amazon_EC2
   validates_numericality_of :cooldown_period_in_seconds, greater_than_or_equal_to: 0
 
   before_validation :set_defaults, on: :create
@@ -27,11 +28,6 @@ class AutoScale < ActiveRecord::Base
     end
   end
 
-  # just in case we want to let the user adjust this later
-  def max_instances
-    20 # http://aws.amazon.com/ec2/faqs/#How_many_instances_can_I_run_in_Amazon_EC2
-  end
-
   private
 
   def grow_gt_shrink
@@ -46,6 +42,7 @@ class AutoScale < ActiveRecord::Base
     self.grow_ratio_thresh ||= 1.0
     self.shrink_ratio_thresh ||= 1.0
     self.cooldown_period_in_seconds ||= 5.minutes.to_i
+    self.max_instances ||= 10
     self.enabled = false
     true
   end

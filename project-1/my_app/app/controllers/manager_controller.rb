@@ -67,6 +67,7 @@ class ManagerController < ApplicationController
     autoscale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
     autoscale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
     autoscale.enabled             = params[:enable_autoscale].to_i == 1
+    autoscale.max_instances       = params[:max_instances].to_i
 
     # update_cw_alarms
 

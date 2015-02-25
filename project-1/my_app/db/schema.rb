@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150225035938) do
+ActiveRecord::Schema.define(version: 20150225230108) do
 
   create_table "auto_scales", force: :cascade do |t|
     t.float    "grow_cpu_thresh"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 20150225035938) do
     t.integer  "enabled",                    limit: 1
     t.integer  "cooldown_period_in_seconds", limit: 11, default: 0
     t.datetime "cooldown_expires_at"
+    t.integer  "max_instances",              limit: 11, default: 10
   end
 
   create_table "images", force: :cascade do |t|

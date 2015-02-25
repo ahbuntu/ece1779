@@ -62,5 +62,9 @@
       .form-group
         Ratio for shrinking the working pool
         = text_field_tag 'ratio_shrink_val', @autoscale.shrink_ratio_thresh
+      .form-group
+        Max instances
+        = text_field_tag 'max_instances', @autoscale.max_instances
+
     .form-group
       = submit_tag "Update",  class: "btn btn-info", id: "update"
