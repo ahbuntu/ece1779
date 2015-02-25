@@ -81,15 +81,6 @@ class ManagerController < ApplicationController
     end
   end
 
-  def update_cw_alarms
-    autoscale = AutoScale.instance
-    return unless autoscale.enabled?
-
-    cw ||= Cloudwatch.instance
-    cw.update_all_high_cpu_alarms(Worker.all, autoscale.grow_cpu_thresh) unless autoscale.grow_cpu_thresh == 100.0
-    cw.update_all_low_cpu_alarms(Worker.all, autoscale.shrink_cpu_thresh) unless autoscale.shrink_cpu_thresh == 0.0
-  end
-
   # TODO: this could use some security since anything can POST to it...
   def aws_alarm
     # taken from: http://tech.xogroupinc.com/post/79166302844/creating-sns-subscription-endpoints-with-ruby-on
@@ -123,6 +114,15 @@ class ManagerController < ApplicationController
   end
 
   private
+
+  def update_cw_alarms
+    autoscale = AutoScale.instance
+    return unless autoscale.enabled?
+
+    cw ||= Cloudwatch.instance
+    cw.update_all_high_cpu_alarms(Worker.all, autoscale.grow_cpu_thresh) unless autoscale.grow_cpu_thresh == 100.0
+    cw.update_all_low_cpu_alarms(Worker.all, autoscale.shrink_cpu_thresh) unless autoscale.shrink_cpu_thresh == 0.0
+  end
 
   def launch_and_register_worker
     worker = Worker.launch_worker
