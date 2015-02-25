@@ -62,7 +62,7 @@ class Elb
 
     @master_instance_id = value
     if @master_instance_id.present?
-      instance = load_balancer.instances.detect{|i| i.id == instance_id}
+      instance = load_balancer.instances.detect{|i| i.id == @master_instance_id}
       ip_address = instance.public_ip_address
       raise "No public IP address for instance #{instance.id}" unless ip_address.present?
       SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(ip_address))
