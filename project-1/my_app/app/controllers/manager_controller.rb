@@ -3,21 +3,9 @@ require 'httparty'
 class ManagerController < ApplicationController
   skip_before_filter :authenticate
   protect_from_forgery :except => :aws_alarm
-  
+
   def start_worker
-    worker = Worker.launch_worker
-    elb.register_worker(worker)
-
-    ## this entire block needs to happen ONLY after the instace gets a public IP - so not here. but where?
-    # current_workers = Elb.instance.workers
-    # if current_workers.size == 1
-    #   current_workers.each do |w|
-    #     # this should be called only once and only for the very first instance in the ELB (i.e. the master)
-    #     SNS.create_topic_subscription(w)
-    #   end
-    # end
-    # CW.create_alarm(worker.instance.id)
-
+    launch_and_register_worker
     redirect_to manager_workers_path
   end
 
@@ -108,6 +96,11 @@ class ManagerController < ApplicationController
 
   private
 
+  def launch_and_register_worker
+    worker = Worker.launch_worker
+    elb.register_worker(worker)
+  end
+
   def elb
     @elb ||= Elb.instance
   end
@@ -129,8 +122,9 @@ class ManagerController < ApplicationController
   # a small chance of a race condition if 2+ notifications come in at the same
   # time.
   def rebalance_cluster
-    if @@cooldown_until.present? && @@cooldown_until > Time.now
-      Rails.logger.info "[rebalance_cluster] Still cooling down (until #{@cooldown_until})..."
+    autoscale = AutoScale.instance
+    if autoscale.cooling_down?
+      Rails.logger.info "[rebalance_cluster] Still cooling down (until #{autoscale.cooldown_expires_at})..."
       return
     end
 
@@ -139,33 +133,46 @@ class ManagerController < ApplicationController
     return if cpu.size == 0
     avg_cpu = cpu.sum.to_f / cpu.count
 
-    if avg_cpu > AutoScale.grow_cpu_thresh.to_f
+    if avg_cpu > autoscale.grow_cpu_thresh.to_f
       grow_cluster
-    elsif avg_cpu < AutoScale.shrink_cpu_thresh.to_f
+    elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
       shrink_cluster
     end
   end
 
   def grow_cluster
-    @@cooldown_until = 300.seconds.from_now
+    AutoScale.instance.start_cooldown! || return
+
     # Do some stuff
     start_size = Elb.instance.workers.size
     target_size = (start_size * AutoScale.instance.grow_ratio_thresh.to_f).to_i
     
+    Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
+
     while start_size <= target_size
-      start_worker
+      if !AutoScale.cooling_down? # paranoia
+        raise "Cooldown expired while growing cluster!"
+      end
+      launch_and_register_worker
       start_size += 1
     end
   end
 
   def shrink_cluster
-    @@cooldown_until = 300.seconds.from_now
+    AutoScale.instance.start_cooldown! || return
+
     # Do some stuff
     start_size = Elb.instance.workers.size
     target_size = (start_size / AutoScale.instance.shrink_ratio_thresh.to_f).to_i
     target_size = 1 if target_size == 0
     
+    Rails.logger.info "[shrink_cluster] From #{start_size} to #{target_size}"
+
     while start_size > target_size
+      if !AutoScale.cooling_down? # paranoia
+        raise "Cooldown expired while shrinking cluster!"
+      end
+
       # need to find list of instances that are not the master and terminate them
       start_size -= 1
     end
