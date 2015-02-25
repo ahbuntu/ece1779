@@ -65,6 +65,7 @@ class Elb
     # Initialize and point SNS subscriptions to the new master
     SNS.instance.unsubscribe_all_topics!
 
+    # HACK!!!
     @master_instance_id = value
     if @master_instance_id.present?
       instance = load_balancer.instances.detect{|i| i.id == @master_instance_id}
