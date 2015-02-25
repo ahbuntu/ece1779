@@ -99,6 +99,7 @@ class ManagerController < ApplicationController
   def launch_and_register_worker
     worker = Worker.launch_worker
     elb.register_worker(worker)
+    worker
   end
 
   def elb
@@ -141,40 +142,53 @@ class ManagerController < ApplicationController
   end
 
   def grow_cluster
-    AutoScale.instance.start_cooldown! || return
+    autoscale = AutoScale.instance
+    autoscale.start_cooldown! || return # bail if already cooling down
 
-    # Do some stuff
     start_size = Elb.instance.workers.size
-    target_size = (start_size * AutoScale.instance.grow_ratio_thresh.to_f).to_i
+    target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
     
     Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
 
     while start_size <= target_size
-      if !AutoScale.cooling_down? # paranoia
+      if !autoscale.cooling_down? # paranoia
         raise "Cooldown expired while growing cluster!"
       end
-      launch_and_register_worker
+      worker = launch_and_register_worker # NOTE: this might fail if we hit the AWS limit
+      Rails.logger.info "Launching instance #{worker.instance.id}"
       start_size += 1
     end
   end
 
   def shrink_cluster
-    AutoScale.instance.start_cooldown! || return
+    autoscale = AutoScale.instance
+    autoscale.start_cooldown! || return # bail if already cooling down
 
-    # Do some stuff
     start_size = Elb.instance.workers.size
-    target_size = (start_size / AutoScale.instance.shrink_ratio_thresh.to_f).to_i
+    target_size = (start_size / autoscale.shrink_ratio_thresh.to_f).to_i
     target_size = 1 if target_size == 0
     
     Rails.logger.info "[shrink_cluster] From #{start_size} to #{target_size}"
 
-    while start_size > target_size
-      if !AutoScale.cooling_down? # paranoia
+    elb = Elb.instance
+
+    elb.workers.each do |worker|
+      return if start_size <= target_size
+
+      if !autoscale.cooling_down? # paranoia
         raise "Cooldown expired while shrinking cluster!"
       end
 
-      # need to find list of instances that are not the master and terminate them
-      start_size -= 1
+      # This assumes that shrink_cluster is never called by an instance that is going to be terminated
+      # I.e. it is only called on the master_instance
+      if worker.can_terminate? && worker.instance.id != elb.master_instance_id
+        Rails.logger.info "Terminating instance #{worker.instance.id}"
+        worker.terminate!
+        elb.deregister_worker(worker)
+        elb.remove_worker(worker)
+        cw.delete_alarm(worker.instance.id)
+        start_size -= 1
+      end
     end
   end
 

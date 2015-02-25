@@ -50,24 +50,25 @@ class Elb
     end rescue []
   end
 
-  def master_worker
-    @master_worker
+  def master_instance_id
+    @master_instance_id
   end
 
-  def master_worker=(value)
-    return value if @master_worker == value
+  def master_instance_id=(value)
+    return value if @master_instance_id == value
 
-    # Initialize and point SNS subscriptions to master_worker
+    # Initialize and point SNS subscriptions to the new master
     SNS.instance.unsubscribe_all_topics!
 
-    @master_worker = value
-    if @master_worker.present?
-      ip_address = @master_worker.instance.public_ip_address
-      raise "No public IP address for instance #{@master_worker.instance.id}" unless ip_address.present?
+    @master_instance_id = value
+    if @master_instance_id.present?
+      instance = load_balancer.instances.detect{|i| i.id == instance_id}
+      ip_address = instance.public_ip_address
+      raise "No public IP address for instance #{instance.id}" unless ip_address.present?
       SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(ip_address))
     end
 
-    @master_worker
+    @master_instance_id
   end
 
   def configured?
@@ -76,24 +77,24 @@ class Elb
 
   def register_worker(w)
     retval = load_balancer.instances.register(w.instance.id)
-    if master_worker.nil?
-      master_worker = w # handles initialization
+    if master_instance_id.nil?
+      master_instance_id = w.instance.id # handles initialization
     end
     retval
   end
 
   def deregister_worker(w)
     retval = load_balancer.instances.deregister(w.instance.id)
-    if master_worker == w
-      master_worker = workers.first
+    if master_instance_id == w.instance.id
+      master_instance_id = workers.first.instance.id
     end
     retval
   end
 
   def remove_worker(w)
     retval = load_balancer.instances.remove(w.instance.id)
-    if master_worker == w
-      master_worker = workers.first
+    if master_instance_id == w.instance.id
+      master_instance_id = workers.first.instance.id
     end
     retval
   end

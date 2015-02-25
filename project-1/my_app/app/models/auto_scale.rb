@@ -27,6 +27,11 @@ class AutoScale < ActiveRecord::Base
     end
   end
 
+  # just in case we want to let the user adjust this later
+  def max_instances
+    20 # http://aws.amazon.com/ec2/faqs/#How_many_instances_can_I_run_in_Amazon_EC2
+  end
+
   private
 
   def grow_gt_shrink
