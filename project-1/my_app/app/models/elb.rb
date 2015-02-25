@@ -84,14 +84,6 @@ class Elb
   end
 
   def deregister_worker(w)
-    retval = load_balancer.instances.deregister(w.instance.id)
-    if master_instance_id == w.instance.id
-      master_instance_id = workers.first.instance.id
-    end
-    retval
-  end
-
-  def remove_worker(w)
     retval = load_balancer.instances.remove(w.instance.id)
     if master_instance_id == w.instance.id
       master_instance_id = workers.first.instance.id

@@ -201,7 +201,6 @@ class ManagerController < ApplicationController
         worker.terminate!
         worker.delete_alarms!
         elb.deregister_worker(worker)
-        elb.remove_worker(worker)
         start_size -= 1
       end
     end

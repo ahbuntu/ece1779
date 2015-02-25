@@ -12,7 +12,6 @@ class Manager::WorkersController < ManagerController
 
     worker.stop!
     elb.deregister_worker(worker)
-    elb.remove_worker(worker)
     
     redirect_to manager_workers_path
   end
@@ -25,7 +24,6 @@ class Manager::WorkersController < ManagerController
     worker.terminate!
     worker.delete_alarms!
     elb.deregister_worker(worker)
-    elb.remove_worker(worker)
 
     redirect_to manager_workers_path
   end
