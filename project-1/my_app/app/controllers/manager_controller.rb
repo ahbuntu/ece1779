@@ -108,7 +108,7 @@ class ManagerController < ApplicationController
       #TODO: implement auto-scaling logic based on alarm and auto-scale config
       #do_work request_body
 
-      rebalance_cluster
+      rebalance_cluster if AutoScale.instance.enabled?
     end
     head status: :accepted
   end
