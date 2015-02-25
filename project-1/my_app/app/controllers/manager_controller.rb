@@ -125,7 +125,8 @@ class ManagerController < ApplicationController
   end
 
   def launch_and_register_worker
-    worker = Worker.launch_worker
+    disable_api_termination = (elb.load_balancer.instances.count == 0)
+    worker = Worker.launch_worker(true, disable_api_termination)
     elb.register_worker(worker)
     worker
   end
