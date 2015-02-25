@@ -28,7 +28,6 @@
         %a.navbar-brand(href="#") MyApp
         .navbar-collapse.collapse.navbar-responsive-collapse
           %ul.nav.navbar-nav
-            %li= link_to "Users", "/users"
             - if current_user
               %li= link_to "My Images", user_images_path(current_user)
             %li= link_to "Manager", manager_login_path
