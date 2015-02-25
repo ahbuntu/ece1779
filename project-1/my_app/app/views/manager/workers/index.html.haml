@@ -1,13 +1,5 @@
 :javascript
   $.ajax({
-      url: "/manager/worker_status",
-      cache: false,
-      success: function(html){
-        $("#worker-status").html(html);
-      }
-  });
-
-  $.ajax({
       url: "/manager/elb_status",
       cache: false,
       success: function(html){
@@ -21,6 +13,12 @@
       success: function(html){
         $("#image-stats").html(html);
       }
+  });
+
+  $(document).ready(function() {
+    setInterval(function() {
+      $("#worker-status").load("/manager/worker_status");
+    }, 5000);
   });
 
 %h2 Load Balancer

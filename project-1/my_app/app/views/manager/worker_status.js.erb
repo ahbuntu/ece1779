@@ -1,0 +1,7 @@
+$.ajax({
+    url: "/manager/worker_status",
+    cache: false,
+    success: function(html){
+      $("#worker-status").html(html);
+    }
+});
