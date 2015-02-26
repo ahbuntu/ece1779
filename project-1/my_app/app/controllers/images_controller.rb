@@ -42,7 +42,15 @@ class ImagesController < ApplicationController
     #   curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload
     #
     # In both cases, we expect params[:userID] to be present.
-    @current_user = User.find params[:userID]
+    
+    if request.path == "/ece1779/servlet/FileUpload"
+      @current_user = User.find_or_create_by(id: params[:userID]) do |user|
+        user.login = "user" + params[:userID]
+        user.password = "password" + params[:userID]
+      end
+    else
+      @current_user = User.find params[:userID]  
+    end
 
     safe_params = params[:image].present? ? image_params(params[:image]) : image_params(params)
 
