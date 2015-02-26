@@ -69,7 +69,7 @@ class ManagerController < ApplicationController
     autoscale.enabled             = params[:enable_autoscale].to_i == 1
     autoscale.max_instances       = params[:max_instances].to_i
 
-    # update_cw_alarms
+    update_cw_alarms
 
     if !autoscale.save
       respond_to do |format|
@@ -118,11 +118,16 @@ class ManagerController < ApplicationController
 
   def update_cw_alarms
     autoscale = AutoScale.instance
-    return unless autoscale.enabled?
-
     cw ||= Cloudwatch.instance
-    cw.update_all_high_cpu_alarms(Worker.all, autoscale.grow_cpu_thresh) unless autoscale.grow_cpu_thresh == 100.0
-    cw.update_all_low_cpu_alarms(Worker.all, autoscale.shrink_cpu_thresh) unless autoscale.shrink_cpu_thresh == 0.0
+    if autoscale.enabled?
+      print "here"
+      cw.update_all_high_cpu_alarms(elb.workers, autoscale.grow_cpu_thresh) 
+      cw.update_all_low_cpu_alarms(elb.workers, autoscale.shrink_cpu_thresh) 
+    else 
+      print "there"
+      cw.update_all_high_cpu_alarms(elb.workers, 100.0)
+      cw.update_all_low_cpu_alarms(elb.workers, 0.0)
+    end
   end
 
   def launch_and_register_worker

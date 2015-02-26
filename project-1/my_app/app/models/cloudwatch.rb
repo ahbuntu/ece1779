@@ -37,6 +37,7 @@ class Cloudwatch
     alarm_collection["#{instance_id}-#{type.upcase}-CPU-Utilization"].update(
       {
         :namespace           => 'AWS/EC2',
+        :metric_name         => 'CPUUtilization',
         :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
         :evaluation_periods  => 3,
         :period              => ALARM_PERIOD_IN_SECONDS,
@@ -71,12 +72,14 @@ class Cloudwatch
   end
 
   def update_all_high_cpu_alarms(workers, threshold)
+    Rails.logger.info "Attempting to update all high CPU alams with value #{threshold}"
     workers.each do |w|
       update_high_cpu_alarm(w.instance.id, threshold)
     end
   end
 
   def update_all_low_cpu_alarms(workers, threshold)
+    Rails.logger.info "Attempting to update all low CPU alams with value #{threshold}"
     workers.each do |w|
       update_low_cpu_alarm(w.instance.id, threshold)
     end
