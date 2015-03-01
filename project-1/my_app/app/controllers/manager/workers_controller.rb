@@ -19,7 +19,7 @@ class Manager::WorkersController < ManagerController
   def terminate_worker
     instance_id = params[:worker_id]
     worker = Worker.with_id(instance_id)
-    raise "Worker cannot be stopped" unless worker.can_terminate?
+    raise "Worker cannot be terminated" unless worker.can_terminate?
 
     worker.terminate!
     worker.delete_alarms!

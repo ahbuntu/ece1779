@@ -85,16 +85,18 @@ class Cloudwatch
     end
   end
 
-  def delete_all_alarms!
-    alarm_collection.delete(alarm_collection.map(&:name))
-  end
+  # def delete_all_alarms!
+  #   alarm_collection.delete(alarm_collection.map(&:name))
+  # end
 
   def alarms_for_instance_id(instance_id)
     alarm_collection.with_name_prefix(instance_id)
   end
 
   def delete_alarms_for_instance_id!(instance_id)
-    alarm_collection.delete(alarms_for_instance_id(instance_id).map(&:name))
+    list = alarms_for_instance_id(instance_id).map(&:name)
+    logger.info "Deleting alarms: #{list}"
+    alarm_collection.delete(list)
   end
 
 end
