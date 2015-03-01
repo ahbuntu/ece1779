@@ -123,8 +123,8 @@ class Worker
 
   def create_alarms!
     cw = Cloudwatch.instance
-    high_cpu = cw.create_high_cpu_alarm(instance.id, 85)
-    low_cpu  = cw.create_low_cpu_alarm(instance.id, 15)
+    high_cpu = cw.create_high_cpu_alarm(instance.id, AutoScale.instance.grow_cpu_thresh.to_f)
+    low_cpu  = cw.create_low_cpu_alarm(instance.id, AutoScale.instance.shrink_cpu_thresh.to_f)
     [high_cpu, low_cpu]
   end
 
