@@ -3,6 +3,8 @@ class Manager::WorkersController < ManagerController
 
   def index
     @autoscale = AutoScale.instance
+    @load_balancer_contains_master = Elb.instance.load_balancer_contains_master?
+    @master_worker = Elb.instance.master_worker
   end
 
   def stop_worker

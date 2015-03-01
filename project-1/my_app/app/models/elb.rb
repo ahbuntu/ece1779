@@ -116,4 +116,12 @@ class Elb
     end rescue nil
   end
 
+  def load_balancer_contains_master?
+    load_balancer.instances.map(&:id).include? @master_instance_id
+  end
+
+  def master_worker
+    workers.detect{|w| w.instance.id == master_instance_id}
+  end
+
 end
