@@ -34,13 +34,12 @@ class ManagerController < ApplicationController
 
   def start_elb
     Elb.create_load_balancer
-    Elb.instance.reset_alarms!
     add_all_running_instances_to_elb!
     redirect_to manager_workers_path
   end
 
   def reset_alarms
-    Elb.instance.reset_alarms!
+    Elb.instance.reset_alarm_subscriptions!
   end
 
   def purge_images
