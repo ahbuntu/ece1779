@@ -83,7 +83,7 @@ class Elb
 
   def register_worker(w)
     retval = load_balancer.instances.register(w.instance.id)
-    if master_instance_id.nil?
+    if @master_instance_id.nil?
       master_instance_id = w.instance.id # handles initialization
     end
     retval
@@ -91,7 +91,7 @@ class Elb
 
   def deregister_worker(w)
     retval = load_balancer.instances.remove(w.instance.id)
-    if master_instance_id == w.instance.id
+    if @master_instance_id == w.instance.id
       master_instance_id = workers.first.instance.id
     end
     retval
@@ -117,7 +117,7 @@ class Elb
   end
 
   def load_balancer_contains_master?
-    load_balancer.instances.map(&:id).include? @master_instance_id
+    load_balancer.exists? ? (load_balancer.instances.map(&:id).include? @master_instance_id): false
   end
 
   def master_worker
