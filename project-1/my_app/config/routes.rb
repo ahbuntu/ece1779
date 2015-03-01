@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     post   :start_elb # singleton
     put    :start_worker
     post   :purge_images
+    post   :reset_alarms
 
     # AJAX stuff
     get    :worker_status

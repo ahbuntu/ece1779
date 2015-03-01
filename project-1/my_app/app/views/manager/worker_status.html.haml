@@ -5,7 +5,6 @@
         %table.table.table-striped
           %thead
             %tr
-              %th Master?
               %th Name
               %th AMI
               %th IP
@@ -18,7 +17,6 @@
             - @workers.each do |w|
               - AWS.memoize do
                 %tr
-                  %td= worker_is_master?(w) ? "Y" : "-"
                   %td= w.instance.id
                   %td= w.instance.image.id
                   %td= worker_public_ip(w)
@@ -27,14 +25,11 @@
                   %td= worker_health(w)
                   %td= w.latest_cpu_utilization.to_f.round(2)
                   %td
-                    - if worker_is_master?(w)
-                      (disabled for master)
-                    - else
-                      / - if w.safe_to_stop?
-                      /   = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure? This will prevent any pending Sidekiq jobs from completing."}, class: "btn btn-danger"
-                      /   |
-                      - if w.safe_to_terminate?
-                        = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure? This will PERMANENTLY delete any pending Sidekiq jobs."}, class: "btn btn-danger"
+                    / - if w.safe_to_stop?
+                    /   = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure? This will prevent any pending Sidekiq jobs from completing."}, class: "btn btn-danger"
+                    /   |
+                    - if w.safe_to_terminate?
+                      = link_to "Terminate", manager_worker_terminate_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure? This will PERMANENTLY delete any pending Sidekiq jobs."}, class: "btn btn-danger"
 
     = link_to "Launch Another Instance", manager_start_worker_path, data: {method: :put, confirm: "Are you sure?"}, class: "btn btn-info"
   - else

@@ -114,8 +114,7 @@ class ManagerController < ApplicationController
   private
 
   def add_all_running_instances_to_elb!
-    # HACK: sort by launch time to make the earliest instance the master
-    instances = self.class.all_running_instances.select{|i| i.status == :running}.sort{|a,b| a.launch_time <=> b.launch_time}
+    instances = self.class.all_running_instances.select{|i| i.status == :running}
     elb = Elb.instance
 
     instances.each do |i|
@@ -138,7 +137,7 @@ class ManagerController < ApplicationController
   end
 
   def launch_and_register_worker
-    disable_api_termination = (elb.load_balancer.instances.count == 0)
+    disable_api_termination = false # any instance can be easily terminated
     worker = Worker.launch_worker(true, disable_api_termination)
     elb.register_worker(worker)
     worker
@@ -217,11 +216,8 @@ class ManagerController < ApplicationController
         raise "Cooldown expired while shrinking cluster!"
       end
 
-      raise "ELB master_instance_id is nil" unless elb.master_instance_id.present?
-
       # This assumes that shrink_cluster is never called by an instance that is going to be terminated
-      # I.e. it is only called on the master_instance
-      if worker.can_terminate? && worker.instance.id != elb.master_instance_id
+      if worker.can_terminate?
         Rails.logger.info "Terminating instance #{worker.instance.id}"
         worker.delete_alarms!
         elb.deregister_worker(worker)

@@ -48,7 +48,7 @@ class SNS
     end
   end
 
-  def sns_endpoint(ip_address)
-    "http://" + ip_address + "/manager/aws_alarm"
+  def sns_endpoint(dns_name)
+    "http://" + dns_name + "/manager/aws_alarm"
   end
 end

@@ -50,51 +50,16 @@ class Elb
     end rescue []
   end
 
-  def master_instance_id
-    # default to the instance with the earliest launch_time
-    if @master_instance_id.nil?
-      instance = Elb.instance.load_balancer.instances.sort{|a,b| a.launch_time <=> b.launch_time}.first rescue nil
-      @master_instance_id = instance.try(:id)
-    end
-    @master_instance_id
-  end
-
-  def master_instance_id=(value)
-    return value if @master_instance_id == value
-
-    # Initialize and point SNS subscriptions to the new master
-    SNS.instance.unsubscribe_all_topics!
-
-    # HACK!!!
-    @master_instance_id = value
-    if @master_instance_id.present?
-      instance = load_balancer.instances.detect{|i| i.id == @master_instance_id}
-      ip_address = instance.public_ip_address
-      raise "No public IP address for instance #{instance.id}" unless ip_address.present?
-      SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(ip_address))
-    end
-
-    @master_instance_id
-  end
-
   def configured?
     Elb.load_balancer.present?
   end
 
   def register_worker(w)
-    retval = load_balancer.instances.register(w.instance.id)
-    if @master_instance_id.nil?
-      master_instance_id = w.instance.id # handles initialization
-    end
-    retval
+    load_balancer.instances.register(w.instance.id)
   end
 
   def deregister_worker(w)
-    retval = load_balancer.instances.remove(w.instance.id)
-    if @master_instance_id == w.instance.id
-      master_instance_id = workers.first.instance.id
-    end
-    retval
+    load_balancer.instances.remove(w.instance.id)
   end
 
   def name
@@ -114,14 +79,6 @@ class Elb
         h
       end
     end rescue nil
-  end
-
-  def load_balancer_contains_master?
-    load_balancer.exists? ? (load_balancer.instances.map(&:id).include? @master_instance_id): false
-  end
-
-  def master_worker
-    workers.detect{|w| w.instance.id == master_instance_id}
   end
 
 end
