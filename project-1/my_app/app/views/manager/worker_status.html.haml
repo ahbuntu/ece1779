@@ -7,6 +7,7 @@
             %tr
               %th Master?
               %th Name
+              %th AMI
               %th IP
               %th Hostname
               %th Status
@@ -19,6 +20,7 @@
                 %tr
                   %td= worker_is_master?(w) ? "Y" : "-"
                   %td= w.instance.id
+                  %td= w.instance.image.id
                   %td= worker_public_ip(w)
                   %td= worker_public_dns(w)
                   %td= w.status
