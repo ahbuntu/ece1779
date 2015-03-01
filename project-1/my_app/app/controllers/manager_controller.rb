@@ -1,6 +1,8 @@
 require 'httparty'
 
 class ManagerController < ApplicationController
+  include AwsBoilerplate
+
   skip_before_filter    :authenticate
   before_action         :authenticate_manager, :except => [:new, :create, :aws_alarm]
   protect_from_forgery  :except => :aws_alarm
@@ -32,6 +34,7 @@ class ManagerController < ApplicationController
 
   def start_elb
     Elb.create_load_balancer
+    add_all_running_instances_to_elb!
     redirect_to manager_workers_path
   end
 
@@ -109,6 +112,17 @@ class ManagerController < ApplicationController
   end
 
   private
+
+  def add_all_running_instances_to_elb!
+    # HACK: sort by launch time to make the earliest instance the master
+    instances = self.class.all_running_instances.select{|i| i.status == :running}.sort{|a,b| a.launch_time <=> b.launch_time}
+    elb = Elb.instance
+
+    instances.each do |i|
+      w = Worker.new(i)
+      elb.register_worker(w)
+    end
+  end
 
   def update_cw_alarms
     autoscale = AutoScale.instance

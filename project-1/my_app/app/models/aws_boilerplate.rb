@@ -24,6 +24,14 @@ module AwsBoilerplate
       # AWS::EC2::Errors::ServiceError
     end
 
+    def all_instances
+      ec2.instances
+    end
+
+    def all_running_instances
+      all_instances.select{|i| i.status == :running}
+    end
+
     def instances_for_ami_id(ami_id)
       Rails.logger.info("instances_for_ami_id")
       instances = AWS.memoize do
