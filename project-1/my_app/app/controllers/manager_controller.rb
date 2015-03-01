@@ -65,11 +65,13 @@ class ManagerController < ApplicationController
     autoscale.update_attributes(autoscale_params)
     if !autoscale.save
       respond_to do |format|
-        format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}');", :status => 400 }
+        # FIXME: move this into a partial
+        format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}'); $('#form-autoscale .spinner').hide();", :status => 400 }
       end
     else
+      update_cw_alarms
       respond_to do |format|
-        format.js   {render :layout => false}
+        format.js  { render :layout => false }
       end
     end
   end

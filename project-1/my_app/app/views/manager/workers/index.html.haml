@@ -1,45 +1,59 @@
 :javascript
-  $.ajax({
-      url: "/manager/elb_status",
-      cache: false,
-      success: function(html){
-        $("#elb-status").html(html);
-      }
+  $().ready(function() {
+    $.ajax({
+        url: "/manager/elb_status",
+        cache: false,
+        success: function(html){
+          $("#elb-status").html(html);
+        }
+    });
+
+    $.ajax({
+        url: "/manager/image_stats",
+        cache: false,
+        success: function(html){
+          $("#image-stats").html(html);
+        }
+    });
+
+    $.ajax({
+        url: "/manager/worker_status",
+        cache: false,
+        success: function(html){
+          $("#worker-status").html(html);
+          $('#form-worker-refresh .spinner').hide();
+        }
+    });
+
+    $('#form-worker-refresh input[name="commit"]').click(function() {
+      $('#form-worker-refresh .spinner').show();
+    });
+
+    $('#form-autoscale input[name="commit"]').click(function() {
+      $('#form-autoscale .spinner').show();
+    });
+
+    $('#form-autoscale .spinner').hide();
   });
 
-  $.ajax({
-      url: "/manager/image_stats",
-      cache: false,
-      success: function(html){
-        $("#image-stats").html(html);
-      }
-  });
-
-  $.ajax({
-      url: "/manager/worker_status",
-      cache: false,
-      success: function(html){
-        $("#worker-status").html(html);
-      }
-  });
 =#{ #$(document).ready(function() {setInterval(function() {$("#worker-status").load("/manager/worker_status");}, 30000);});}
 
 %h2 Load Balancer
 #elb-status
-  Loading...
+  = image_tag("spinner.gif", :alt => "Loading...", :style => "height: 25px;", :class => "spinner")
 
 %hr
 %h2 Worker Pool
 #form-worker-refresh
   = form_tag manager_worker_status_path, method: 'get', remote: true do
     = submit_tag "Refresh", class: "btn btn-default"
-#worker-status
-  Loading...
+    = image_tag("spinner.gif", :alt => "Loading...", :style => "height: 25px;", :class => "spinner")
+    #worker-status
 
 %hr
 %h2 Image Stats
 #image-stats
-  Loading...
+  = image_tag("spinner.gif", :alt => "Loading...", :style => "height: 25px;", :class => "spinner")
 
 %hr
 %h3 Auto-Scaling: Configuration
@@ -67,3 +81,5 @@
 
     .form-group
       = submit_tag "Update",  class: "btn btn-info", id: "update"
+      = image_tag("spinner.gif", :alt => "Updating...", :style => "height: 25px;", :class => "spinner")
+

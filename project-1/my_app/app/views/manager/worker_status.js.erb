@@ -3,5 +3,6 @@ $.ajax({
     cache: false,
     success: function(html){
       $("#worker-status").html(html);
+      $('#form-worker-refresh .spinner').hide();
     }
 });
