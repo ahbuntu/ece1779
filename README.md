@@ -1,1 +1,50 @@
 # ece1779
+<b>AMI Instructions</b>
+
+<b>Database Instructions</b>
+
+<b>Account Instructions</b>
+<br>Provided by email.
+
+<b>Application Usage Instructions</b>
+<br>You must first launch an instance with the AMI provided. 
+
+The User UI
+
+ - Create an account in order to be able to upload images and view them. 
+ - Clicking on “Upload an Image” will take you to the image upload form. 
+   - You can only upload 1 image at a time.
+   - All images uploaded will be stored under the ‘ece1779’ bucket in S3
+
+ - The “My Images” link displays all the images you have uploaded so far. 
+
+
+The Manager UI
+
+ - If you click on the “Manager” link, you will be prompted for the manager credentials.
+
+ - If you want to start multiple instances, launch a load balancer by clicking on “Launch Load Balancer”.
+Note that the first launched instance will be outside the worker pool that is created for scaling purposes.
+
+ - You can manually scale the worker pool by clicking “Launch Another Instance” to increase the number of workers by 1, or shrink the pool by terminating instances.
+
+ - You can purge all images stored in the S3 bucket by clicking on “Purge Images”
+
+ - You can enable auto-scaling by clicking on the “Enable Auto-Scaling” checkbox followed by the “Update” button. The application will grow or shrink the worker pool based on the values provided.
+
+
+<b>Load Generator Tool Instructions</b>
+<br>The tool was downloaded from the course website 
+http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
+
+We made a few modifications:
+
+1. Added the option of specifying a port to connect to. (LoadGenerator.java: lines 27 -30)
+2. Changed the following values of the POST request 
+   - submitted file from “uploadedFile” to “theFile”. (Worker.java: line 82)
+   - filename from “test.gif” to “test.jpg”. (Worker.java: line 82)
+   - message content from “image/gif” to “image/jpeg”. (Worker.java: line 85)
+
+To run the program cd into <vm-directory>/ece1779LoadGenerator/bin
+<br>Run as:
+   - java ece1779.loadgenerator.LoadGenerator server_ip_address_or_dns_name <port-optional>
