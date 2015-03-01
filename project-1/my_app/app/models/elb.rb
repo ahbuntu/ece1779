@@ -46,8 +46,6 @@ class Elb
     # Initialize and point SNS subscriptions to the ELB
     retry_max = 3
     begin
-      SNS.instance.unsubscribe_all_topics!
-
       if load_balancer.instances.health.map(&:state).any?{|s| s == "InService"}
         # point to ELB if any healthy instances
         hostname_or_ip = load_balancer.dns_name
@@ -60,8 +58,26 @@ class Elb
         raise "Could not find any instance to use as an endpoint for alarm subscriptions!"
       end
 
+      # iterate through Subscriptions and only update those that have an endpoint change
+      sns = SNS.instance
       raise "No DNS name for ELB" unless hostname_or_ip.present?
-      SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(hostname_or_ip))
+      new_endpoint = SNS.instance.sns_endpoint(hostname_or_ip)
+
+      sns.topics.each do |topic|
+        if topic.subscriptions.count == 0
+          topic.subscribe(new_endpoint, json: true)
+        else
+          topic.subscriptions.each do |sub|
+            # Hacky: if not subscribed then we can't delete it
+            if sub.arn == "PendingConfirmation"
+              sub.topic.subscribe(sub.endpoint, json: true)
+            elsif new_endpoint != sub.endpoint
+              sub.exists? && sub.unsubscribe
+              topic.subscribe(new_endpoint, json: true)
+            end
+          end
+        end
+      end
     rescue => e
       if retry_max <= 0
         raise e
