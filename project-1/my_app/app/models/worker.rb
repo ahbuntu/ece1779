@@ -33,7 +33,7 @@ class Worker
       :security_groups         => security_group, 
       :key_pair                => key_pair,
       :monitoring_enabled      => monitoring_enabled,
-      :disable_api_termination => disable_api_termination # useful for the master instance
+      :disable_api_termination => disable_api_termination
       )
 
     Rails.logger.info "Launching instance #{instance.id}"
