@@ -42,7 +42,7 @@
 #elb-status
   = image_tag("spinner.gif", :alt => "Loading...", :style => "height: 25px;", :class => "spinner")
 
-- if !@load_balancer_contains_master
+- if !@load_balancer_contains_master && @master_worker.present?
   %hr
   %h2 Master
   .container-fluid
