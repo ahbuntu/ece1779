@@ -95,7 +95,7 @@ sudo start sidekiq-manager
 
 # Test everything out:
 touch my-file.txt
-curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://sample.com/ece1779/servlet/FileUpload
+curl --form "uploadedfile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://sample.com/ece1779/servlet/FileUpload
 
 
 ### TRINIDAD NOTES

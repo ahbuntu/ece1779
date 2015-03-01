@@ -1,4 +1,11 @@
-To Run the application: 
+Development: 
 
+To Run the application: 
 - cd into bin
 - run as “java ece1779.loadgenerator.LoadGenerator <server_ip_addres/dns_name> <port_optional>”
+
+Production: 
+
+To Run the application: 
+- cd into bin
+- run as “java ece1779.loadgenerator.LoadGenerator <server_ip_addres/dns_name>”

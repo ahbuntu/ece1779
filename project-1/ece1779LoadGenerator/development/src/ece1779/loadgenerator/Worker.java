@@ -79,7 +79,7 @@ public class Worker extends Thread {
 	            
 	            String message1 = "";
 	            message1 += "-----------------------------4664151417711" + CrLf;
-	            message1 += "Content-Disposition: form-data; name=\"theFile\"; filename=\"test.jpg\""
+	            message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"test.jpg\""
 	                    + CrLf;
 	            message1 += "Content-Type: image/jpeg" + CrLf;
 	            message1 += CrLf;

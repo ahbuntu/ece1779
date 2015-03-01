@@ -39,7 +39,7 @@ class ImagesController < ApplicationController
     # For #2, we assume that the POST data is at the top level of params
     #
     # Test #2 with:
-    #   curl --form "theFile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload
+    #   curl --form "uploadedfile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://127.0.0.1:3000/ece1779/servlet/FileUpload
     #
     # In both cases, we expect params[:userID] to be present.
     
@@ -106,9 +106,9 @@ class ImagesController < ApplicationController
     # From the requirements:
     #
     # field1 name = userID type = string
-    # field2 name = theFile type = file
+    # field2 name = uploadedfile type = file
 
-    file = params[:theFile]
+    file = params[:uploadedfile]
     original_filename = file.original_filename
     extension = File.extname(original_filename)
 
