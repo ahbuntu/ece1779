@@ -10,9 +10,11 @@ class Worker
 
   # NOTE: this can include terminated workers
   def self.all
-    instances_for_ami_id(AMI_IMAGE_ID).map do |i|
-      Worker.new(i)
-    end
+    Elb.instance.workers
+  end
+
+  def self.running
+    Elb.instance.workers.select{|w| w.running?}
   end
 
   def self.with_id(id)
