@@ -1,6 +1,6 @@
 class SessionsController < ApplicationController
 
-  skip_before_filter :authenticate, only: [:new, :create]
+  skip_before_filter :authenticate, only: [:new, :create, :ping]
 
   def new
   end
@@ -23,4 +23,8 @@ class SessionsController < ApplicationController
     redirect_to root_url
   end
   
+  def ping
+    head status: 200
+  end
+
 end

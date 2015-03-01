@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   post 'login' => 'sessions#create'
   delete 'logout' => 'sessions#destroy'
 
+  get 'ping' => 'sessions#ping' # for ELB health check
+
   #resources :images, :only => [:create]
 
   # The priority is based upon order of creation: first created -> highest priority.

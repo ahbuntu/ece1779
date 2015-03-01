@@ -21,7 +21,7 @@ class Elb
         }])
 
       # change health check to HTTP
-      load_balancer.configure_health_check({:target=>"HTTP:80/"})
+      load_balancer.configure_health_check({:target=>"HTTP:80/ping"})
 
       # enable stickiness
       policy = elb.client.create_lb_cookie_stickiness_policy({
