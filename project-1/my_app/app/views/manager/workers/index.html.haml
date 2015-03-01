@@ -41,6 +41,9 @@
 %h2 Load Balancer
 #elb-status
   = image_tag("spinner.gif", :alt => "Loading...", :style => "height: 25px;", :class => "spinner")
+- if Rails.env.development?
+  = form_tag manager_reset_alarms_path, remote: true do
+    = submit_tag "Reset Alarms", class: "btn btn-danger"
 
 %hr
 %h2 Worker Pool
