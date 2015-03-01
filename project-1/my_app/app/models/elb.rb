@@ -44,22 +44,32 @@ class Elb
 
   def reset_alarm_subscriptions!
     # Initialize and point SNS subscriptions to the ELB
-    SNS.instance.unsubscribe_all_topics!
+    retry_max = 3
+    begin
+      SNS.instance.unsubscribe_all_topics!
 
-    if load_balancer.instances.health.map(&:state).any?{|s| s == "InService"}
-      # point to ELB if any healthy instances
-      hostname_or_ip = load_balancer.dns_name
-    elsif instance = load_balancer.instances.select{|i| i.status == :running}.first
-      hostname_or_ip = instance.public_ip_address
-    elsif instance = all_running_instances.first
-      # fail-safe: take ANY running instance and try that
-      hostname_or_ip = instance.public_ip_address
-    else
-      raise "Could not find any instance to use as an endpoint for alarm subscriptions!"
+      if load_balancer.instances.health.map(&:state).any?{|s| s == "InService"}
+        # point to ELB if any healthy instances
+        hostname_or_ip = load_balancer.dns_name
+      elsif instance = load_balancer.instances.select{|i| i.status == :running}.first
+        hostname_or_ip = instance.public_ip_address
+      elsif instance = all_running_instances.first
+        # fail-safe: take ANY running instance and try that
+        hostname_or_ip = instance.public_ip_address
+      else
+        raise "Could not find any instance to use as an endpoint for alarm subscriptions!"
+      end
+
+      raise "No DNS name for ELB" unless hostname_or_ip.present?
+      SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(hostname_or_ip))
+    rescue => e
+      if retry_max <= 0
+        raise e
+      else
+        retry_max = retry_max - 1
+        retry
+      end
     end
-
-    raise "No DNS name for ELB" unless hostname_or_ip.present?
-    SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(hostname_or_ip))
   end
 
   def workers
