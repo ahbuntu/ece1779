@@ -42,6 +42,15 @@ class Elb
     Elb.load_balancer
   end
 
+  def reset_alarms!
+    # Initialize and point SNS subscriptions to the ELB
+    SNS.instance.unsubscribe_all_topics!
+
+    dns_name = load_balancer.dns_name
+    raise "No DNS name for ELB" unless dns_name.present?
+    SNS.instance.subscribe_all_topics!(SNS.instance.sns_endpoint(dns_name))
+  end
+
   def workers
     workers = AWS.memoize do
       load_balancer.instances.map do |i|
