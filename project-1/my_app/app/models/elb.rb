@@ -65,6 +65,7 @@ class Elb
 
   def register_worker(w)
     load_balancer.instances.register(w.instance.id)
+    w.create_alarms! # paranoia, but that's fine. OR IS IT?!
   end
 
   def deregister_worker(w)
