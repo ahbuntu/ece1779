@@ -62,15 +62,7 @@ class ManagerController < ApplicationController
 
   def auto_scale
     autoscale = AutoScale.instance
-    autoscale.grow_cpu_thresh     = params[:cpu_grow_val].to_f
-    autoscale.shrink_cpu_thresh   = params[:cpu_shrink_val].to_f
-    autoscale.grow_ratio_thresh   = params[:ratio_grow_val].to_f
-    autoscale.shrink_ratio_thresh = params[:ratio_shrink_val].to_f
-    autoscale.enabled             = params[:enable_autoscale].to_i == 1
-    autoscale.max_instances       = params[:max_instances].to_i
-
-    update_cw_alarms
-
+    autoscale.update_attributes(autoscale_params)
     if !autoscale.save
       respond_to do |format|
         format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}');", :status => 400 }
@@ -225,5 +217,10 @@ class ManagerController < ApplicationController
       end
     end
   end
+
+  def autoscale_params
+    params.require(:autoscale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances)
+  end
+
 
 end
