@@ -114,11 +114,9 @@ class ManagerController < ApplicationController
     autoscale = AutoScale.instance
     cw ||= Cloudwatch.instance
     if autoscale.enabled?
-      print "here"
       cw.update_all_high_cpu_alarms(elb.workers, autoscale.grow_cpu_thresh) 
       cw.update_all_low_cpu_alarms(elb.workers, autoscale.shrink_cpu_thresh) 
     else 
-      print "there"
       cw.update_all_high_cpu_alarms(elb.workers, 100.0)
       cw.update_all_low_cpu_alarms(elb.workers, 0.0)
     end
