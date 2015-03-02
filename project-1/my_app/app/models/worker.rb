@@ -129,7 +129,7 @@ class Worker
   end
 
   def delete_alarms!
-    logger.info "Deleting alarms for instance #{instance.id}"
+    Rails.logger.info "Deleting alarms for instance #{instance.id}"
     cw = Cloudwatch.instance
     cw.delete_alarms_for_instance_id!(instance.id)
   end
