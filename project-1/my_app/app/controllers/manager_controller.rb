@@ -107,10 +107,8 @@ class ManagerController < ApplicationController
     end
 
     if amz_message_type.to_s.downcase == 'notification'
-      #TODO: implement auto-scaling logic based on alarm and auto-scale config
-      #do_work request_body
-
-      rebalance_cluster if AutoScale.instance.enabled?
+      # TODO: implement auto-scaling logic based on alarm and auto-scale config
+      self.class.rebalance_cluster_if_necessary if AutoScale.instance.enabled?
     end
     head status: :accepted
   end
@@ -159,79 +157,6 @@ class ManagerController < ApplicationController
 
   ###
   # TODO: move this into a service
-
-  # Also, do we care about serializing all this on a single thread? There's
-  # a small chance of a race condition if 2+ notifications come in at the same
-  # time.
-  def rebalance_cluster
-    autoscale = AutoScale.instance
-    if autoscale.cooling_down?
-      Rails.logger.info "[rebalance_cluster] Still cooling down (until #{autoscale.cooldown_expires_at})..."
-      return
-    end
-
-    workers = Worker.all
-    cpu = workers.map(&:latest_cpu_utilization)
-    return if cpu.size == 0
-    avg_cpu = cpu.sum.to_f / cpu.count
-
-    if avg_cpu > autoscale.grow_cpu_thresh.to_f
-      grow_cluster
-    elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
-      shrink_cluster
-    end
-  end
-
-  def grow_cluster
-    autoscale = AutoScale.instance
-    autoscale.start_cooldown! || return # bail if already cooling down
-
-    start_size = Elb.instance.workers.size
-    target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
-    
-    Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
-
-    while start_size <= target_size
-      if !autoscale.cooling_down? # paranoia
-        raise "Cooldown expired while growing cluster!"
-      end
-      worker = launch_and_register_worker # NOTE: this might fail if we hit the AWS limit
-      Rails.logger.info "Launching instance #{worker.instance.id}"
-      start_size += 1
-    end
-  end
-
-  def shrink_cluster
-    autoscale = AutoScale.instance
-    autoscale.start_cooldown! || return # bail if already cooling down
-
-    start_size = Elb.instance.workers.size
-    target_size = (start_size / autoscale.shrink_ratio_thresh.to_f).to_i
-    target_size = 1 if target_size == 0
-    
-    Rails.logger.info "[shrink_cluster] From #{start_size} to #{target_size}"
-
-    elb = Elb.instance
-
-    elb.workers.each do |worker|
-      return if start_size <= target_size
-
-      if !autoscale.cooling_down? # paranoia
-        raise "Cooldown expired while shrinking cluster!"
-      end
-
-      # This assumes that shrink_cluster is never called by an instance that is going to be terminated
-      if worker.can_terminate?
-        Rails.logger.info "Terminating instance #{worker.instance.id}"
-        worker.delete_alarms!
-        elb.deregister_worker(worker)
-        start_size -= 1
-
-        # instead of outright terminating the worker, we give it time to drain the image upload/processing jobs
-        DrainQueueAndTerminateWorker.perform_async(worker.instance.id, Time.now + 3.minutes)
-      end
-    end
-  end
 
   def autoscale_params
     params.require(:auto_scale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances)
