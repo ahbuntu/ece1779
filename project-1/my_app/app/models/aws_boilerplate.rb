@@ -71,11 +71,14 @@ module AwsBoilerplate
 
     def grow_cluster
       autoscale = AutoScale.instance
-      autoscale.start_cooldown! || return # bail if already cooling down
-
       start_size = Elb.instance.workers.size
       target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
       
+      if start_size >= target_size
+        return
+      end
+
+      autoscale.start_cooldown! || return # bail if already cooling down
       Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
 
       while start_size < target_size
@@ -83,19 +86,23 @@ module AwsBoilerplate
           raise "Cooldown expired while growing cluster!"
         end
         worker = launch_and_register_worker # NOTE: this might fail if we hit the AWS limit
-        Rails.logger.info "Launching instance #{worker.instance.id}"
+        Rails.logger.info "[grow_cluster] Launching instance #{worker.instance.id}"
         start_size += 1
       end
     end
 
     def shrink_cluster
       autoscale = AutoScale.instance
-      autoscale.start_cooldown! || return # bail if already cooling down
 
       start_size = Elb.instance.workers.size
       target_size = (start_size / autoscale.shrink_ratio_thresh.to_f).to_i
       target_size = 1 if target_size == 0
-      
+
+      if start_size <= target_size
+        return
+      end
+
+      autoscale.start_cooldown! || return # bail if already cooling down      
       Rails.logger.info "[shrink_cluster] From #{start_size} to #{target_size}"
 
       elb = Elb.instance
@@ -109,7 +116,7 @@ module AwsBoilerplate
 
         # This assumes that shrink_cluster is never called by an instance that is going to be terminated
         if worker.can_terminate?
-          Rails.logger.info "Terminating instance #{worker.instance.id}"
+          Rails.logger.info "[shrink_cluster] Terminating instance #{worker.instance.id}"
           worker.delete_alarms!
           elb.deregister_worker(worker)
           start_size -= 1
