@@ -20,12 +20,8 @@ class Manager::WorkersController < ManagerController
     instance_id = params[:worker_id]
     worker = Worker.with_id(instance_id)
     raise "Worker cannot be terminated" unless worker.can_terminate?
-
-    worker.terminate!
-    worker.delete_alarms!
+    TerminateWorker.perform_in(5.seconds, instance_id) # in case we're terminating ourselves
     elb.deregister_worker(worker)
-
     redirect_to manager_workers_path
   end
-
 end

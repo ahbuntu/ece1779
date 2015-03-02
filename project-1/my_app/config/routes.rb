@@ -36,7 +36,6 @@ Rails.application.routes.draw do
   namespace :manager do
     get '/' => 'workers#index'
     resources :workers, :only => [:index, :show] do
-      delete :stop_worker
       delete :terminate_worker
     end
     post   :start_elb # singleton
