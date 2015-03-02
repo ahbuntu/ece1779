@@ -76,7 +76,7 @@ module AwsBoilerplate
       
       Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
 
-      while start_size <= target_size
+      while start_size < target_size
         if !autoscale.cooling_down? # paranoia
           raise "Cooldown expired while growing cluster!"
         end
