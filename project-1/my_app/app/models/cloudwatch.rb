@@ -25,16 +25,20 @@ class Cloudwatch
     }
   end
 
+  def alarm_name(type, instance_id)
+    "#{instance_id}-#{type}-CPU-Utilization"
+  end
+
   def create_cpu_alarm(type, instance_id, threshold, topic)
     type = type.upcase
     raise "type (#{type}) not supported: expects 'high' or 'low'" unless %w(HIGH LOW).include?(type)
-    alarm_collection.create("#{instance_id}-#{type}-CPU-Utilization", cpu_alarm_params(type, instance_id, threshold, topic))
+    alarm_collection.create(alarm_name(type, instance_id), cpu_alarm_params(type, instance_id, threshold, topic))
   end
 
   def update_cpu_alarm(type, instance_id, threshold, topic)
     type = type.upcase
     raise "type (#{type}) not supported: expects 'high' or 'low'" unless %w(HIGH LOW).include?(type)
-    alarm_collection["#{instance_id}-#{type}-CPU-Utilization"].update(cpu_alarm_params(type, instance_id, threshold, topic))
+    alarm_collection[alarm_name(type, instance_id)].update(cpu_alarm_params(type, instance_id, threshold, topic))
   end
 
   def create_high_cpu_alarm(instance_id, threshold)
