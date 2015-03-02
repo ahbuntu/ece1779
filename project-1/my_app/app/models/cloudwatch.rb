@@ -86,7 +86,7 @@ class Cloudwatch
 
   def delete_alarms_for_instance_id!(instance_id)
     list = alarms_for_instance_id(instance_id).map(&:name)
-    logger.info "Deleting alarms: #{list}"
+    Rails.logger.info "Deleting alarms: #{list}"
     alarm_collection.delete(list)
   end
 

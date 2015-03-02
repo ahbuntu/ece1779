@@ -122,7 +122,7 @@ class ManagerController < ApplicationController
     elb = Elb.instance
 
     instances.each do |i|
-      logger.info "Adding Instance #{i.id} to ELB"
+      Rails.logger.info "Adding Instance #{i.id} to ELB"
       w = Worker.new(i)
       elb.register_worker(w)
     end

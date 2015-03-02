@@ -2,7 +2,7 @@ class TransformImageWorker
   include Sidekiq::Worker
 
   def perform(image_id, key, width, height)
-    logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
+    Rails.logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
 
     image = Image.find image_id
     return if image.send(key).present?
@@ -14,7 +14,7 @@ class TransformImageWorker
       return
     end
 
-    logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
+    Rails.logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
     thumb = MiniMagick::Image.open(image.tempfile_path)  # open creates a copy of the image
     thumb.resize "#{width}x#{height}"
     # thumb.format "png" # force to PNG?

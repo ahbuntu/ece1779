@@ -70,7 +70,7 @@ class Image < ActiveRecord::Base
   end
 
   def dispatch_image_transformations!
-    logger.info "[Image] Dispatching TransformImageWorker jobs"
+    Rails.logger.info "[Image] Dispatching TransformImageWorker jobs"
     self.key2.nil? && TransformImageWorker.perform_async(id, :key2, 100, 100)
     self.key3.nil? && TransformImageWorker.perform_async(id, :key3, 200, 200)
     self.key4.nil? && TransformImageWorker.perform_async(id, :key4, 300, 300)
@@ -87,12 +87,12 @@ class Image < ActiveRecord::Base
   end
 
   def dispatch_upload_job
-    logger.info "[Image] Dispatching UploadImageOriginalWorker job"
+    Rails.logger.info "[Image] Dispatching UploadImageOriginalWorker job"
     UploadImageOriginalWorker.perform_async(self.id)
   end
 
   def delete_assets
-    logger.debug "Deleting Image #{id} assets"
+    Rails.logger.debug "Deleting Image #{id} assets"
     image_keys.each do |k|
       v = self.send(k) && DeleteImageWorker.perform_async(v)
     end
@@ -100,10 +100,10 @@ class Image < ActiveRecord::Base
   end
 
   def delete_tempfile
-    logger.debug "KEYS: " + image_keys.map{|k| send(k)}.join(", ")
-    logger.debug "Deleting tempfile? #{tempfile_path} for Image #{id}"
+    Rails.logger.debug "KEYS: " + image_keys.map{|k| send(k)}.join(", ")
+    Rails.logger.debug "Deleting tempfile? #{tempfile_path} for Image #{id}"
     unless !File.exists?(tempfile_path)
-      logger.info "Deleting Image #{id} tempfile: #{tempfile_path}"
+      Rails.logger.info "Deleting Image #{id} tempfile: #{tempfile_path}"
       File.unlink(tempfile_path)
     end
   end

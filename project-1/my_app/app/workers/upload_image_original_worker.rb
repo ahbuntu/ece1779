@@ -4,7 +4,7 @@ class UploadImageOriginalWorker
 
   def perform(image_id)
     image = Image.find image_id
-    logger.debug "[UploadImageOriginalWorker] Uploading Image #{image_id} from #{image.tempfile_path} to S3..."
+    Rails.logger.debug "[UploadImageOriginalWorker] Uploading Image #{image_id} from #{image.tempfile_path} to S3..."
 
     # hack for testing
     if Image::FAKE_UPLOADS
