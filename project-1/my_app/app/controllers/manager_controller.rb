@@ -45,7 +45,8 @@ class ManagerController < ApplicationController
 
   def purge_images
     Image.delete_all
-    Image.s3_bucket.objects.delete_all
+    # Image.s3_bucket.objects.delete_all
+    Image.s3_bucket.clear!
     redirect_to manager_workers_path
   end
 
