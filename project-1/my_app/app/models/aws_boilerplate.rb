@@ -60,6 +60,8 @@ module AwsBoilerplate
       return if cpu.size == 0
       avg_cpu = cpu.sum.to_f / cpu.count
 
+      Rails.logger.info "[rebalance_cluster_if_necessary] avg_cpu = #{avg_cpu}"
+
       if avg_cpu > autoscale.grow_cpu_thresh.to_f
         grow_cluster
       elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
@@ -125,4 +127,5 @@ module AwsBoilerplate
       worker
     end
   end
+
 end
