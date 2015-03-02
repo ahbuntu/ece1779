@@ -6,48 +6,35 @@ class Cloudwatch
 
   ALARM_PERIOD_IN_SECONDS = 1.minute.to_i
 
+  def cpu_alarm_params(type, instance_id, threshold, topic)
+    {
+      :namespace           => 'AWS/EC2',
+      :metric_name         => 'CPUUtilization',
+      :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
+      :evaluation_periods  => 3,
+      :period              => ALARM_PERIOD_IN_SECONDS,
+      :statistic           => 'Average',
+      :threshold           => threshold, 
+      :actions_enabled     => true,
+      :alarm_actions       => [topic.arn],
+      :alarm_description   => 'auto-generated',
+      :unit                => 'Percent',
+
+      # TODO: can we make this the security group and only create one alarm for high & one for low?
+      :dimensions          => [{:name => "InstanceId", :value => instance_id}] 
+    }
+  end
+
   def create_cpu_alarm(type, instance_id, threshold, topic)
     type = type.upcase
     raise "type (#{type}) not supported: expects 'high' or 'low'" unless %w(HIGH LOW).include?(type)
-
-    # TODO: create 1 alarm per newly created instance
-    alarm_collection.create("#{instance_id}-#{type.upcase}-CPU-Utilization", 
-      {
-        :namespace           => 'AWS/EC2',
-        :metric_name         => 'CPUUtilization',
-        :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
-        :evaluation_periods  => 3,
-        :period              => ALARM_PERIOD_IN_SECONDS,
-        :statistic           => 'Average',
-        :threshold           => threshold, 
-        :actions_enabled     => true,
-        :alarm_actions       => [topic.arn],
-        :alarm_description   => 'auto-generated',
-        :unit                => 'Percent',
-
-        # TODO: can we make this the security group and only create one alarm for high & one for low?
-        :dimensions          => [{:name => "InstanceId", :value => instance_id}] 
-      })
+    alarm_collection.create("#{instance_id}-#{type}-CPU-Utilization", cpu_alarm_params(type, instance_id, threshold, topic))
   end
 
   def update_cpu_alarm(type, instance_id, threshold, topic)
     type = type.upcase
     raise "type (#{type}) not supported: expects 'high' or 'low'" unless %w(HIGH LOW).include?(type)
-
-    alarm_collection["#{instance_id}-#{type.upcase}-CPU-Utilization"].update(
-      {
-        :namespace           => 'AWS/EC2',
-        :metric_name         => 'CPUUtilization',
-        :comparison_operator => (type == 'HIGH' ? 'GreaterThanThreshold' : 'LessThanThreshold'),
-        :evaluation_periods  => 3,
-        :period              => ALARM_PERIOD_IN_SECONDS,
-        :statistic           => 'Average',
-        :threshold           => threshold, 
-        :actions_enabled     => true,
-        :alarm_actions       => [topic.arn],
-        :alarm_description   => 'auto-generated',
-        :unit                => 'Percent',
-      })
+    alarm_collection["#{instance_id}-#{type}-CPU-Utilization"].update(cpu_alarm_params(type, instance_id, threshold, topic))
   end
 
   def create_high_cpu_alarm(instance_id, threshold)
