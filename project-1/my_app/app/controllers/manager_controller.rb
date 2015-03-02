@@ -234,8 +234,7 @@ class ManagerController < ApplicationController
   end
 
   def autoscale_params
-    params.require(:autoscale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances)
+    params.require(:auto_scale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances)
   end
-
 
 end

@@ -61,26 +61,26 @@
 %hr
 %h3 Auto-Scaling: Configuration
 #form-autoscale
-  = form_tag manager_auto_scale_path, remote: true do
+  = form_for @autoscale, url: manager_auto_scale_url, method: :post, remote: true do |f|
     #autoscale-config
       .form-group
-        = check_box_tag 'autoscale[enabled]', 1, @autoscale.enabled?
+        = f.check_box :enabled
         Enable Auto-Scaling
       .form-group
         CPU threshold for growing the working pool
-        = text_field_tag 'autoscale[grow_cpu_thresh]', @autoscale.grow_cpu_thresh
+        = f.text_field :grow_cpu_thresh
       .form-group
         CPU threshold for shrinking the working pool
-        = text_field_tag 'autoscale[shrink_cpu_thresh]', @autoscale.shrink_cpu_thresh
+        = f.text_field :shrink_cpu_thresh
       .form-group
         Ratio for growing the working pool
-        = text_field_tag 'autoscale[grow_ratio_thresh]', @autoscale.grow_ratio_thresh
+        = f.text_field :grow_ratio_thresh
       .form-group
         Ratio for shrinking the working pool
-        = text_field_tag 'autoscale[shrink_ratio_thresh]', @autoscale.shrink_ratio_thresh
+        = f.text_field :shrink_ratio_thresh
       .form-group
         Max instances
-        = text_field_tag 'autoscale[max_instances]', @autoscale.max_instances
+        = f.text_field :max_instances
 
     .form-group
       = submit_tag "Update",  class: "btn btn-info", id: "update"
