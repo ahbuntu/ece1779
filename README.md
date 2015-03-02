@@ -1,7 +1,7 @@
 # ece1779
 
 <h2>Configuration</h2>
-<br>Project application stack
+Project application stack
   - Puma - webserver running up to 16 threads internally
   - Nginx - reverse proxy
   - Sidekiq - single process asynchornous job queue, running on 1 thread
@@ -9,10 +9,10 @@
 <h2>Database Instructions</h2>
 
 <h2>Account Instructions</h2>
-<br>Provided by email.
+Provided by email.
 
 <h2>Application Usage Instructions</h2>
-<br>You must first launch an instance with the AMI provided. This will become the master instance if the load balancer is started.
+You must first launch an instance with the AMI provided. This will become the master instance if the load balancer is started.
 Use the default settings unless specified as below - 
   - Step 1
     - My AMIs:                      <specify-AMI-name>
@@ -54,9 +54,9 @@ The master instance can only be removed from the AWS console and not from the ap
 
 
 <h2>Load Generator Tool Instructions</h2>
-<br>The tool was downloaded from the course website 
+The tool was downloaded from the course website 
 http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 
 To run the program cd into <vm-directory>/ece1779LoadGenerator/bin
-<br>Run as:
+Run as:
   - java ece1779.loadgenerator.LoadGenerator server_ip_address_or_dns_name <port-optional>
