@@ -117,5 +117,12 @@ module AwsBoilerplate
         end
       end
     end
+
+    def launch_and_register_worker
+      disable_api_termination = false # any instance can be easily terminated
+      worker = Worker.launch_worker(true, disable_api_termination)
+      Elb.instance.register_worker(worker)
+      worker
+    end
   end
 end

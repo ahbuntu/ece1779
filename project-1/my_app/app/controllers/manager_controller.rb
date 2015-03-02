@@ -28,7 +28,8 @@ class ManagerController < ApplicationController
   end
 
   def start_worker
-    launch_and_register_worker
+    worker = Worker.launch_worker(true, disable_api_termination)
+    Elb.instance.register_worker(worker)
     redirect_to manager_workers_path
   end
 
@@ -136,13 +137,6 @@ class ManagerController < ApplicationController
       cw.update_all_high_cpu_alarms(elb.workers, 100.0)
       cw.update_all_low_cpu_alarms(elb.workers, 0.0)
     end
-  end
-
-  def launch_and_register_worker
-    disable_api_termination = false # any instance can be easily terminated
-    worker = Worker.launch_worker(true, disable_api_termination)
-    elb.register_worker(worker)
-    worker
   end
 
   def elb
