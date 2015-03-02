@@ -116,7 +116,7 @@ module AwsBoilerplate
 
         # This assumes that shrink_cluster is never called by an instance that is going to be terminated
         if worker.can_terminate?
-          Rails.logger.info "[shrink_cluster] Terminating instance #{worker.instance.id}"
+          Rails.logger.info "[shrink_cluster] Removing instance #{worker.instance.id}"
           worker.delete_alarms!
           elb.deregister_worker(worker)
           start_size -= 1
