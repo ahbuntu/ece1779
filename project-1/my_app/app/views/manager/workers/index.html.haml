@@ -66,6 +66,8 @@
       .form-group
         = f.check_box :enabled
         Enable Auto-Scaling
+        - if AutoScale.instance.cooling_down?
+          = "(Cooldown expires in #{(AutoScale.cooldown_expires_at - Time.now).to_i} seconds...)"
       .form-group
         CPU threshold for growing the working pool
         = f.text_field :grow_cpu_thresh
