@@ -49,6 +49,7 @@ class Worker
     @websvr ||= ec2.security_groups.create('webservers')
 
     @websvr.authorize_ingress(:tcp, 80)
+    @websvr.authorize_ingress(:tcp, 8080)
     @websvr.authorize_ingress(:tcp, 22)
     @websvr.authorize_ingress(:tcp, 3306)
     @websvr.allow_ping
