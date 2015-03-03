@@ -6,7 +6,7 @@ class Worker
 
   attr_reader :instance
 
-  AMI_IMAGE_ID="ami-c6055dae" # name: "ece1779-puma-XXX"
+  # AMI_IMAGE_ID="ami-c6055dae" # name: "ece1779-puma-XXX"
 
   # NOTE: this can include terminated workers
   def self.all
@@ -58,7 +58,19 @@ class Worker
   end
 
   def self.default_image
-    @default_image ||= ec2.images[AMI_IMAGE_ID]
+    @default_image ||= ec2.images[ami_image_id]
+  end
+
+  def self.ami_image_id
+    ec2.images.with_tag(ami_image_tag_key, ami_image_tag_value).first.image_id
+  end
+
+  def self.ami_image_tag_key
+    key = YAML.load(File.read('config/aws.yml'))[Rails.env.to_s]["ami_key"]
+  end
+
+  def self.ami_image_tag_value
+    value = YAML.load(File.read('config/aws.yml'))[Rails.env.to_s]["ami_value"]
   end
 
   def self.default_instance_type

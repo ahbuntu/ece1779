@@ -3,10 +3,14 @@ development:
   secret_access_key: 456
   region: 'us-east-1'
   bucket: 'ece1779-dev'
+  ami_key: 'dev'
+  ami_value: 'launcher'
 
 production:
   access_key_id: 123
   secret_access_key: 456
   region: 'us-east-1'
   bucket: 'ece1779'
+  ami_key: 'prod'
+  ami_value: 'launcher'
 
