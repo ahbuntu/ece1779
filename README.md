@@ -15,12 +15,12 @@ Provided by email.
 You must first launch an instance with the AMI provided. This will become the master instance if the load balancer is started.
 Use the default settings unless specified as below - 
   - Step 1
-    - My AMIs:                      <specify-AMI-name>
+    - My AMIs:                      "ece1779-puma-006 - ami-c6055dae"
   - Step 2
     - Instance Type:                "t2.small"
   - Step 3
     - Shutdown Behvaior:            "Terminate" 
-    - Enable Termiantion Protection
+    - <s>Enable Termiantion Protection</s>
     - Enable Detailed Monitoring
   - Step 5
     - Value:                        "master" 
