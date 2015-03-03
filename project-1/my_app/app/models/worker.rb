@@ -6,7 +6,7 @@ class Worker
 
   attr_reader :instance
 
-  AMI_IMAGE_ID="ami-eca6f884" # name: "ece1779-puma-XXX"
+  AMI_IMAGE_ID="ami-c6055dae" # name: "ece1779-puma-XXX"
 
   # NOTE: this can include terminated workers
   def self.all
