@@ -28,6 +28,7 @@ class ManagerController < ApplicationController
   end
 
   def start_worker
+    disable_api_termination = false
     worker = Worker.launch_worker(true, disable_api_termination)
     Elb.instance.register_worker(worker)
     redirect_to manager_workers_path
