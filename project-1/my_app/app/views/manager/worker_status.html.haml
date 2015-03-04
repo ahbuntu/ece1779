@@ -12,6 +12,7 @@
               %th Status
               %th ELB Health
               %th CPU %
+              %th Sidekiq
               %th Actions
           %tbody
             - @workers.each do |w|
@@ -24,6 +25,8 @@
                   %td= w.status
                   %td= worker_health(w)
                   %td= w.latest_cpu_utilization.to_f.round(2)
+                  %td= worker_sidekiq_url(w)
+
                   %td
                     / - if w.safe_to_stop?
                     /   = link_to "Stop", manager_worker_stop_worker_path(w.instance.id), data: {method: :delete, confirm: "Are you sure? This will prevent any pending Sidekiq jobs from completing."}, class: "btn btn-danger"

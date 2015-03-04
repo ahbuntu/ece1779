@@ -19,4 +19,12 @@ module Manager::WorkersHelper
     end
   end
 
+  def worker_sidekiq_url(worker)
+    if worker.instance.public_ip_address
+      link_to "(here)", "http://#{(worker.instance.public_ip_address + sidekiq_web_path)}", :target => "_blank"
+    else
+      nil
+    end
+  end
+
 end
