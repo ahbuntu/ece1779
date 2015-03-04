@@ -5,11 +5,24 @@ Project application stack
   - Puma - webserver running up to 16 threads internally
   - Nginx - reverse proxy
   - Sidekiq - single process asynchornous job queue, running on 1 thread
+  - MySQL - database
+
+Each instance is configured for HTTP traffic only on port 80.
+The ELB is configured for HTTP traffic on ports 80 and 8080.
 
 <h2>Database Instructions</h2>
 
 <h2>Account Instructions</h2>
 Provided by email.
+
+<h2>Application Architecture</h2>
+The project application is built using Ruby on Rails. It uses Nginx as a reverse proxy for the Puma web server and Sidekiq to asynchronously process jobs. User credentials, paths to the uploaded images and autoscaling configurations are stored on a MySQL database.
+
+There is a basic authentication mechanism for the User and Manager pages. When a user chooses to upload an image, a temporary copy of the file is first saved on the server, and then uploaded to S3. Then 3 Sidekiq jobs are started to asynchronously perform the image transformations and finally upload to S3.
+
+The manager page allows to start an ELB and add/remove workers to the pool. Launching an instance adds it to the worker pool and creates CloudWatch alarms correpsonding to the values specified. If auto-scaling is enabled, the reception of an alarm triggers an evaluation of whether to grow or shrink the cluster. 
+
+The auto-scaling decision is made by taking the average CPU utilization of all workers and then determining whether the thresholds have been exceeded. Once a decision to grow or shrink the cluster is made, a cooldown period of 5 minutes is defined. During this period, all incoming alarm notifications will be ignored. This approach also allows us to use a decentralized alarm processing mechanism whereby any server on the cluster can perform the auto-scaling.
 
 <h2>Application Usage Instructions</h2>
 You must first launch an instance with the AMI provided. This will become the master instance if the load balancer is started.
@@ -59,4 +72,4 @@ http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 
 To run the program cd into <vm-directory>/ece1779LoadGenerator/bin
 Run as:
-  - java ece1779.loadgenerator.LoadGenerator server_ip_address_or_dns_name <port-optional>
+  - java ece1779.loadgenerator.LoadGenerator elb_name
