@@ -56,16 +56,16 @@ Use the default settings unless specified as below:
 
 ### The Manager UI
 
-  - If you click on the “Manager” link, you will be prompted for the manager credentials.
+- If you click on the “Manager” link, you will be prompted for the manager credentials.
 
-  - If you want to start multiple instances, first launch a load balancer by clicking on “Launch Load Balancer”.
+- If you want to start multiple instances, first launch a load balancer by clicking on “Launch Load Balancer”.
 The master instance can only be removed from the AWS console and not from the application.
 
-  - You can manually scale the worker pool by clicking “Launch Another Instance” to increase the number of workers by 1, or shrink the pool by terminating instances.
+- You can manually scale the worker pool by clicking “Launch Another Instance” to increase the number of workers by 1, or shrink the pool by terminating instances.
 
-  - You can purge all images stored in the S3 bucket by clicking on “Purge Images”
+- You can purge all images stored in the S3 bucket by clicking on “Purge Images”
 
-  - You can enable auto-scaling by clicking on the “Enable Auto-Scaling” checkbox followed by the “Update” button. The application will grow or shrink the worker pool based on the values provided.
+- You can enable auto-scaling by clicking on the “Enable Auto-Scaling” checkbox followed by the “Update” button. The application will grow or shrink the worker pool based on the values provided.
 
 
 ## Load Generator Tool Instructions
