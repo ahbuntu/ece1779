@@ -30,7 +30,7 @@ class Elb
       policy = elb.client.create_lb_cookie_stickiness_policy({
         :load_balancer_name => load_balancer.name, 
         :policy_name => 'sticky-sessions',
-        :cookie_expiration_period => 3600, # no expiry
+        :cookie_expiration_period => 30, # keep it small so that the load-gen tool gets rebalanced quickly
         })
       load_balancer.listeners.each do |l|
         l.policy = 'sticky-sessions'
