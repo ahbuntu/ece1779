@@ -73,10 +73,12 @@ Use the default settings unless specified as below:
   - You can enable auto-scaling by clicking on the “Enable Auto-Scaling” checkbox followed by the “Update” button. The application will grow or shrink the worker pool based on the values provided.
 
 
-## Load Generator Tool Instructions
-The tool was downloaded from the course website 
+### Load Generator Tool Instructions
+The application was load tested using the provided tool. It was downloaded from the course website 
 http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 
-To run the program cd into <vm-directory>/ece1779LoadGenerator/bin
-Run as:
-  java ece1779.loadgenerator.LoadGenerator elb_name
+
+### Future Work
+
+- enable direct-to-S3 uploads; modify the load-gen tool to take advantage of this mechanism
+- 
