@@ -132,13 +132,13 @@ class ManagerController < ApplicationController
   def update_cw_alarms
     autoscale = AutoScale.instance
     cw ||= Cloudwatch.instance
-    if autoscale.enabled?
+    # if autoscale.enabled?
       cw.update_all_high_cpu_alarms(elb.workers, autoscale.grow_cpu_thresh) 
       cw.update_all_low_cpu_alarms(elb.workers, autoscale.shrink_cpu_thresh) 
-    else 
-      cw.update_all_high_cpu_alarms(elb.workers, 100.0)
-      cw.update_all_low_cpu_alarms(elb.workers, 0.0)
-    end
+    # else 
+    #   cw.update_all_high_cpu_alarms(elb.workers, 100.0)
+    #   cw.update_all_low_cpu_alarms(elb.workers, 0.0)
+    # end
   end
 
   def elb

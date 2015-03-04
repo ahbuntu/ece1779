@@ -24,8 +24,11 @@ class AutoScale < ActiveRecord::Base
 
   def start_cooldown!
     unless cooling_down?
-      update_attribute(:cooldown_expires_at, self.cooldown_period_in_seconds.seconds.from_now)
-      TestAndRebalanceWorker.perform_at(self.cooldown_expires_at + 5.seconds)
+      expire_at = self.cooldown_period_in_seconds.seconds.from_now
+      update_attribute(:cooldown_expires_at, expire_at)
+
+      # There might be an active alarm when the cooldown expires, so check.
+      TestAndRebalanceWorker.perform_at(expire_at + 5.seconds)
     end
   end
 
