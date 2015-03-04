@@ -24,6 +24,7 @@ class DrainQueueAndTerminateWorker
       Rails.logger.info "[DrainQueueAndTerminateWorker] Terminating instance #{instance.id}"
       instance.terminate # no jobs left
     else
+      Rails.logger.info "[DrainQueueAndTerminateWorker] Rescheduling for 30 seconds (instance: #{instance.id})"
       DrainQueueAndTerminateWorker.perform_in(30.seconds, instance_id, terminate_by)
     end
   end

@@ -7,7 +7,8 @@ class TestAndRebalanceWorker
     if autoscale.cooling_down?
       Rails.logger.info "[TestAndRebalanceWorker] Still cooling down (until #{autoscale.cooldown_expires_at})..."
     else
-      TestAndRebalanceWorker.rebalance_cluster_if_necessary if AutoScale.instance.enabled?
+      Rails.logger.info "[TestAndRebalanceWorker] Rebalancing cluster if necessary"
+      TestAndRebalanceWorker.rebalance_cluster_if_necessary if autoscale.enabled?
     end
   end
 end
