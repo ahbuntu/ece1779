@@ -3,7 +3,7 @@
 ## Group Information
 - Group Number 5
 - Group members:
-  - David Carney (998752005)
+  - David Carney
   - Ahmadul Hassan
 
 ## Configuration
