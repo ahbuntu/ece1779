@@ -26,7 +26,7 @@ class Elb
           :instance_protocol => :http,
         }])
 
-      # enable stickiness
+      # Enable stickiness
       policy = elb.client.create_lb_cookie_stickiness_policy({
         :load_balancer_name => load_balancer.name, 
         :policy_name => 'sticky-sessions',
@@ -36,8 +36,15 @@ class Elb
         l.policy = 'sticky-sessions'
       end
 
-      # update health check
-      load_balancer.configure_health_check({:target=>"HTTP:80/ping"})
+      # Update health check.
+      # Make it short so we can avoid a long cooldown. Acceptable as we're not scaling to a large size.
+      load_balancer.configure_health_check({
+        :target=>"HTTP:80/ping",
+        :healthy_threshold => 2, 
+        :timeout => 5, 
+        :unhealthy_threshold => 2,
+        :interval => 10
+        })
 
       load_balancer
     end
