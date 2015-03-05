@@ -91,6 +91,17 @@ module AwsBoilerplate
       end
     end
 
+    # Helper to get the current EC2 instance_id
+    # See http://stackoverflow.com/questions/625644/find-out-the-instance-id-from-within-an-ec2-machine
+    def my_instance_id
+      if @my_instance_id == nil
+        metadata_endpoint = 'http://169.254.169.254/latest/meta-data/' + 'instance-id'
+        h = HTTParty.get(metadata_endpoint)
+        @my_instance_id = (h.response.code.to_i == 200 ? h.response.body : nil)
+      end
+      @my_instance_id
+    end
+
     def shrink_cluster
       autoscale = AutoScale.instance
 
@@ -109,6 +120,11 @@ module AwsBoilerplate
 
       elb.workers.each do |worker|
         return if start_size <= target_size
+
+        if worker.instance.id == my_instance_id
+          Rails.logger.info "[shrink_cluster] Skipping instance #{my_instance_id} because it's me!"
+          return
+        end
 
         if !autoscale.cooling_down? # paranoia
           raise "Cooldown expired while shrinking cluster!"
