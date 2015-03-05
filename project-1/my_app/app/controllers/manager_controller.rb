@@ -81,8 +81,10 @@ class ManagerController < ApplicationController
     else
       Rails.logger.info "[AUTOSCALE RECREATE ALARMS] Creating alarms for all instances "
       if autoscale.enabled?
-         Elb.instance.workers.each{|w| w.create_alarms!}
-         update_cw_alarms
+        Elb.instance.workers.each{|w| w.create_alarms!}
+        update_cw_alarms
+      else 
+        Elb.instance.workers.each{|w| w.delete_alarms!}  
       end
       respond_to do |format|
         format.js  { render :layout => false }

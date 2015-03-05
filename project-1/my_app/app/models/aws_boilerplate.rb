@@ -63,15 +63,15 @@ module AwsBoilerplate
       Rails.logger.info "[rebalance_cluster_if_necessary] avg_cpu = #{avg_cpu}"
 
       if avg_cpu > autoscale.grow_cpu_thresh.to_f
-        Elb.instance.workers.each{|w| w.delete_alarms!}
         grow_cluster
       elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
-        Elb.instance.workers.each{|w| w.delete_alarms!}
         shrink_cluster
       end
     end
 
     def grow_cluster
+      Rails.logger.info "[grow_cluster] Deleting all alrams"
+      Elb.instance.workers.each{|w| w.delete_alarms!}
       autoscale = AutoScale.instance
       start_size = Elb.instance.workers.size
       target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
@@ -105,6 +105,8 @@ module AwsBoilerplate
     end
 
     def shrink_cluster
+      Rails.logger.info "[grow_cluster] Deleting all alrams"
+      Elb.instance.workers.each{|w| w.delete_alarms!}
       autoscale = AutoScale.instance
 
       start_size = Elb.instance.workers.size
