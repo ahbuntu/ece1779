@@ -9,14 +9,8 @@ class TestAndRebalanceWorker
       Rails.logger.info "[TestAndRebalanceWorker] Still cooling down (until #{autoscale.cooldown_expires_at})..."
     else
       Rails.logger.info "[TestAndRebalanceWorker] Rebalancing cluster if necessary"
-      Rails.logger.info "[AUTOSCALE RECREATE ALARMS] Creating and updating alarms on cooldown expiry "
-      if autoscale.enabled?
-        elb ||= Elb.instance
-        elb.workers.each{|w| w.create_alarms!}
-        cw ||= Cloudwatch.instance
-        cw.update_all_high_cpu_alarms(elb.workers, autoscale.grow_cpu_thresh) 
-        cw.update_all_low_cpu_alarms(elb.workers, autoscale.shrink_cpu_thresh) 
-      end
+      Rails.logger.info "[COOLDOWN EXPIRY] Creating and updating alarms on cooldown expiry "
+      autoscale.create_or_delete_alarms
       TestAndRebalanceWorker.rebalance_cluster_if_necessary if autoscale.enabled?
     end
   end

@@ -19,6 +19,21 @@ class AutoScale < ActiveRecord::Base
     enabled.to_i == 1
   end
 
+  def create_or_delete_alarms
+    cw ||= Cloudwatch.instance
+    elb ||= Elb.instance
+    if enabled?
+      elb.workers.each do |w|
+        cw.create_high_cpu_alarm(w.instance.id, AutoScale.instance.grow_cpu_thresh.to_f)
+        cw.create_low_cpu_alarm(w.instance.id, AutoScale.instance.shrink_cpu_thresh.to_f)
+      end
+    else
+      elb.workers.each do |w|
+        cw.delete_alarms_for_instance_id!(w.instance.id)
+      end
+    end
+  end
+
   def cooling_down?
     self.cooldown_expires_at.present? && self.cooldown_expires_at > Time.now
   end

@@ -79,13 +79,8 @@ class ManagerController < ApplicationController
         format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}'); $('#form-autoscale .spinner').hide();", :status => 400 }
       end
     else
-      Rails.logger.info "[AUTOSCALE RECREATE ALARMS] Creating alarms for all instances "
-      if autoscale.enabled?
-        Elb.instance.workers.each{|w| w.create_alarms!}
-        update_cw_alarms
-      else 
-        Elb.instance.workers.each{|w| w.delete_alarms!}  
-      end
+      Rails.logger.info "[AUTOSCALE CREATE ALARMS] Creating or Deleting alarms for all instances "
+      autoscale.create_or_delete_alarms
       respond_to do |format|
         format.js  { render :layout => false }
       end
@@ -117,6 +112,8 @@ class ManagerController < ApplicationController
 
     if amz_message_type.to_s.downcase == 'notification'
       # TODO: implement auto-scaling logic based on alarm and auto-scale config
+      Rails.logger.info "[AWS_ALARM] Deleting all alarms"
+      Elb.instance.workers.each{|w| w.delete_alarms!}
       self.class.rebalance_cluster_if_necessary if AutoScale.instance.enabled?
     end
     head status: :accepted

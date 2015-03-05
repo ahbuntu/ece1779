@@ -66,17 +66,20 @@ module AwsBoilerplate
         grow_cluster
       elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
         shrink_cluster
+      else
+        # need to create alarms here since cooldown policy will not be triggered
+        autoscale.create_or_delete_alarms
       end
     end
 
     def grow_cluster
-      Rails.logger.info "[grow_cluster] Deleting all alrams"
-      Elb.instance.workers.each{|w| w.delete_alarms!}
       autoscale = AutoScale.instance
       start_size = Elb.instance.workers.size
       target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
       
       if start_size >= target_size
+        # need to create alarms here since cooldown evaluation will not take place
+        autoscale.create_or_delete_alarms
         return
       end
 
@@ -105,8 +108,6 @@ module AwsBoilerplate
     end
 
     def shrink_cluster
-      Rails.logger.info "[grow_cluster] Deleting all alrams"
-      Elb.instance.workers.each{|w| w.delete_alarms!}
       autoscale = AutoScale.instance
 
       start_size = Elb.instance.workers.size
@@ -114,6 +115,8 @@ module AwsBoilerplate
       target_size = 1 if target_size == 0
 
       if start_size <= target_size
+        # need to create alarms here since cooldown evaluation will not take place
+        autoscale.create_or_delete_alarms
         return
       end
 
@@ -137,7 +140,7 @@ module AwsBoilerplate
         # This assumes that shrink_cluster is never called by an instance that is going to be terminated
         if worker.can_terminate?
           Rails.logger.info "[shrink_cluster] Removing instance #{worker.instance.id}"
-          # worker.delete_alarms!
+          worker.delete_alarms!
           elb.deregister_worker(worker)
           start_size -= 1
 

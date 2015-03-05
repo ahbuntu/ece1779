@@ -118,7 +118,8 @@ class Elb
 
   def register_worker(w)
     load_balancer.instances.register(w.instance.id)
-    # w.create_alarms! # paranoia, but that's fine. OR IS IT?!
+    # need to create alarms here since cooldown policy will not be triggered
+    AutoScale.instance.create_or_delete_alarms
     reset_alarm_subscriptions!
   end
 
