@@ -10,7 +10,7 @@ class TerminateWorker
     else
       Rails.logger.info "[TerminateWorker] Terminating instance #{instance_id}."
       worker = Worker.new(instance)
-      worker.delete_alarms!
+      # worker.delete_alarms!
       Elb.instance.deregister_worker(worker)
       worker.terminate!
     end

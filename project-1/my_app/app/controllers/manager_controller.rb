@@ -79,7 +79,11 @@ class ManagerController < ApplicationController
         format.js { render :js => "alert('Validation Error: #{autoscale.errors.full_messages.to_sentence}'); $('#form-autoscale .spinner').hide();", :status => 400 }
       end
     else
-      update_cw_alarms
+      Rails.logger.info "[AUTOSCALE RECREATE ALARMS] Creating alarms for all instances "
+      if autoscale.enabled?
+         Elb.instance.workers.each{|w| w.create_alarms!}
+         update_cw_alarms
+      end
       respond_to do |format|
         format.js  { render :layout => false }
       end
