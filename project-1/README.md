@@ -3,7 +3,7 @@
 ## Group Information
 - Group Number 5
 - Group members:
-  - David Carney
+  - David Carney (998752005)
   - Ahmadul Hassan
 
 ## Configuration
@@ -31,13 +31,15 @@ and augmented from the original to add support for:
 Provided by email.
 
 ## Application Architecture
-The project application is built using JRuby on Rails. It uses Nginx as a reverse proxy for the Puma web server and Sidekiq to asynchronously process jobs. User credentials, paths to the uploaded images and autoscaling configurations are stored on a MySQL database.
+The project application is built using JRuby on Rails. It uses Nginx as a reverse proxy for the Puma web server and Sidekiq to asynchronously process jobs (image uploads and thumbnail generation using ImageMagick). User credentials, paths to the uploaded images, and autoscaling configurations are stored on a MySQL database.
 
-There is a basic authentication mechanism for the User and Manager pages. When a user chooses to upload an image, a temporary copy of the file is first saved on the server, and then uploaded to S3. Then 3 Sidekiq jobs are started to asynchronously perform the image transformations and finally upload to S3.
+There is a basic authentication mechanism for the User and Manager pages. 
+
+When a user chooses to upload an image, a temporary copy of the file is first saved on the instance where the image was uploaded. It is then asynchronously uploaded to S3 with a high-priority Sidekiq job. Once complete, 3 Sidekiq jobs are enqueued to asynchronously perform the image transformations and upload their results to S3. After each upload the corresponding S3 key is written to the database. Once all uploads for a given image are complete, the original on disk is deleted.
 
 The manager page allows to start an ELB and add/remove workers to the pool. Launching an instance adds it to the worker pool and creates CloudWatch alarms correpsonding to the values specified. If auto-scaling is enabled, the reception of an alarm triggers an evaluation of whether to grow or shrink the cluster. 
 
-The auto-scaling decision is made by taking the average CPU utilization of all workers and then determining whether the thresholds have been exceeded. Once a decision to grow or shrink the cluster is made, a cooldown period of 5 minutes is defined. During this period, all incoming alarm notifications will be ignored. This approach also allows us to use a decentralized alarm processing mechanism whereby any server on the cluster can perform the auto-scaling.
+The auto-scaling decision is made by taking the average CPU utilization of all workers and then determining whether the thresholds have been exceeded. Once a decision to grow or shrink the cluster is made, a cooldown period of 6 minutes is defined. During this period, all incoming alarm notifications will be ignored. This approach also allows us to use a decentralized alarm processing mechanism whereby any server on the cluster can perform the auto-scaling.
 
 ## Application Usage Instructions
 You must first launch an instance with the AMI provided. This will become part of the worker pool if a load balancer is started.

@@ -13,6 +13,7 @@ class AutoScale < ActiveRecord::Base
   validates_numericality_of :cooldown_period_in_seconds, greater_than_or_equal_to: 0
 
   before_validation :set_defaults, on: :create
+  before_save :test_alarms_if_being_enabled
 
   def enabled?
     enabled.to_i == 1
@@ -33,6 +34,13 @@ class AutoScale < ActiveRecord::Base
   end
 
   private
+
+  def test_alarms_if_being_enabled
+    if self.enabled? && !self.enabled_was
+      TestAndRebalanceWorker.perform_in(5.seconds)
+    end
+    true
+  end
 
   def grow_gt_shrink
     if grow_cpu_thresh.present? && shrink_cpu_thresh.present? && grow_cpu_thresh <= shrink_cpu_thresh
