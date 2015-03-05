@@ -94,4 +94,5 @@ http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 
 - enable direct-to-S3 uploads; modify the load-gen tool to take advantage of this mechanism
 - use a central dispatch queue for asynchronous job management, allowing all instances to share the load
+- experiment with scaling the number of nginx and Sidekiq workers/threads to obtain higher throughput/performance
 - ...
