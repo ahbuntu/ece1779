@@ -2,7 +2,7 @@ class TerminateWorker
   include Sidekiq::Worker
   include AwsBoilerplate
 
-  def perform(instance_id, terminate_by)
+  def perform(instance_id)
     instance = self.class.all_instances[instance_id]
     if !instance.exists?
       Rails.logger.info "[TerminateWorker] instance #{instance_id} does not exist. Bailing."
