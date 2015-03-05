@@ -41,8 +41,18 @@ The manager page allows to start an ELB and add/remove workers to the pool. Laun
 
 The auto-scaling decision is made by taking the average CPU utilization of all workers and then determining whether the thresholds have been exceeded. Once a decision to grow or shrink the cluster is made, a cooldown period of 6 minutes is defined. During this period, all incoming alarm notifications will be ignored. This approach also allows us to use a decentralized alarm processing mechanism whereby any server on the cluster can perform the auto-scaling.
 
+### Caveats
+
+Asynchronous S3 uploads and image processing (accomplished via Sidekiq) has obvious advantages, but it comes with some costs. Mainly:
+
+- image transformation errors must now be reported asynchronously to the user (not currently done);
+
+- image transformations are currently expected to run on the same instance where the image was uploaded. This is simple, but complicates shutdown/termination selection and behaviour because the cluster has to be careful not to quickly terminate an instance that has outstanding jobs.
+
+Related to the last point, we modified our shrinking mechanism to immediately remove a selected instance from the ELB, but delay terminating it until its Sidekiq queues have drained (up to a maximum time). This is not ideal, but helps. Unfortunately, if a given instance has a disproportionately high number of jobs remaining after web traffic (i.e. uploads) has subsided then its load will continue to be high after the other instances have gone idle. A better solution would be to use a central/shared dispatch queue. This would require modifying the image transformation jobs to be able to download the original image from S3 if it is not already present locally. This was left for future work.
+
 ## Application Usage Instructions
-You must first launch an instance with the AMI provided. This will become part of the worker pool if a load balancer is started.
+You must first launch an instance with the AMI provided. This will become part of the worker pool if/when a load balancer is started.
 Use the default settings unless specified as below: 
 
 - Step 1. My AMIs:                      "ece1779-puma-006 - ami-c6055dae"
@@ -83,4 +93,5 @@ http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 ### Future Work
 
 - enable direct-to-S3 uploads; modify the load-gen tool to take advantage of this mechanism
-- 
+- use a central dispatch queue for asynchronous job management, allowing all instances to share the load
+- ...
