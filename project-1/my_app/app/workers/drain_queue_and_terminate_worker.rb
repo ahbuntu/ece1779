@@ -1,6 +1,7 @@
 class DrainQueueAndTerminateWorker
   include Sidekiq::Worker
   include AwsBoilerplate
+  sidekiq_options :queue => :critical
 
   # This expects to be executed on the instance being terminated
   # I.e. the Sidekiq queue is also local.

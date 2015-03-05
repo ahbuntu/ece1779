@@ -1,6 +1,7 @@
 class TestAndRebalanceWorker
   include Sidekiq::Worker
   include AwsBoilerplate
+  sidekiq_options :queue => :critical
 
   def perform
     autoscale = AutoScale.instance
