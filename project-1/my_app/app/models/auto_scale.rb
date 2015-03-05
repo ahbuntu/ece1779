@@ -36,7 +36,7 @@ class AutoScale < ActiveRecord::Base
   private
 
   def test_alarms_if_being_enabled
-    if self.enabled? && !self.enabled_was
+    if self.enabled == 1 && self.enabled_was == 0
       TestAndRebalanceWorker.perform_in(5.seconds)
     end
     true
