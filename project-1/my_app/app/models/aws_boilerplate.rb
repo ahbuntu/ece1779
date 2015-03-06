@@ -137,7 +137,7 @@ module AwsBoilerplate
 
         if worker.instance.id == my_instance_id
           Rails.logger.info "[shrink_cluster] Skipping instance #{my_instance_id} because it's me!"
-          return
+          next
         end
 
         if !autoscale.cooling_down? # paranoia
