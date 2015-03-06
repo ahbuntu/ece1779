@@ -101,17 +101,32 @@ class ManagerController < ApplicationController
     Rails.logger.info "[AWS ALARM] Received for topic #{amz_sns_topic} (type: #{amz_message_type})"
 
     request_body = JSON.parse request.body.read
+    Rails.logger.info "[AWS ALARM] Request headers: #{request.headers}"
     Rails.logger.info "[AWS ALARM] Request body: #{request_body}"
 
     # if this is the first time confirmation of subscription, then confirm it
     if amz_message_type.to_s.downcase == 'subscriptionconfirmation'
       send_subscription_confirmation request_body
+      Rails.logger.info "[AWS ALARM] CONFIRMING SUBSCRIPTION."
       head status: :accepted and return
     end
 
     if amz_message_type.to_s.downcase == 'notification'
-      # TODO: implement auto-scaling logic based on alarm and auto-scale config
-      self.class.rebalance_cluster_if_necessary if AutoScale.instance.enabled?
+      # Includes debugging mechanisms
+      if request_body["Subject"] == "grow"
+        target_size = request_body["Message"].to_i
+        Rails.logger.info "[AWS ALARM] TEST GROW TO #{target_size}"
+        self.class.grow_cluster(target_size)
+      elsif request_body["Subject"] == "shrink"
+        target_size = request_body["Message"].to_i
+        Rails.logger.info "[AWS ALARM] TEST SHRINK TO #{target_size}"
+        self.class.shrink_cluster(target_size)
+      elsif AutoScale.instance.enabled?
+        Rails.logger.info "[AWS ALARM] Calling rebalance_cluster_if_necessary"
+        self.class.rebalance_cluster_if_necessary 
+      else
+        Rails.logger.info "[AWS ALARM] NO ACTION."
+      end
     end
     head status: :accepted
   end

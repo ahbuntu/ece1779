@@ -57,28 +57,38 @@ module AwsBoilerplate
 
       workers = Worker.all
       cpu = workers.map(&:latest_cpu_utilization)
-      return if cpu.size == 0
+
+      if cpu.size == 0
+        Rails.logger.error "[rebalance_cluster_if_necessary] No CPUs? Bailing"
+        return
+      end
+
       avg_cpu = cpu.sum.to_f / cpu.count
 
       Rails.logger.info "[rebalance_cluster_if_necessary] avg_cpu = #{avg_cpu}"
 
       if avg_cpu > autoscale.grow_cpu_thresh.to_f
+        Rails.logger.info "[rebalance_cluster_if_necessary] -> grow_cluster."
         grow_cluster
       elsif avg_cpu < autoscale.shrink_cpu_thresh.to_f
+        Rails.logger.info "[rebalance_cluster_if_necessary] -> shrink_cluster."
         shrink_cluster
+      else
+        Rails.logger.info "[rebalance_cluster_if_necessary] No action to be taken."
       end
     end
 
-    def grow_cluster
+    def grow_cluster(target_size = nil)
       autoscale = AutoScale.instance
       start_size = Elb.instance.workers.size
-      target_size = [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
+      target_size ||= [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
       
       if start_size >= target_size
+        Rails.logger.info "[grow_cluster] start_size (#{start_size}) >= target_size (#{target_size}). Skipping"
         return
       end
 
-      autoscale.start_cooldown! || return # bail if already cooling down
+      autoscale.start_cooldown! # || return # bail if already cooling down
       Rails.logger.info "[grow_cluster] From #{start_size} to #{target_size}"
 
       while start_size < target_size
@@ -89,6 +99,7 @@ module AwsBoilerplate
         Rails.logger.info "[grow_cluster] Launching instance #{worker.instance.id}"
         start_size += 1
       end
+      Rails.logger.info "[grow_cluster] DONE."
     end
 
     # Helper to get the current EC2 instance_id
@@ -102,18 +113,19 @@ module AwsBoilerplate
       @my_instance_id
     end
 
-    def shrink_cluster
+    def shrink_cluster(target_size = nil)
       autoscale = AutoScale.instance
 
       start_size = Elb.instance.workers.size
-      target_size = (start_size / autoscale.shrink_ratio_thresh.to_f).to_i
+      target_size ||= (start_size / autoscale.shrink_ratio_thresh.to_f).to_i
       target_size = 1 if target_size == 0
 
       if start_size <= target_size
+        Rails.logger.info "[shrink_cluster] start_size (#{start_size}) <= target_size (#{target_size}). Skipping"
         return
       end
 
-      autoscale.start_cooldown! || return # bail if already cooling down      
+      autoscale.start_cooldown! # || return # bail if already cooling down      
       Rails.logger.info "[shrink_cluster] From #{start_size} to #{target_size}"
 
       elb = Elb.instance
@@ -139,8 +151,11 @@ module AwsBoilerplate
 
           # instead of outright terminating the worker, we give it time to drain the image upload/processing jobs
           DrainQueueAndTerminateWorker.perform_async(worker.instance.id, Time.now + 3.minutes)
+        else
+          Rails.logger.info "[shrink_cluster] worker (#{worker.instance.id} cannot terminate."
         end
       end
+      Rails.logger.info "[shrink_cluster] DONE."
     end
 
     def launch_and_register_worker
