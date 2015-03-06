@@ -83,6 +83,9 @@
       .form-group
         Max instances
         = f.text_field :max_instances
+      .form-group
+        Cooldown period in seconds
+        = f.text_field :cooldown_period_in_seconds
 
     .form-group
       = submit_tag "Update",  class: "btn btn-info", id: "update"
