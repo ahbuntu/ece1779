@@ -81,7 +81,9 @@ module AwsBoilerplate
     def grow_cluster(target_size = nil)
       autoscale = AutoScale.instance
       start_size = Elb.instance.workers.size
-      target_size ||= [(start_size * autoscale.grow_ratio_thresh.to_f).to_i, autoscale.max_instances].min
+
+      target_size ||= (start_size * autoscale.grow_ratio_thresh.to_f).to_i
+      target_size = [target_size, autoscale.max_instances].min
       
       if start_size >= target_size
         Rails.logger.info "[grow_cluster] start_size (#{start_size}) >= target_size (#{target_size}). Skipping"
