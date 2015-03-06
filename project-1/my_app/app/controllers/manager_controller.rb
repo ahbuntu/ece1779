@@ -170,7 +170,7 @@ class ManagerController < ApplicationController
   # TODO: move this into a service
 
   def autoscale_params
-    params.require(:auto_scale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances)
+    params.require(:auto_scale).permit(:grow_cpu_thresh, :shrink_cpu_thresh, :grow_ratio_thresh, :shrink_ratio_thresh, :enabled, :max_instances, :cooldown_period_in_seconds)
   end
 
 end
