@@ -12,7 +12,8 @@ class Elb
 
     def create_load_balancer
       load_balancer = elb.load_balancers.create('my-load-balancer',
-        :availability_zones => ["us-east-1a", "us-east-1b", "us-east-1c"],
+        # :availability_zones => ["us-east-1a", "us-east-1b", "us-east-1c"],
+        :availability_zones => ec2.availability_zones.map(&:name),        
         :listeners => [{
           :port => 80,
           :protocol => :http,
