@@ -1,3 +1,11 @@
+###
+# The following are (rough) instructions on how to configure an Ubuntu
+# (Vagrant) system for use with nginx, puma, jruby, and sidekiq.
+#
+# Use the provided Vagrantfile as a starting point. These are easily adaptable
+# to configuring an EC2 instance.
+###
+
 vagrant up
 vagrant ssh
 
@@ -31,7 +39,6 @@ rbenv global jruby-1.7.19
  
 # Rehash:
 rbenv rehash
-
 
 # From: http://www.webupd8.org/2012/01/install-oracle-java-jdk-7-in-ubuntu-via.html
 # install Java (Oracle Java 1.7)
@@ -77,9 +84,7 @@ sudo ln -nfs /home/vagrant/apps/my_app/
 sudo ln -nfs /home/vagrant/apps/my_app/current/config/nginx.conf  /etc/nginx/sites-enabled/my_app
 sudo service nginx restart
 
-### BOOM ###
-
-
+### At this point, nginx & puma are working...
 
 # Install Sidekiq as a system service
 sudo apt-get install redis-server
@@ -92,33 +97,14 @@ mkdir -p /home/vagrant/apps/my_app/shared/pids
 # start the workers:
 sudo start sidekiq-manager
 
-
 # Test everything out:
 touch my-file.txt
 curl --form "uploadedfile=@my-file.txt;filename=desired-filename.txt" --form userID=1 --form param2=value2 http://sample.com/ece1779/servlet/FileUpload
 
 
-### TRINIDAD NOTES
-
-# Start the server manually:
-cd /vagrant
-jruby  --server -J-Djruby.compile.mode=FORCE -J-XX:MaxPermSize=1024m -J-Xmx3000m -S trinidad --threadsafe  --load daemon
-
-
-### PUMA NOTES
-
-bundle exec puma  -b unix:///var/run/my_app.sock  -e ...
-
-
-### OTHER NOTES
-- TorqueBox (JBoss) is an alternative
-
-
-
-
-
-
 ========
+
+
 /etc/init/sidekiq.conf:
 
 # /etc/init/sidekiq.conf - Sidekiq config
@@ -244,6 +230,6 @@ end script
 ==========
 /etc/sidekiq.conf:
 
-/home/vagrant/apps/my_app/current,2
+/home/vagrant/apps/my_app/current,1
 
 
