@@ -51,6 +51,10 @@ class Image < ActiveRecord::Base
     s3_key("original#{extension}")
   end
 
+  def s3_key_for_key(key)
+    (key == :key1 ? s3_key_for_original : s3_key_for_thumb(key))
+  end
+
   def self.s3_bucket_name
     YAML.load(File.read('config/aws.yml'))[Rails.env.to_s]["bucket"]
   end
@@ -67,11 +71,36 @@ class Image < ActiveRecord::Base
     uuid.present? ? File.join(Dir.tmpdir, uuid) : nil
   end
 
+  def key_uploaded?(key)
+    # Convention: for thumbs (key2..4) if it's a non-nil value then it's been uploaded
+    if key == :key1 && self.send(key).nil?
+      false
+    else
+      # extra check: does it actuall exists in S3?
+      s3_key = s3_key_for_key(key)
+      s3_object = Image.s3_object_for_key(s3_key)
+      s3_object.exists?
+    end
+  end
+
+  def self.transform_params_for_key(key)
+    case key.to_s
+    when "key2"
+      [100,100]
+    when "key3"
+      [200,200]
+    when "key4"
+      [300,300]
+    else
+      raise "Unsupported key: #{key}"
+    end
+  end
+
   def dispatch_image_transformations!
     Rails.logger.info "[Image] Dispatching TransformImageWorker jobs"
-    self.key2.nil? && TransformImageWorker.perform_async(id, :key2, 100, 100)
-    self.key3.nil? && TransformImageWorker.perform_async(id, :key3, 200, 200)
-    self.key4.nil? && TransformImageWorker.perform_async(id, :key4, 300, 300)
+    self.key2.nil? && TransformImageWorker.perform_async(id, :key2)
+    self.key3.nil? && TransformImageWorker.perform_async(id, :key3)
+    self.key4.nil? && TransformImageWorker.perform_async(id, :key4)
   end
 
   private
@@ -85,8 +114,9 @@ class Image < ActiveRecord::Base
   end
 
   def dispatch_upload_job
-    Rails.logger.info "[Image] Dispatching UploadImageOriginalWorker job"
-    UploadImageOriginalWorker.perform_async(self.id)
+    # Rails.logger.info "[Image] Dispatching UploadImageOriginalWorker job"
+    # UploadImageOriginalWorker.perform_async(self.id)
+    true
   end
 
   def delete_assets

@@ -22,6 +22,6 @@
                 = link_to image.id, user_image_path(current_user, image)
               %td
                 = link_to image.original_filename, user_image_path(current_user, image)
-              %td= link_to image_tag(thumbnail_for_image(image)), user_image_path(current_user, image)
+              %td= link_to image_tag(thumbnail_preview_url_for_image(image)), user_image_path(current_user, image)
               / %td= link_to 'Edit',    edit_user_image_path(current_user, image)
               %td= link_to 'Delete', user_image_path(current_user, image), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger"

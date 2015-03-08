@@ -4,22 +4,23 @@
 
 .thumbnail
   =link_to "#" do 
-    =image_tag(@key1_url, alt: "Original")
+    =image_tag(@original_url, alt: "Original")
   .caption
     %h3 Original
 .thumbnail
   =link_to "#" do 
-    =image_tag(@key2_url, alt: "First")
+    = image_tag(user_image_thumbnail_path(current_user, @image, "key2"), alt: "First")
+    / =image_tag(@key2_url, alt: "First")
   .caption
     %h3 First Transformation - Resized to 100x100
 .thumbnail
   =link_to "#" do 
-    =image_tag(@key3_url, alt: "Second")
+    = image_tag(user_image_thumbnail_path(current_user, @image, "key3"), alt: "Second")
   .caption
     %h3 Second Transformation - Resized to 200x200
 .thumbnail
   =link_to "#" do 
-    =image_tag(@key4_url, alt: "Third")
+    = image_tag(user_image_thumbnail_path(current_user, @image, "key4"), alt: "Third")
   .caption
     %h3 Third Transformation - Resized to 300x300
 
