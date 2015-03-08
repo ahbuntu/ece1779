@@ -16,18 +16,14 @@ class ImagesController < ApplicationController
   end
 
   def show
-    # Request presigned URLs from S3 for each image
-    # urls will expire after defined duration, 10 min by default
-    url_expiry = 10*60
+    # Thumbnails handled by ThumbnailsController
 
+    # Get the URL for the original (assumed to be on S3 by this point)
+    # TODO: merge this with the logic in ThumbnailsController
+    url_expiry = 10.minutes.to_i
     object = Image.s3_object_for_key(@image.key1)
-    @key1_url = object.url_for(:read, :expires => url_expiry)
-    object = Image.s3_object_for_key(@image.key2)
-    @key2_url = object.url_for(:read, :expires => url_expiry)
-    object = Image.s3_object_for_key(@image.key3)
-    @key3_url = object.url_for(:read, :expires => url_expiry)
-    object = Image.s3_object_for_key(@image.key4)
-    @key4_url = object.url_for(:read, :expires => url_expiry)
+    url = object.url_for(:read, :expires => url_expiry)
+    @original_url = url.to_s
   end
 
   def create
@@ -56,7 +52,11 @@ class ImagesController < ApplicationController
 
     @image = Image.new(safe_params)
     respond_to do |format|
-      if @image.save # this dispatches UploadImageOriginalWorker
+      if @image.save 
+
+        # Force syncronous upload
+        UploadImageOriginalWorker.new.perform(@image.id)
+
         format.html { redirect_to user_images_path(@current_user), notice: 'Image was successfully uploaded.' }
         format.json { render :show, status: :created, location: @image }
       else

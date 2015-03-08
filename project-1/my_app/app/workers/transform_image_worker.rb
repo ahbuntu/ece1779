@@ -1,21 +1,30 @@
 class TransformImageWorker
   include Sidekiq::Worker
 
-  def perform(image_id, key, width, height)
+  def perform(image_id, key)
+    image = Image.find image_id
+    return if image.key_uploaded?(key)
+
+    width, height = Image.transform_params_for_key(key)
     Rails.logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
 
-    image = Image.find image_id
-    return if image.send(key).present?
+    # If the original is not present on-disk then download it from S3
+    path = image.tempfile_path
+    unless File.exists?(path)
+      tempfile = Tempfile.new("#{image_id}-#{key.to_s}-")
 
-    raise "Image #{image_id} tempfile does not exist: #{image.tempfile_path}" unless File.exists?(image.tempfile_path)
+      s3_object = Image.s3_object_for_key(image.s3_key_for_original)
+      raise "Image #{image_id} has not uploaded its original!" unless s3_object.exists?
 
-    if Image::FAKE_UPLOADS
-      image.update_attribute(key, image.key1)
-      return
+      tempfile.write(s3_object.read)
+      tempfile.close
+
+      thumb = MiniMagick::Image.open(tempfile.path)  # open creates a copy of the image
+      tempfile.unlink
+    else
+      thumb = MiniMagick::Image.open(path)  # open creates a copy of the image
     end
 
-    Rails.logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
-    thumb = MiniMagick::Image.open(image.tempfile_path)  # open creates a copy of the image
     thumb.resize "#{width}x#{height}"
     # thumb.format "png" # force to PNG?
     # thumb.path #prints the path of the copied image

@@ -1,5 +1,5 @@
 module ImagesHelper
-  def thumbnail_for_image(i)
-    Image.s3_object_for_key(i.key2).url_for(:read)
+  def thumbnail_preview_url_for_image(i)
+    user_image_thumbnail_path(current_user, i, "key2")
   end
 end
