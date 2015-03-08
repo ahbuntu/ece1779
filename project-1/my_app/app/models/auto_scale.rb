@@ -49,12 +49,12 @@ class AutoScale < ActiveRecord::Base
   end
 
   def set_defaults
-    self.grow_cpu_thresh ||= 100.0
-    self.shrink_cpu_thresh ||= 0.0
-    self.grow_ratio_thresh ||= 1.0
-    self.shrink_ratio_thresh ||= 1.0
-    self.cooldown_period_in_seconds ||= 5.minutes.to_i
-    self.max_instances ||= 10
+    self.grow_cpu_thresh = 100.0
+    self.shrink_cpu_thresh = 0.0
+    self.grow_ratio_thresh = 1.0
+    self.shrink_ratio_thresh = 1.0
+    self.cooldown_period_in_seconds = 6.minutes.to_i
+    self.max_instances = 10
     self.enabled = false
     true
   end
