@@ -9,11 +9,6 @@ class TransformImageWorker
 
     raise "Image #{image_id} tempfile does not exist: #{image.tempfile_path}" unless File.exists?(image.tempfile_path)
 
-    if Image::FAKE_UPLOADS
-      image.update_attribute(key, image.key1)
-      return
-    end
-
     Rails.logger.debug "[TransformImageWorker] Transforming image #{image_id} to #{width} x #{height}"
     thumb = MiniMagick::Image.open(image.tempfile_path)  # open creates a copy of the image
     thumb.resize "#{width}x#{height}"

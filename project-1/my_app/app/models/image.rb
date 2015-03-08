@@ -1,7 +1,5 @@
 class Image < ActiveRecord::Base
 
-  FAKE_UPLOADS = false # for testing
-
   belongs_to :user, foreign_key: "userId"
 
   validates :user, presence: true
