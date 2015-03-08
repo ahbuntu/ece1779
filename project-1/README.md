@@ -68,6 +68,7 @@ Use the default settings unless specified as below:
 - Step 3.
     - Shutdown Behvaior:            "Terminate" 
     - Enable ***Detailed Monitoring***
+- Step 4. (no action required)
 - Step 5. (no action required)
 - Step 6. Select existing group:        "webservers"
 - Step 7. Credentials: select existing keypair:      "ece1779-general-keypair" (sent via email)
