@@ -7,6 +7,10 @@
     - David Carney
     - Ahmadul Hassan
 
+## Work Breakdown
+
+We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the individual tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
+
 ## Configuration
 
 Project application stack:
@@ -40,7 +44,11 @@ Provided by email.
 
 The project application is built using JRuby on Rails. It uses Nginx as a reverse proxy for the Puma web server and Sidekiq to asynchronously process jobs (image uploads and thumbnail generation using ImageMagick). Sidekiq is backed by a Redis server. User credentials, paths to the uploaded images, and autoscaling configurations are stored on a MySQL database. There is a basic authentication mechanism for the User and Manager pages. 
 
-When a user chooses to upload an image, a temporary copy of the file is first saved on the instance where the image was uploaded. It is then asynchronously uploaded to S3 with a high-priority Sidekiq job. Once complete, 3 Sidekiq jobs are enqueued to asynchronously perform the image transformations and upload their results to S3. After each upload the corresponding S3 key is written to the database. Once all uploads for a given image are complete, the original on disk is deleted.
+When a user chooses to upload an image, the original is uploaded synchronously to S3. Once complete, 3 Sidekiq jobs are enqueued to asynchronously perform the image transformations and upload their results to S3. After each upload the corresponding S3 key is written to the database. Once all uploads for a given image are complete, the original on disk is deleted. These workers contain additional support to download the original from S3 if it does not exists locally; hence they can safely be run from an instance.
+
+A user requesting a given thumbnail via the web interface will have a valid URL returned immediately (i.e. performing the thumbnail generation synchronously, if necessary). This was added to guarantee a good user experience. In this case case the corresponding job remains enqueued, but exits immediately once its detect that the respective thumbnail has been uploaded to S3.
+
+[Note: in our original implementation, the initial upload to S3 was performed asynchronously as well, but this proved problematic for thumbnail generation-on-demand because there is no guarantee that the instance requesting the thumbnails can download the S3 object or find a local copy on disk. In the end, user experience won over raw performance.]
 
 From the ManagerUI one can start an ELB and add/remove instances (workers), as well as configure auto-scaling parameters. Launching an instance adds it to the worker pool and creates CloudWatch alarms correpsonding to the values specified. If auto-scaling is enabled, the reception of an alarm triggers an evaluation of whether to grow or shrink the cluster.
 
@@ -103,19 +111,15 @@ The application is designed to create a user on-demand when requests are sent fr
 
 Asynchronous S3 uploads and image processing (accomplished via Sidekiq) has obvious advantages, but it comes with some costs. Mainly:
 
-- image transformation errors must now be reported asynchronously to the user (not currently done);
+- image transformation errors must now be reported asynchronously to the user (not currently done, but considered low priority);
 
-- image transformations are currently expected to run on the same instance where the image was uploaded. This is simple, but complicates shutdown/termination selection and behaviour because the cluster has to be careful not to quickly terminate an instance that has outstanding jobs;
+- there can be a large queue of pending thumbnail generation jobs after web traffic to a given instance has decreased; this complicates cluster-shrinking behavior because we do not with to simply terminate an instance and lose all of the pending jobs.
 
-- a user visiting their images page(s) might see 404s (i.e. no images) since the uploads/transforms might not have yet completed.
+Related to the second point, we modified our shrinking mechanism to immediately remove a selected instance from the ELB, but delay terminating it until its Sidekiq queues have drained (up to a maximum time). This is not ideal. Unfortunately, if a given instance has a disproportionately high number of jobs remaining after web traffic (i.e. uploads) has subsided then its load will continue to be high after the other instances in the cluster have gone idle. A better solution would be to use a central/shared dispatch queue. This should work rather seamlessly since the individual thumbnail generation jobs are written to handle downloading the original from S3 if it is not present on the local disk. This was left for future work.
 
-Related to the second point, we modified our shrinking mechanism to immediately remove a selected instance from the ELB, but delay terminating it until its Sidekiq queues have drained (up to a maximum time). This is not ideal. Unfortunately, if a given instance has a disproportionately high number of jobs remaining after web traffic (i.e. uploads) has subsided then its load will continue to be high after the other instances in the cluster have gone idle. A better solution would be to use a central/shared dispatch queue. This would require modifying the image transformation jobs to be able to download the original image from S3 if it is not already present locally. This was left for future work.
+Furthermore, an instance that has been removed from the cluster (but is still processing Sidekiq jobs) is obviously available to be added back into the cluster (if the cluster needs to grow). Doing so would eliminate the long startup time otherwise required by newly provisioned instances. This is not done, but would not be necessary with a shared job queue (since instances would be terminated almost immediately after traffic ceased).
 
-Furthermore, an instance that has been removed from the cluster (but is still processing Sidekiq jobs) is obviously available to be added back into the cluster (if the cluster needs to grow). Doing so would eliminate the long startup time otherwise required by newly provisioned instances. This is not done and would not be necessary with a shared job queue (since instances would be terminated almost immediately after traffic ceased).
-
-As for the last point, user experience can be improved by forcing the jobs to complete before the request responds, or including code inline to perform similar actions. This is preferable to forcing all uploads/transforms to complete synchronously because, in a real-world application, it's expected that the user will perform batch uploads and/or only view one (small) thumbnail per image after upload. I.e. on average, using asynchronous workers will result in better performance.
-
-Amazon ELB provides 2 types of session stickiness policies - "Load Balancer (LB) Cookies" and "Application Cookies". It is also possible to disable stickiness. We tried all 3 options and found that disabling stickiness provided the best load balancing characteristics. LB cookies sticky sessions performed the worst. App generated cookies were observed to provide the best compromise and therefore chosen. The impact of an imbalanced load is acutely experienced during the shrink cycle, since it is possible that 1 server will have a disproportionately high load, thereby discouraging the cluster from shrinking.
+Amazon ELB provides 2 types of session stickiness policies - "Load Balancer (LB) Cookies" and "Application Cookies". It is also possible to disable stickiness. We tried all 3 options and found that disabling stickiness provided the best load balancing characteristics. LB cookies sticky sessions performed the worst. App-generated cookies were observed to provide the best compromise and therefore chosen. The impact of an imbalanced load is acutely experienced during the shrink cycle, since it is possible that 1 server will have a disproportionately high load, thereby discouraging the cluster from shrinking.
 
 While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. Overall, it's obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
 
@@ -126,9 +130,7 @@ We modified the ELB health check settings to aggressively bring an instance into
 Some ideas for future work include the following:
 
 - enable direct-to-S3 uploads; modify the load-gen tool to take advantage of this AWS mechanism;
-- use a central dispatch queue (i.e. Redis server) for asynchronous job management, allowing all instances to share the load;
-- to improve user experience, add support to render thumbnails synchronously upon request (i.e. if the background jobs haven't completed);
+- use a central dispatch queue (i.e. Redis server) for asynchronous job management, allowing all instances to better share the load (it would be preferable to make jobs "stick" to a particular instance so as to avoid downloading the original image as much as possible);
 - experiment with scaling the number of nginx and Sidekiq workers/threads to obtain higher throughput/performance;
-- enable ELB session stickiness (and ensure load is well-balanced);
 - explore other CloudWatch metrics (ex. number of queued requests);
 - explore ways to reduce or eliminate the cooldown period, allowing the system to respond to alarms more intelligently.

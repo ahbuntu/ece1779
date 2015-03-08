@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   
+  resources :workers
+
   # sidekiq monitoring: https://github.com/mperham/sidekiq/wiki/Monitoring
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
