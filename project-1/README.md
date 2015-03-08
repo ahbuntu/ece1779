@@ -63,7 +63,7 @@ Two disadvantages of this approach is that debugging and state management is mor
 You must first launch an instance with the AMI provided. This will become part of the worker pool if/when a load balancer is started.
 Use the default settings unless specified as below: 
 
-- Step 1. My AMIs:                      "ece1779-puma-006 - ami-c6055dae"
+- Step 1. My AMIs:                      "ece1779-puma-018 - ami-d697b2be"
 - Step 2. Instance Type:                "t2.small"
 - Step 3.
     - Shutdown Behvaior:            "Terminate" 
