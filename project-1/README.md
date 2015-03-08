@@ -9,7 +9,7 @@
 
 ## Work Breakdown
 
-We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the individual tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
+We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the (long list of) tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
 
 ## Configuration
 
