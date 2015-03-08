@@ -38,13 +38,12 @@ class Elb
       # end
 
       # Update health check.
-      # Make it short so we can avoid a long cooldown. Acceptable as we're not scaling to a large size.
       load_balancer.configure_health_check({
         :target=>"HTTP:80/ping",
-        :healthy_threshold => 3, 
-        :timeout => 5, 
+        :healthy_threshold => 6, 
+        :timeout => 10, 
         :unhealthy_threshold => 2,
-        :interval => 15
+        :interval => 25
         })
 
       load_balancer
