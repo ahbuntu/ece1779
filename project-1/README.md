@@ -102,16 +102,19 @@ Asynchronous S3 uploads and image processing (accomplished via Sidekiq) has obvi
 
 - image transformation errors must now be reported asynchronously to the user (not currently done);
 
-- image transformations are currently expected to run on the same instance where the image was uploaded. This is simple, but complicates shutdown/termination selection and behaviour because the cluster has to be careful not to quickly terminate an instance that has outstanding jobs.
+- image transformations are currently expected to run on the same instance where the image was uploaded. This is simple, but complicates shutdown/termination selection and behaviour because the cluster has to be careful not to quickly terminate an instance that has outstanding jobs;
 
-Related to the last point, we modified our shrinking mechanism to immediately remove a selected instance from the ELB, but delay terminating it until its Sidekiq queues have drained (up to a maximum time). This is not ideal. Unfortunately, if a given instance has a disproportionately high number of jobs remaining after web traffic (i.e. uploads) has subsided then its load will continue to be high after the other instances in the cluster have gone idle. A better solution would be to use a central/shared dispatch queue. This would require modifying the image transformation jobs to be able to download the original image from S3 if it is not already present locally. This was left for future work.
+- a user visiting their images page(s) might see 404s (i.e. no images) since the uploads/transforms might not have yet completed.
+
+Related to the second point, we modified our shrinking mechanism to immediately remove a selected instance from the ELB, but delay terminating it until its Sidekiq queues have drained (up to a maximum time). This is not ideal. Unfortunately, if a given instance has a disproportionately high number of jobs remaining after web traffic (i.e. uploads) has subsided then its load will continue to be high after the other instances in the cluster have gone idle. A better solution would be to use a central/shared dispatch queue. This would require modifying the image transformation jobs to be able to download the original image from S3 if it is not already present locally. This was left for future work.
 
 Furthermore, an instance that has been removed from the cluster (but is still processing Sidekiq jobs) is obviously available to be added back into the cluster (if the cluster needs to grow). Doing so would eliminate the long startup time otherwise required by newly provisioned instances. This is not done and would not be necessary with a shared job queue (since instances would be terminated almost immediately after traffic ceased).
 
+As for the last point, user experience can be improved by forcing the jobs to complete before the request responds, or including code inline to perform similar actions. This is preferable to forcing all uploads/transforms to complete synchronously because, in a real-world application, it's expected that the user will perform batch uploads and/or only view one (small) thumbnail per image after upload. I.e. on average, using asynchronous workers will result in better performance.
+
 Session stickiness was enabled on the ELB, but this was discovered to cause disproportionate load when the cluster was grown or shrunk. This was not investigated and, instead, stickiness was disabled.
 
-While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, 
-such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. Overall, it's obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
+While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. Overall, it's obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
 
 ## Future Work
 
@@ -119,6 +122,7 @@ Some ideas for future work include the following:
 
 - enable direct-to-S3 uploads; modify the load-gen tool to take advantage of this AWS mechanism;
 - use a central dispatch queue (i.e. Redis server) for asynchronous job management, allowing all instances to share the load;
+- to improve user experience, add support to render thumbnails synchronously upon request (i.e. if the background jobs haven't completed);
 - experiment with scaling the number of nginx and Sidekiq workers/threads to obtain higher throughput/performance;
 - enable ELB session stickiness (and ensure load is well-balanced);
 - explore other CloudWatch metrics (ex. number of queued requests);
