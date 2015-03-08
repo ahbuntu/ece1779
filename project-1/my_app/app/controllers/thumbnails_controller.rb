@@ -2,7 +2,7 @@ class ThumbnailsController < ApplicationController
 
   def show
     image = Image.find params[:image_id]
-    key = params[:id]
+    key = params[:id].to_sym
 
     unless image.key_uploaded?(key)
       # force the image processing, synchronously
