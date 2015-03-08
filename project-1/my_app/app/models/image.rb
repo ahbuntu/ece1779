@@ -6,7 +6,9 @@ class Image < ActiveRecord::Base
 
   validates :uuid, presence: true, uniqueness: true # , allow_nil: true
 
-  after_commit   :dispatch_upload_job, on: :create
+  # Removed in favour of synchronous image upload in the controller
+  # after_commit   :dispatch_upload_job, on: :create
+  
   after_save     :check_and_delete_tmpfile_after_transformations
   before_destroy :delete_assets
   before_destroy :delete_tempfile
@@ -114,8 +116,8 @@ class Image < ActiveRecord::Base
   end
 
   def dispatch_upload_job
-    # Rails.logger.info "[Image] Dispatching UploadImageOriginalWorker job"
-    # UploadImageOriginalWorker.perform_async(self.id)
+    Rails.logger.info "[Image] Dispatching UploadImageOriginalWorker job"
+    UploadImageOriginalWorker.perform_async(self.id)
     true
   end
 
