@@ -74,15 +74,13 @@ class Image < ActiveRecord::Base
   end
 
   def key_uploaded?(key)
-    # Convention: for thumbs (key2..4) if it's a non-nil value then it's been uploaded
-    if key == :key1 && self.send(key).nil?
-      false
-    else
-      # extra check: does it actuall exists in S3?
-      s3_key = s3_key_for_key(key)
-      s3_object = Image.s3_object_for_key(s3_key)
-      s3_object.exists?
-    end
+    # Convention: key is a non-nil value then it's been uploaded
+    self.send(key).present?
+
+    # extra check: does it actually exists in S3?
+    # s3_key = s3_key_for_key(key)
+    # s3_object = Image.s3_object_for_key(s3_key)
+    # s3_object.exists?
   end
 
   def self.transform_params_for_key(key)
