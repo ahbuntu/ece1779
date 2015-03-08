@@ -7,4 +7,4 @@
   %strong= Image.count
   (database) images.
 %p
-  = link_to "Purge Images", manager_purge_images_path, data: {method: :post, confirm: "This will delete all original images and associated transformations. Are you sure?"}, class: "btn btn-danger"
+  = link_to "Purge Images", manager_purge_images_path, data: {method: :post, confirm: "This will delete all original images and associated transformations. The images will be deleted in the background. Refresh the page to monitor progress. Are you sure?"}, class: "btn btn-danger"
