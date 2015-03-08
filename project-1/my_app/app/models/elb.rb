@@ -27,14 +27,14 @@ class Elb
         }])
 
       # Enable stickiness
-      # policy = elb.client.create_lb_cookie_stickiness_policy({
-      #   :load_balancer_name => load_balancer.name, 
-      #   :policy_name => 'sticky-sessions',
-      #   :cookie_expiration_period => 30, # keep it small so that the load-gen tool gets rebalanced quickly
-      #   })
-      # load_balancer.listeners.each do |l|
-      #   l.policy = 'sticky-sessions'
-      # end
+      policy = elb.client.create_app_cookie_stickiness_policy({
+        :load_balancer_name => load_balancer.name, 
+        :policy_name => 'sticky-sessions',
+        :cookie_name => 'stickiness', 
+        })
+      load_balancer.listeners.each do |l|
+        l.policy = 'sticky-sessions'
+      end
 
       # Update health check.
       load_balancer.configure_health_check({
