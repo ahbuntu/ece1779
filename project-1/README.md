@@ -66,10 +66,11 @@ Use the default settings unless specified as below:
 
 Once the instance has launched:
 
-1. visit its public IP address in a browser
-2. log into the ManagerUI (instructions below)
-3. launch a load balancer (the code will automatically add the instance to the ELB)
-4. wait for the health checks on the ELB to pass, then visit its public DNS name
+1. Visit its public IP address in a browser
+2. Log into the ManagerUI (instructions below)
+3. Launch a load balancer (the code will automatically add the instance to the ELB)
+4. From the EC2 console, select the created load balancer. In the bottom "Instances" pane, click "Edit" Connection Draining. Then enable ***Connection Draining*** with the default value and click "Save". 
+5. Wait for the health checks on the ELB to pass, then visit its public DNS name
 
 ### The User UI
 
@@ -96,6 +97,8 @@ Once the instance has launched:
 The application was load tested using the provided tool. It was downloaded from the course website 
 http://www.cs.toronto.edu/~delara/courses/ece1779/#projects
 
+The application is designed to create a user on-demand when requests are sent from the load gen tool. This avoids the issue of requiring preconfigured users during testing. The adhoc users are created with the following credentials - user&lt;id&gt; and password&lt;id&gt;.
+
 ## Known Issues
 
 Asynchronous S3 uploads and image processing (accomplished via Sidekiq) has obvious advantages, but it comes with some costs. Mainly:
@@ -115,6 +118,8 @@ As for the last point, user experience can be improved by forcing the jobs to co
 Session stickiness was enabled on the ELB, but this was discovered to cause disproportionate load when the cluster was grown or shrunk. This was not investigated and, instead, stickiness was disabled.
 
 While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. Overall, it's obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
+
+We modified the ELB health check settings to aggressively bring an instance into "InService" mode and make it available for load balancing . However our testing revealed that under the right circumstances (fast connection speed, aggresive health checks, sticky sessions disabled), this could result in 503 Service Unavailable errors being thrown. Therefore longer health check values were chosen for the ELB. This would give the newly launched instance sufficient time to stabilize before directing traffic to it.
 
 ## Future Work
 
