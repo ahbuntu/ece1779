@@ -7,7 +7,7 @@ class ClearS3BucketWorker
     if count > 0
       Rails.logger.info "[ClearS3BucketWorker] #{count} S3 objects remaining..."
       versions = Image.s3_bucket.versions.take(1000) # delete in batches of 1000
-      if version.any?
+      if versions.any?
         Image.s3_bucket.objects.delete(versions)
         ClearS3BucketWorker.perform_async
         return
