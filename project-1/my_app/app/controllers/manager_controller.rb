@@ -46,8 +46,10 @@ class ManagerController < ApplicationController
 
   def purge_images
     Image.delete_all
-    # Image.s3_bucket.objects.delete_all
-    Image.s3_bucket.clear!
+
+    # Image.s3_bucket.clear! # This takes forever and can timeout the web request
+    ClearS3BucketWorker.perform_async
+
     redirect_to manager_workers_path
   end
 
