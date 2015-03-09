@@ -12,7 +12,7 @@ class Elb
 
     def create_load_balancer
       load_balancer = elb.load_balancers.create('my-load-balancer',
-        :availability_zones => ec2.availability_zones.map(&:name),        
+        :availability_zones => [], # ec2.availability_zones.map(&:name),        
         :listeners => [{
           :port => 80,
           :protocol => :http,
@@ -117,11 +117,21 @@ class Elb
 
   def register_worker(w)
     load_balancer.instances.register(w.instance.id)
+    az = w.instance.availability_zone
+    load_balancer.availability_zones.enable(az) unless load_balancer.availability_zones.map(&:name).include?(az)
     w.create_alarms! # paranoia, but that's fine. OR IS IT?!
     reset_alarm_subscriptions!
   end
 
   def deregister_worker(w)
+
+    # remove the AZ from the ELB if no instances left
+    az = w.instance.availability_zone
+    other_instance_azs = load_balancer.instances.map do |i|
+      i.id == w.instance.id ? nil : i.availability_zone
+    end.compact
+    load_balancer.availability_zones.disable(az) unless other_instance_azs.include?(az)
+
     load_balancer.instances.remove(w.instance.id)
     reset_alarm_subscriptions!
   end
