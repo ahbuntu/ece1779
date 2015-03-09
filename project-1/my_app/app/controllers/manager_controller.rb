@@ -35,7 +35,7 @@ class ManagerController < ApplicationController
   end
 
   def start_elb
-    Elb.create_load_balancer
+    Elb.create_load_balancer(my_availability_zone)
     add_all_running_instances_to_elb!
     redirect_to manager_workers_path
   end

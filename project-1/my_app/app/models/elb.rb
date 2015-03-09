@@ -10,9 +10,9 @@ class Elb
       @elb ||= AWS::ELB.new(:region => default_availability_zone)
     end
 
-    def create_load_balancer
+    def create_load_balancer(az)
       load_balancer = elb.load_balancers.create('my-load-balancer',
-        :availability_zones => [], # ec2.availability_zones.map(&:name),        
+        :availability_zones => [az], # ec2.availability_zones.map(&:name),        
         :listeners => [{
           :port => 80,
           :protocol => :http,
