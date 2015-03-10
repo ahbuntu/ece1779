@@ -34,8 +34,6 @@ set :linked_files, %w{
   puma.rb
 }
 
-set :branch, 'elb-dynamic-azs'
-
 # Custom SSH Options
 # ==================
 # You may pass any option but keep in mind that net/ssh understands a
