@@ -18,8 +18,8 @@ Project application stack:
 - JRuby - implmentation of Ruby running atop the Java Virtual Machine (JVM)
 - Rails - web application framework for Ruby
 - Sidekiq - single process asynchornous job queue, configured to run on up to 4 threads
-- Nginx - reverse proxy
-- Puma - webserver configured to run on up to 16 threads internally
+- Nginx - reverse proxy (configured to run two worker processes)
+- Puma - webserver (configured to run on up to 16 threads)
 - MySQL - database
 
 Each instance is configured for HTTP traffic only on port 80.
@@ -44,7 +44,7 @@ Provided by email.
 
 The project application is built using JRuby on Rails. It uses Nginx as a reverse proxy for the Puma web server and Sidekiq to asynchronously process jobs (image uploads and thumbnail generation using ImageMagick). Sidekiq is backed by a Redis server. User credentials, paths to the uploaded images, and autoscaling configurations are stored on a MySQL database. There is a basic authentication mechanism for the User and Manager pages. 
 
-When a user chooses to upload an image, the original is uploaded synchronously to S3. Once complete, 3 Sidekiq jobs are enqueued to asynchronously perform the image transformations and upload their results to S3. After each upload the corresponding S3 key is written to the database. Once all uploads for a given image are complete, the original on disk is deleted. These workers contain additional support to download the original from S3 if it does not exists locally; hence they can safely be run from an instance.
+When a user chooses to upload an image, the original is uploaded synchronously to S3. Once complete, 3 Sidekiq jobs are enqueued to asynchronously perform the image transformations and upload their results to S3. After each upload the corresponding S3 key is written to the database. Once all uploads for a given image are complete, the original on disk is deleted. These workers contain additional support to download the original from S3 if it does not exists locally; hence they can safely be run from any instance.
 
 A user requesting a given thumbnail via the web interface will have a valid URL returned immediately (i.e. performing the thumbnail generation synchronously, if necessary). This was added to guarantee a good user experience. In this case case the corresponding job remains enqueued, but exits immediately once its detect that the respective thumbnail has been uploaded to S3.
 
@@ -120,19 +120,19 @@ Related to the second point, we modified our shrinking mechanism to immediately 
 
 Furthermore, an instance that has been removed from the cluster (but is still processing Sidekiq jobs) is obviously available to be added back into the cluster (if the cluster needs to grow). Doing so would eliminate the long startup time otherwise required by newly provisioned instances. This is not done, but would not be necessary with a shared job queue (since instances would be terminated almost immediately after traffic ceased).
 
-Amazon ELB provides 2 types of session stickiness policies - "Load Balancer (LB) Cookies" and "Application Cookies". It is also possible to disable stickiness. We tried all 3 options and found that disabling stickiness provided the best load balancing characteristics. LB Cookies sticky sessions performed the worst. App-generated cookies were observed to provide the best compromise and therefore chosen. The impact of an imbalanced load is acutely experienced during the shrink cycle, since it is possible that 1 server will have a disproportionately high load, thereby discouraging the cluster from shrinking.
+Amazon ELB provides 2 types of session stickiness policies - "Load Balancer (LB) Cookies" and "Application Cookies". It is also possible to disable stickiness. We tried all 3 options and found that disabling stickiness provided the best load balancing characteristics. LB Cookies sticky sessions performed the worst. App-generated cookies were observed to provide the best compromise and therefore chosen. The impact of an imbalanced load is acutely experienced during the shrink cycle, since it is possible that 1 server will have a disproportionately high load, thereby discouraging the cluster from shrinking. Ultimately, we left Application Cookies stickiness enabled so as to keep the application more inline with a production setting.
 
-While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. Overall, it's obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
+While the boot time of an instance is short, launching the JVM and getting the application stack to the point where it can respond to its first HTTP request takes significant time (about 5 minutes on a <code>t2.small</code> instance). This overhead is increased by the fact that the ELB itself has a health check that requires a consecutive number of "healthy" responses from an instance for it to be deemed "InService". Overall, growing a cluster takes significant time and, hence, it cannot quickly respond to sudden changes in load. Worse, such a long cooldown period exposes the cluster to the fact that many more alarms might occur over this time. It is obvious that finding a robust scaling heuristic/algorithm is difficult and very application-dependent.
 
-We modified the ELB health check settings to aggressively bring an instance into "InService" mode and make it available for load balancing . However our testing revealed that under the right circumstances (fast connection speed, aggresive health checks, sticky sessions disabled), this could result in <code>503 Service Unavailable</code> errors being thrown. A combination of approaches were tried in an attempt to eliminate this problem, with limited success:
+We modified the ELB health check settings to aggressively bring an instance into "InService" mode and make it available for load balancing . However our testing revealed that under the right circumstances (fast connection speed, aggresive health checks, sticky sessions disabled), this could result in <code>503 Service Unavailable</code> errors being thrown. A combination of approaches were tried in an attempt to eliminate this problem, with increasing success:
 
 - longer health check values were chosen for the ELB (this gives the newly launched instance sufficient time to stabilize before directing traffic to it);
 
 - the webserver's keep-alive value was increased to be 65 seconds (greater than the ELB's standard 60 seconds);
 
-- the number of nginx workers was reduced from 4 to 2, which is inline with working on a <code>t2.small</code> instance (having only one CPU core). The idea here is that nginx is overwhelmed, but still accepting connections that will time out.
+- the number of nginx workers was reduced from 4 to 2, which is inline with working on a <code>t2.small</code> instance (having only one CPU core). The idea here is that nginx is overwhelmed, but still accepting connections that will time out;
 
-Ultimately, we left ELB stickiness enabled so as to keep the application more inline with a production setting.
+- a given availability zone is only enabled in the ELB if it has one or more instances in that zone.
 
 ## Future Work
 
@@ -142,5 +142,4 @@ Some ideas for future work include the following:
 - use a central dispatch queue (i.e. Redis server) for asynchronous job management, allowing all instances to better share the load (it would be preferable to make jobs "stick" to a particular instance so as to avoid downloading the original image as much as possible);
 - experiment with scaling the number of nginx and Sidekiq workers/threads to obtain higher throughput/performance;
 - explore other CloudWatch metrics (ex. number of queued requests);
-- further investigate the root cause of 503 errors when ELB stickiness is enabled;
 - explore ways to reduce or eliminate the cooldown period, allowing the system to respond to alarms more intelligently.
