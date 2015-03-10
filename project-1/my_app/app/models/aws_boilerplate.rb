@@ -115,6 +115,15 @@ module AwsBoilerplate
       @my_instance_id
     end
 
+    def my_availability_zone
+      if @my_az == nil
+        metadata_endpoint = 'http://169.254.169.254/latest/meta-data/placement/availability-zone'
+        h = HTTParty.get(metadata_endpoint)
+        @my_az = (h.response.code.to_i == 200 ? h.response.body : nil)
+      end
+      @my_az
+    end
+
     def shrink_cluster(target_size = nil)
       autoscale = AutoScale.instance
 

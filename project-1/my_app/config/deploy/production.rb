@@ -15,7 +15,7 @@
 # used to set extended properties on the server.
 
 # server '192.168.33.10', user: 'vagrant', roles: %w{web app db}, my_property: :my_value
-server '192.168.33.10', user:'vagrant', port: 22, roles: [:web, :app, :db], primary: true
+server '192.168.33.10', user:'ubuntu', port: 22, roles: [:web, :app, :db], primary: true
 
 set :ssh_options, {
   user: "ubuntu",
@@ -33,6 +33,8 @@ set :linked_files, %w{
   config/aws.yml
   puma.rb
 }
+
+set :branch, 'elb-dynamic-azs'
 
 # Custom SSH Options
 # ==================
