@@ -63,18 +63,22 @@ def list_examples():
 def search_questions():
     """Basic search API for Questions"""
     # questions = []
-    form = QuestionSearchForm()
-    if form.validate_on_submit():
-        latitude = form.latitude.data
-        longitude = form.longitude.data
-        distance = form.distance.data
-        geopoint = search.GeoPoint(latitude, longitude)
-        q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, distance)
-        questions = Question.query(q)
-    else:
-        questions = Question.query()
+    search_form = QuestionSearchForm()
+    if not search_form.validate_on_submit():
+        return redirect(url_for('list_questions'))
 
-    return render_template('list_questions.html', questions=questions, form=form)
+    latitude = search_form.latitude.data
+    longitude = search_form.longitude.data
+    radius = search_form.distance.data
+    q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, radius)
+    index = search.Index(name="myQuestions")
+    results = index.search(q)
+
+    # TODO: replace this with a proper .query
+    questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+
+    form = QuestionForm()
+    return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
 
 @login_required
 def edit_example(example_id):
@@ -85,6 +89,7 @@ def edit_example(example_id):
             example.example_name = form.data.get('example_name')
             example.example_description = form.data.get('example_description')
             example.put()
+
             flash(u'Example %s successfully saved.' % example_id, 'success')
             return redirect(url_for('list_examples'))
     return render_template('edit_example.html', example=example, form=form)
@@ -124,18 +129,22 @@ def warmup():
     """
     return ''
 
+
 def list_questions():
     """Lists all questions posted on the site - available to anonymous users"""
     questions = Question.all()
     form = QuestionForm()
+    search_form = QuestionSearchForm()
     user = users.get_current_user()
     login_url = users.create_login_url(url_for('home'))
-    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url)
+
+    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
 
 @login_required
 def new_question():
     """Creates a new question"""
     form = QuestionForm()
+
     if form.validate_on_submit():
         question = Question(
             content=form.content.data,
@@ -146,6 +155,8 @@ def new_question():
             question.put()
             question_id = question.key.id()
             flash(u'Question %s successfully saved.' % question_id, 'success')
+            add_question_to_search_index(question)
+
             return redirect(url_for('list_questions'))
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
@@ -154,6 +165,29 @@ def new_question():
 def get_location():
     # TODO: this should be moved to client side at some point
     return ndb.GeoPt("45.45", "23.23")
+
+
+def add_question_to_search_index(question):
+    index = search.Index(name="myQuestions")
+    question_id = question.key.id()
+    document = search.Document(
+        doc_id=str(question_id),  # optional
+        fields=[
+            # search.TextField(name='customer', value='Joe Jackson'),
+            # search.HtmlField(name='comment', value='this is <em>marked up</em> text'),
+            # search.NumberField(name='number_of_visits', value=7),
+            search.DateField(name='timestamp', value=question.timestamp),
+            search.GeoField(name='location', value=search.GeoPoint(question.location.lat, question.location.lon))
+            ])
+    index.put(document)
+
+
+@admin_required
+def rebuild_question_search_index():
+    questions = Question.all()
+    [add_question_to_search_index(q) for q in questions]
+    return redirect(url_for('list_questions'))
+
 
 def authenticate():
     user = users.get_current_user()

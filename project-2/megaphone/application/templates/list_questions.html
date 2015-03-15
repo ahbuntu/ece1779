@@ -49,7 +49,10 @@
 
 {% endblock content %}
 
-{% block footer %} 
+
+{% block footer %}
+    {% include 'search_questions.html' %}
+
     {% include 'new_question.html' %} {# pull in new_example form (modal dialog) #} 
 {% endblock footer %}
 
@@ -77,4 +80,3 @@
         });
     </script>
 {% endblock tail_script %}
-

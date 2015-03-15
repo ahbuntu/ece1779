@@ -42,8 +42,14 @@ app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions,
 # Ask a new question
 app.add_url_rule('/new_question', 'new_question', view_func=views.new_question, methods=['POST'])
 
+# Search Questions list page
+app.add_url_rule('/questions/search', 'search_questions', view_func=views.search_questions, methods=['GET', 'POST'])
+
+app.add_url_rule('/admin/rebuild_question_search_index', 'rebuild_question_search_index', view_func=views.rebuild_question_search_index, methods=['GET'])
+
 # Logout
 app.add_url_rule('/logout', 'authenticate', view_func=views.authenticate, methods=['GET'])
+
 
 ## Error handlers
 # Handle 404 errors
