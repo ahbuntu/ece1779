@@ -19,14 +19,14 @@ class Question(ndb.Model):
     """A User asks a Question"""
     added_by = ndb.UserProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    text = ndb.StringProperty(required=True)
+    content = ndb.StringProperty(required=True)
     location = ndb.GeoPtProperty(required=True)
 
 class Answer(ndb.Model):
     """A User answers a Question"""
     added_by = ndb.UserProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    text = ndb.StringProperty(required=True)
+    content = ndb.StringProperty(required=True)
     question = ndb.StructuredProperty(Question)
 
 class Post(ndb.Model):
