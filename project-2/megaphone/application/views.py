@@ -9,6 +9,7 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
 
 """
 from google.appengine.api import users
+from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
 from flask import request, render_template, flash, url_for, redirect
@@ -18,8 +19,7 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import ExampleForm
-from forms import QuestionSearchForm
+from forms import ExampleForm, QuestionForm, QuestionSearchForm
 
 from google.appengine.api import search
 
@@ -127,4 +127,24 @@ def warmup():
 def list_questions():
     """Lists all questions posted on the site"""
     questions = Question.all()
-    return render_template('list_questions.html', questions=questions)
+    form = QuestionForm()
+    if form.validate_on_submit():
+        question = Question(
+            content=form.content.data,
+            added_by=users.get_current_user(),
+            location=get_location()
+        )
+        try:
+            question.put()
+            question_id = question.key.id()
+            flash(u'Question %s successfully saved.' % question_id, 'success')
+            return redirect(url_for('list_questions'))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('list_questions'))
+    return render_template('list_questions.html', questions=questions, form=form)
+
+
+def get_location():
+    # TODO: this should be moved to client side at some point
+    return ndb.GeoPt("45.45", "23.23")
