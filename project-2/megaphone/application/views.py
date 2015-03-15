@@ -9,6 +9,7 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
 
 """
 from google.appengine.api import users
+from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
 from flask import request, render_template, flash, url_for, redirect
@@ -18,8 +19,7 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import ExampleForm
-from forms import QuestionSearchForm
+from forms import ExampleForm, QuestionForm, QuestionSearchForm
 
 from google.appengine.api import search
 
@@ -63,18 +63,22 @@ def list_examples():
 def search_questions():
     """Basic search API for Questions"""
     # questions = []
-    form = QuestionSearchForm()
-    if form.validate_on_submit():
-        latitude = form.latitude.data
-        longitude = form.longitude.data
-        radius = form.distance.data
-        q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, radius)
-        index = search.Index(name="myQuestions")
-        questions = index.search(q)
-    else:
-        questions = Question.query()
+    search_form = QuestionSearchForm()
+    if not search_form.validate_on_submit():
+        return redirect(url_for('list_questions'))
 
-    return render_template('list_questions.html', questions=questions, form=form)
+    latitude = search_form.latitude.data
+    longitude = search_form.longitude.data
+    radius = search_form.distance.data
+    q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, radius)
+    index = search.Index(name="myQuestions")
+    results = index.search(q)
+
+    # TODO: replace this with a proper .query
+    questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+
+    form = QuestionForm()
+    return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
 
 @login_required
 def edit_example(example_id):
@@ -125,26 +129,54 @@ def warmup():
     """
     return ''
 
+
 def list_questions():
     """Lists all questions posted on the site"""
-
-    # ### Create the question...
-    # question = Question()
-    #
-    # ### Add it to the search index
-    # index = search.Index(name="myQuestions")
-    # question_id = question.key.id()
-    # document = search.Document(
-    #     doc_id=str(question_id),  # optional
-    #     fields=[
-    #         # search.TextField(name='customer', value='Joe Jackson'),
-    #         # search.HtmlField(name='comment', value='this is <em>marked up</em> text'),
-    #         # search.NumberField(name='number_of_visits', value=7),
-    #         search.DateField(name='timestamp', value=question.timestamp),
-    #         search.GeoField(name='location', value=question.location)
-    #         ])
-    # index.put(document)
-
     questions = Question.all()
-    form = QuestionSearchForm()
-    return render_template('list_questions.html', questions=questions, form=form)
+    form = QuestionForm()
+    search_form = QuestionSearchForm()
+
+    if form.validate_on_submit():
+        question = Question(
+            content=form.content.data,
+            added_by=users.get_current_user(),
+            location=get_location()
+        )
+        try:
+            question.put()
+            question_id = question.key.id()
+            flash(u'Question %s successfully saved.' % question_id, 'success')
+            add_question_to_search_index(question)
+
+            return redirect(url_for('list_questions'))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('list_questions'))
+    return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
+
+
+def get_location():
+    # TODO: this should be moved to client side at some point
+    return ndb.GeoPt("45.45", "23.23")
+
+
+def add_question_to_search_index(question):
+    index = search.Index(name="myQuestions")
+    question_id = question.key.id()
+    document = search.Document(
+        doc_id=str(question_id),  # optional
+        fields=[
+            # search.TextField(name='customer', value='Joe Jackson'),
+            # search.HtmlField(name='comment', value='this is <em>marked up</em> text'),
+            # search.NumberField(name='number_of_visits', value=7),
+            search.DateField(name='timestamp', value=question.timestamp),
+            search.GeoField(name='location', value=search.GeoPoint(question.location.lat, question.location.lon))
+            ])
+    index.put(document)
+
+
+@admin_required
+def rebuild_question_search_index():
+    questions = Question.all()
+    [add_question_to_search_index(q) for q in questions]
+    return redirect(url_for('list_questions'))

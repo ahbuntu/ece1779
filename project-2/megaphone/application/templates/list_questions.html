@@ -16,7 +16,7 @@
                 <th>ID</th>
                 <th>Author</th>
                 <th>Content</th>
-                <th>Added on</th>
+                <th>Asked on</th>
                 <th>Location</th>
             </tr>
         </thead>
@@ -25,9 +25,9 @@
             {% set question_id = question.key.id() %}
             <tr>
                 <td>{{ question_id }}</td>
-                <td>{{ question.author }}</td>
+                <td>{{ question.added_by }}</td>
                 <td>{{ question.content }}</td>
-                <td>{{ question.date }}</td>
+                <td>{{ question.timestamp }}</td>
                 <td>{{ question.location }}</td>
             </tr>
             {% else %}
@@ -36,16 +36,43 @@
         </tbody>
     </table>
     <p>
-        <a class="btn btn-primary" data-toggle="modal" data-target="#new-example-modal">
+        <a class="btn btn-primary" data-toggle="modal" data-target="#new-question-modal">
             <i class="icon-plus-sign icon-white"></i>
-            New question (not impl)
+            New question
         </a>
     </p>
 
 
 {% endblock content %}
 
+
 {% block footer %}
     {% include 'search_questions.html' %}
+
+    {% include 'new_question.html' %} {# pull in new_example form (modal dialog) #} 
 {% endblock footer %}
 
+{% block tail_script %}
+    <script>
+        var FormHelpers = {
+            validate: function (form, evt) {
+                // Form validation for modal dialog
+                var question_content = form.find('#content').val();
+                if (!(question_content)) {
+                    evt.preventDefault();
+                    Utils.renderFieldErrorTooltip('#content', 'Content is required', 'right');
+                }
+            },
+            init: function () {
+                var self = this;
+                var question_form = $('#new-question-form');
+                question_form.on('submit', function (evt) {
+                    self.validate(question_form, evt)
+                });
+            }
+        };
+        $(document).ready(function() {
+            FormHelpers.init();
+        });
+    </script>
+{% endblock tail_script %}

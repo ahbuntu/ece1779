@@ -25,7 +25,6 @@ class Post(ndb.Model):
 
 class Answer(Post):
     """A User answers a Question"""
-    # answer = ndb.StructuredProperty(Post)
 
     @classmethod
     def answers(self):
@@ -37,7 +36,6 @@ class Answer(Post):
 
 class Question(Post):
     """A User asks a Question"""
-    # question = ndb.StructuredProperty(Post)
     accepted_answer = ndb.StructuredProperty(Answer)  # there can only be one!
 
     @classmethod
