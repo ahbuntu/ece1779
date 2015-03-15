@@ -21,6 +21,7 @@ class Question(ndb.Model):
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
     content = ndb.StringProperty(required=True)
     location = ndb.GeoPtProperty(required=True)
+    accepted_answer = ndb.StructureProperty(Answer)  # there can only be one!
 
 class Answer(ndb.Model):
     """A User answers a Question"""
