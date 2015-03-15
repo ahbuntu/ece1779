@@ -36,8 +36,11 @@ app.add_url_rule('/examples/<int:example_id>/edit', 'edit_example', view_func=vi
 # Delete an example
 app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_example, methods=['POST'])
 
-# Examples list page
+# List all questions
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET', 'POST'])
+
+# Logout
+app.add_url_rule('/logout', 'authenticate', view_func=views.authenticate, methods=['GET'])
 
 ## Error handlers
 # Handle 404 errors

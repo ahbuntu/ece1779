@@ -148,3 +148,12 @@ def list_questions():
 def get_location():
     # TODO: this should be moved to client side at some point
     return ndb.GeoPt("45.45", "23.23")
+
+def authenticate():
+    user = users.get_current_user()
+    if user:
+        login_url = users.create_login_url(url_for('list_examples'))
+        logout_url = users.create_logout_url(login_url)
+        return redirect(logout_url)
+    else:
+        return redirect(url_for('list_examples'))
