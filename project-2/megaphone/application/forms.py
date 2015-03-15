@@ -13,7 +13,7 @@ from flaskext.wtf import validators
 from wtforms.ext.appengine.ndb import model_form
 
 from .models import ExampleModel
-
+from .models import Question
 
 class ClassicExampleForm(wtf.Form):
     example_name = wtf.TextField('Name', validators=[validators.Required()])
@@ -23,4 +23,10 @@ class ClassicExampleForm(wtf.Form):
 ExampleForm = model_form(ExampleModel, wtf.Form, field_args={
     'example_name': dict(validators=[validators.Required()]),
     'example_description': dict(validators=[validators.Required()]),
+})
+
+QuestionSearchForm = model_form(Question, wtf.Form, field_args={
+    'latitude': dict(validators=[validators.Required()]),
+    'longitude': dict(validators=[validators.Required()]),
+    'distance': dict(validators=[validators.Required()]),
 })

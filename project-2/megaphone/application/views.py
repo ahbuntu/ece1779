@@ -18,7 +18,11 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 from forms import ExampleForm
-from models import ExampleModel, Post
+from forms import QuestionSearchForm
+
+from models import ExampleModel, Post, Question, Answer
+
+from google.appengine.api import search
 
 
 # Flask-Cache (configured to use App Engine Memcache API)
@@ -55,6 +59,22 @@ def list_examples():
             return redirect(url_for('list_examples'))
     return render_template('list_examples.html', examples=examples, form=form)
 
+# No auth required
+def search_questions():
+    """Basic search API for Questions"""
+    # questions = []
+    form = QuestionSearchForm()
+    if form.validate_on_submit():
+        latitude = form.latitude.data
+        longitude = form.longitude.data
+        distance = form.distance.data
+        geopoint = search.GeoPoint(latitude, longitude)
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, distance)
+        questions = Question.query(q)
+    else:
+        questions = Question.query()
+
+    return render_template('list_questions.html', questions=questions, form=form)
 
 @login_required
 def edit_example(example_id):
