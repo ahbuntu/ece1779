@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block style_block %}
+    <style type="text/css">
+        table.table { width: 60%; }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <h1 id="">All Posts</h1>
+    <div>&nbsp;</div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Author</th>
+                <th>Content</th>
+                <th>Added on</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            {% set post_id = post.key.id() %}
+            <tr>
+                <td>{{ post_id }}</td>
+                <td>{{ post.author }}</td>
+                <td>{{ post.content }}</td>
+                <td>{{ post.date }}</td>
+                <td>{{ post.location }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No posts yet</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>
+        <a class="btn btn-primary" data-toggle="modal" data-target="#new-example-modal">
+            <i class="icon-plus-sign icon-white"></i>
+            New post (!impl)
+        </a>
+    </p>
+
+
+{% endblock content %}
+
+
