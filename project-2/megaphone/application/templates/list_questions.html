@@ -8,7 +8,7 @@
 
 {% block content %}
 
-    <h1 id="">All Posts</h1>
+    <h1 id="">All Questions</h1>
     <div>&nbsp;</div>
     <table class="table table-bordered table-striped">
         <thead>
@@ -21,24 +21,24 @@
             </tr>
         </thead>
         <tbody>
-            {% for post in posts %}
-            {% set post_id = post.key.id() %}
+            {% for question in questions %}
+            {% set question_id = question.key.id() %}
             <tr>
-                <td>{{ post_id }}</td>
-                <td>{{ post.author }}</td>
-                <td>{{ post.content }}</td>
-                <td>{{ post.date }}</td>
-                <td>{{ post.location }}</td>
+                <td>{{ question_id }}</td>
+                <td>{{ question.author }}</td>
+                <td>{{ question.content }}</td>
+                <td>{{ question.date }}</td>
+                <td>{{ question.location }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="5">No posts yet</td></tr>
+            <tr><td colspan="5">No questions yet</td></tr>
             {% endfor %}
         </tbody>
     </table>
     <p>
         <a class="btn btn-primary" data-toggle="modal" data-target="#new-example-modal">
             <i class="icon-plus-sign icon-white"></i>
-            New post (!impl)
+            New question (not impl)
         </a>
     </p>
 

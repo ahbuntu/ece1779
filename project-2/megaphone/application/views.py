@@ -17,13 +17,13 @@ from flask_cache import Cache
 
 from application import app
 from decorators import login_required, admin_required
+
 from forms import ExampleForm
 from forms import QuestionSearchForm
 
-from models import ExampleModel, Post, Question, Answer
-
 from google.appengine.api import search
 
+from models import ExampleModel, Question
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -124,6 +124,7 @@ def warmup():
     """
     return ''
 
-def list_posts():
-    posts = Post.all()
-    return render_template('list_posts.html', posts=posts)
+def list_questions():
+    """Lists all questions posted on the site"""
+    questions = Question.all()
+    return render_template('list_questions.html', questions=questions)

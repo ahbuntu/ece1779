@@ -20,20 +20,29 @@ class Post(ndb.Model):
     added_by = ndb.UserProperty(required=True)
     content = ndb.StringProperty(indexed=True)
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    location = ndb.GeoPtProperty()
+    location = ndb.GeoPtProperty(required=False)
 
 class Answer(ndb.Model):
     """A User answers a Question"""
     answer = ndb.StructuredProperty(Post)
+
+    @classmethod
+    def answers(self):
+        return []  # TODO: list all answers, ordered by date
+
+    @classmethod
+    def can_be_deleted(self):
+        return True  # TODO: return false if is an accepted_answer
 
 class Question(ndb.Model):
     """A User asks a Question"""
     question = ndb.StructuredProperty(Post)
     accepted_answer = ndb.StructuredProperty(Answer)  # there can only be one!
 
-def answers(self):
-    return []  # TODO: list all answers, ordered by date
+    @classmethod
+    def can_be_deleted(self):
+        return True  # TODO: return false if is an accepted_answer
 
-def can_be_deleted(self):
-    return True  # TODO: return false if is an accepted_answer
-
+    @classmethod
+    def all(self):
+        return self.query()
