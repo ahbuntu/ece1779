@@ -23,6 +23,9 @@ class Question(ndb.Model):
     location = ndb.GeoPtProperty(required=True)
     accepted_answer = ndb.StructureProperty(Answer)  # there can only be one!
 
+    def answers(self):
+        return []  # TODO: list all answers, ordered by date
+
 class Answer(ndb.Model):
     """A User answers a Question"""
     added_by = ndb.UserProperty()
