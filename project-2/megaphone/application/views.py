@@ -126,18 +126,10 @@ def warmup():
 
 def list_questions():
     """Lists all questions posted on the site - available to anonymous users"""
-    questions = Question.all()
     form = QuestionForm()
     search_form = QuestionSearchForm()
     user = users.get_current_user()
     login_url = users.create_login_url(url_for('home'))
-
-    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
-
-@login_required
-def new_question():
-    """Creates a new question"""
-    form = QuestionForm()
 
     query_string = request.query_string
     latitude = request.args.get('lat')
@@ -152,12 +144,16 @@ def new_question():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+    else:
+        questions = Question.all()
 
-        # form = QuestionForm()
-        return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
+    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
 
-    # If POSTing to create a Question
-    elif request.method == 'POST' and form.validate_on_submit():
+@login_required
+def new_question():
+    """Creates a new question"""
+    form = QuestionForm()
+    if request.method == 'POST' and form.validate_on_submit():
         question = Question(
             content=form.content.data,
             added_by=users.get_current_user(),
