@@ -180,3 +180,13 @@ def rebuild_question_search_index():
     questions = Question.all()
     [add_question_to_search_index(q) for q in questions]
     return redirect(url_for('list_questions'))
+
+
+def authenticate():
+    user = users.get_current_user()
+    if user:
+        login_url = users.create_login_url(url_for('list_examples'))
+        logout_url = users.create_logout_url(login_url)
+        return redirect(logout_url)
+    else:
+        return redirect(url_for('list_examples'))
