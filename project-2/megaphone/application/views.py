@@ -18,7 +18,7 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 from forms import ExampleForm
-from models import ExampleModel, Post
+from models import ExampleModel, Question
 
 
 # Flask-Cache (configured to use App Engine Memcache API)
@@ -104,6 +104,7 @@ def warmup():
     """
     return ''
 
-def list_posts():
-    posts = Post.all()
-    return render_template('list_posts.html', posts=posts)
+def list_questions():
+    """Lists all questions posted on the site"""
+    questions = Question.all()
+    return render_template('list_questions.html', questions=questions)
