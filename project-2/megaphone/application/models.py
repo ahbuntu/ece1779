@@ -30,6 +30,9 @@ class Answer(ndb.Model):
     content = ndb.StringProperty(required=True)
     question = ndb.StructuredProperty(Question)
 
+    def can_be_deleted(self):
+        return True  # TODO: return false if is an accepted_answer
+
 class Post(ndb.Model):
     """Model to represent the questions that are posted on the site"""
     author = ndb.UserProperty(required=True)
