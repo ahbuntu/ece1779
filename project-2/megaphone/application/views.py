@@ -67,18 +67,12 @@ def search_questions():
     if not search_form.validate_on_submit():
         return redirect(url_for('list_questions'))
 
+    # Build the search params and redirect
     latitude = search_form.latitude.data
     longitude = search_form.longitude.data
     radius = search_form.distance.data
-    q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, radius)
-    index = search.Index(name="myQuestions")
-    results = index.search(q)
+    return redirect(url_for('list_questions', lat=latitude, lon=longitude, r=radius))
 
-    # TODO: replace this with a proper .query
-    questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-
-    form = QuestionForm()
-    return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
 
 @login_required
 def edit_example(example_id):
@@ -136,7 +130,25 @@ def list_questions():
     form = QuestionForm()
     search_form = QuestionSearchForm()
 
-    if form.validate_on_submit():
+    query_string = request.query_string
+    latitude = request.args.get('lat')
+    longitude = request.args.get('lon')
+    radius = request.args.get('r')
+
+    # If searching w/ params (GET)
+    if request.method == 'GET' and all(v is not None for v in (latitude, longitude, radius)):
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (float(latitude), float(longitude), float(radius))
+        index = search.Index(name="myQuestions")
+        results = index.search(q)
+
+        # TODO: replace this with a proper .query
+        questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+
+        # form = QuestionForm()
+        return render_template('list_questions.html', questions=questions, form=form, search_form=search_form)
+
+    # If POSTing to create a Question
+    elif request.method == 'POST' and form.validate_on_submit():
         question = Question(
             content=form.content.data,
             added_by=users.get_current_user(),
