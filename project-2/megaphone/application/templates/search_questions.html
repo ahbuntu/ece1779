@@ -1,14 +1,14 @@
 <form id="search-questions-form" class="well"
     action="{{ url_for('search_questions') }}" method="post" accept-charset="utf-8">
     <fieldset>
-        {{ form.hidden_tag() }}
+        {{ search_form.hidden_tag() }}
         <div class="control-group">
-            <div class="control-label">{{ form.latitude.label }}</div>
+            <div class="control-label">{{ search_form.latitude.label }}</div>
             <div class="controls">
-                {{ form.latitude|safe }}
-                {% if form.latitude.errors %}
+                {{ search_form.latitude|safe }}
+                {% if search_form.latitude.errors %}
                 <ul class="errors">
-                    {% for error in form.latitude.errors %}
+                    {% for error in search_form.latitude.errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
@@ -17,12 +17,12 @@
         </div>
         <div>&nbsp;</div>
         <div class="control-group">
-            <div class="control-label">{{ form.longitude.label }}</div>
+            <div class="control-label">{{ search_form.longitude.label }}</div>
             <div class="controls">
-                {{ form.longitude|safe }}
-                {% if form.longitude.errors %}
+                {{ search_form.longitude|safe }}
+                {% if search_form.longitude.errors %}
                 <ul class="errors">
-                    {% for error in form.longitude.errors %}
+                    {% for error in search_form.longitude.errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
@@ -30,12 +30,12 @@
             </div>
         </div>
         <div class="control-group">
-            <div class="control-label">{{ form.distance.label }}</div>
+            <div class="control-label">{{ search_form.distance.label }}</div>
             <div class="controls">
-                {{ form.distance|safe }}
-                {% if form.distance.errors %}
+                {{ search_form.distance|safe }}
+                {% if search_form.distance.errors %}
                 <ul class="errors">
-                    {% for error in form.distance.errors %}
+                    {% for error in search_form.distance.errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
