@@ -29,3 +29,10 @@ class Answer(ndb.Model):
     text = ndb.StringProperty(required=True)
     question = ndb.StructuredProperty(Question)
 
+class Post(ndb.Model):
+    """Model to represent the questions that are posted on the site"""
+    author = ndb.UserProperty(required=True)
+    content = ndb.StringProperty(indexed=True)
+    date = ndb.DateTimeProperty(auto_now_add=True)
+    location = ndb.GeoPtProperty(required=True)
+
