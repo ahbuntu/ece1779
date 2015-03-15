@@ -108,4 +108,17 @@ def list_questions():
     """Lists all questions posted on the site"""
     questions = Question.all()
     form = QuestionForm()
+    if form.validate_on_submit():
+        question = Question(
+            content=form.content.data,
+            added_by=users.get_current_user()
+        )
+        try:
+            question.put()
+            question_id = question.key.id()
+            flash(u'Question %s successfully saved.' % question_id, 'success')
+            return redirect(url_for('list_questions'))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('list_questions'))
     return render_template('list_questions.html', questions=questions, form=form)
