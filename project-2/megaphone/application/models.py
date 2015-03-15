@@ -21,7 +21,7 @@ class Post(ndb.Model):
     added_by = ndb.UserProperty(required=True)
     content = ndb.StringProperty(indexed=True)
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    location = ndb.GeoPtProperty(required=False)
+    location = ndb.GeoPtProperty(required=False, indexed=True)
 
 class Answer(Post):
     """A User answers a Question"""
@@ -47,3 +47,8 @@ class Question(Post):
     @classmethod
     def all(self):
         return self.query()
+
+class QuestionSearch(ndb.Model):
+    latitude = ndb.FloatProperty(required=True)
+    longitude = ndb.FloatProperty(required=True)
+    distance = ndb.FloatProperty(required=True)

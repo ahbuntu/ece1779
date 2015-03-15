@@ -39,6 +39,9 @@ app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_exa
 # Examples list page
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
 
+# Search Questions list page
+app.add_url_rule('/questions/search', 'search_questions', view_func=views.search_questions, methods=['POST'])
+
 ## Error handlers
 # Handle 404 errors
 @app.errorhandler(404)

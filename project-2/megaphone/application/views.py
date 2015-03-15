@@ -67,10 +67,10 @@ def search_questions():
     if form.validate_on_submit():
         latitude = form.latitude.data
         longitude = form.longitude.data
-        distance = form.distance.data
-        geopoint = search.GeoPoint(latitude, longitude)
-        q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, distance)
-        questions = Question.query(q)
+        radius = form.distance.data
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (latitude, longitude, radius)
+        index = search.Index(name="myQuestions")
+        questions = index.search(q)
     else:
         questions = Question.query()
 
@@ -85,6 +85,7 @@ def edit_example(example_id):
             example.example_name = form.data.get('example_name')
             example.example_description = form.data.get('example_description')
             example.put()
+
             flash(u'Example %s successfully saved.' % example_id, 'success')
             return redirect(url_for('list_examples'))
     return render_template('edit_example.html', example=example, form=form)
@@ -126,5 +127,24 @@ def warmup():
 
 def list_questions():
     """Lists all questions posted on the site"""
+
+    # ### Create the question...
+    # question = Question()
+    #
+    # ### Add it to the search index
+    # index = search.Index(name="myQuestions")
+    # question_id = question.key.id()
+    # document = search.Document(
+    #     doc_id=str(question_id),  # optional
+    #     fields=[
+    #         # search.TextField(name='customer', value='Joe Jackson'),
+    #         # search.HtmlField(name='comment', value='this is <em>marked up</em> text'),
+    #         # search.NumberField(name='number_of_visits', value=7),
+    #         search.DateField(name='timestamp', value=question.timestamp),
+    #         search.GeoField(name='location', value=question.location)
+    #         ])
+    # index.put(document)
+
     questions = Question.all()
-    return render_template('list_questions.html', questions=questions)
+    form = QuestionSearchForm()
+    return render_template('list_questions.html', questions=questions, form=form)
