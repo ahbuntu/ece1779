@@ -15,6 +15,7 @@ class ExampleModel(ndb.Model):
     added_by = ndb.UserProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
 
+
 class Post(ndb.Model):
     """Base Model to represent questions and answers that are posted on the site"""
     added_by = ndb.UserProperty(required=True)
@@ -22,9 +23,9 @@ class Post(ndb.Model):
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
     location = ndb.GeoPtProperty(required=False)
 
-class Answer(ndb.Model):
+class Answer(Post):
     """A User answers a Question"""
-    answer = ndb.StructuredProperty(Post)
+    # answer = ndb.StructuredProperty(Post)
 
     @classmethod
     def answers(self):
@@ -34,9 +35,9 @@ class Answer(ndb.Model):
     def can_be_deleted(self):
         return True  # TODO: return false if is an accepted_answer
 
-class Question(ndb.Model):
+class Question(Post):
     """A User asks a Question"""
-    question = ndb.StructuredProperty(Post)
+    # question = ndb.StructuredProperty(Post)
     accepted_answer = ndb.StructuredProperty(Answer)  # there can only be one!
 
     @classmethod
