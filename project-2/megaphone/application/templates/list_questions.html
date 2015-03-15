@@ -36,10 +36,14 @@
         </tbody>
     </table>
     <p>
+        {% if user %}
         <a class="btn btn-primary" data-toggle="modal" data-target="#new-question-modal">
             <i class="icon-plus-sign icon-white"></i>
             New question
         </a>
+        {% else %}
+            <h4><a href={{ login_url }}>Login to ask a question</a></h4>
+        {% endif %}
     </p>
 
 

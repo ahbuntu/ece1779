@@ -30,7 +30,7 @@ cache = Cache(app)
 
 
 def home():
-    return redirect(url_for('list_examples'))
+    return redirect(url_for('list_questions'))
 
 
 def say_hello(username):
@@ -125,8 +125,16 @@ def warmup():
     return ''
 
 def list_questions():
-    """Lists all questions posted on the site"""
+    """Lists all questions posted on the site - available to anonymous users"""
     questions = Question.all()
+    form = QuestionForm()
+    user = users.get_current_user()
+    login_url = users.create_login_url(url_for('home'))
+    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url)
+
+@login_required
+def new_question():
+    """Creates a new question"""
     form = QuestionForm()
     if form.validate_on_submit():
         question = Question(
@@ -142,8 +150,6 @@ def list_questions():
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions'))
-    return render_template('list_questions.html', questions=questions, form=form)
-
 
 def get_location():
     # TODO: this should be moved to client side at some point
@@ -152,8 +158,8 @@ def get_location():
 def authenticate():
     user = users.get_current_user()
     if user:
-        login_url = users.create_login_url(url_for('list_examples'))
+        login_url = users.create_login_url(url_for('home'))
         logout_url = users.create_logout_url(login_url)
         return redirect(logout_url)
     else:
-        return redirect(url_for('list_examples'))
+        return redirect(url_for('home'))
