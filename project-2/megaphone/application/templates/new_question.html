@@ -1,0 +1,39 @@
+<div class="modal fade" id="new-question-modal">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">&times;</button>
+        <h3>Add a New Question</h3>
+    </div>
+    <div class="modal-body">
+        <form id="new-question-form" class="well"
+            action="{{ url_for('list_questions') }}" method="post" accept-charset="utf-8">
+            <fieldset>
+                {{ form.hidden_tag() }}
+                <div class="control-group">
+                    <div class="control-label">{{ form.content.label }}</div>
+                    <div class="controls">
+                        {{ form.content|safe }}
+                        {% if form.content.errors %}
+                        <ul class="errors">
+                            {% for error in form.content.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>&nbsp;</div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="btn btn-primary" type="submit" value="Add Question"/>
+                        <button class="btn" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    </div>
+    </div>
+</div>
+

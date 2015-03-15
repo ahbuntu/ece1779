@@ -17,7 +17,7 @@ from flask_cache import Cache
 
 from application import app
 from decorators import login_required, admin_required
-from forms import ExampleForm
+from forms import ExampleForm, QuestionForm
 from models import ExampleModel, Question
 
 
@@ -107,4 +107,5 @@ def warmup():
 def list_questions():
     """Lists all questions posted on the site"""
     questions = Question.all()
-    return render_template('list_questions.html', questions=questions)
+    form = QuestionForm()
+    return render_template('list_questions.html', questions=questions, form=form)
