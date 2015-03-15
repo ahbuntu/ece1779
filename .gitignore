@@ -3,3 +3,11 @@ tmp/**
 project-1/my_app/.capistrano/metrics
 
 *.pyc
+
+project-2/megaphone/.idea/megaphone.iml
+
+project-2/megaphone/.idea/megaphone.iml
+
+project-2/megaphone/.idea/misc.xml
+
+project-2/megaphone/.idea/workspace.xml
