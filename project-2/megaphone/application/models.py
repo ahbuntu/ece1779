@@ -15,25 +15,25 @@ class ExampleModel(ndb.Model):
     added_by = ndb.UserProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
 
-class Question(ndb.Model):
-    """A User asks a Question"""
-    added_by = ndb.UserProperty()
+
+class Post(ndb.Model):
+    """Base Model to represent questions and answers that are posted on the site"""
+    added_by = ndb.UserProperty(required=True)
+    content = ndb.StringProperty(indexed=True)
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    content = ndb.StringProperty(required=True)
-    location = ndb.GeoPtProperty(required=True)
-    accepted_answer = ndb.StructureProperty(Answer)  # there can only be one!
+    location = ndb.GeoPtProperty()
+
 
 class Answer(ndb.Model):
     """A User answers a Question"""
-    added_by = ndb.UserProperty()
-    timestamp = ndb.DateTimeProperty(auto_now_add=True)
-    content = ndb.StringProperty(required=True)
-    question = ndb.StructuredProperty(Question)
+    answer = ndb.StructuredProperty(Post)
 
-class Post(ndb.Model):
-    """Model to represent the questions that are posted on the site"""
-    author = ndb.UserProperty(required=True)
-    content = ndb.StringProperty(indexed=True)
-    date = ndb.DateTimeProperty(auto_now_add=True)
+class Question(ndb.Model):
+    """A User asks a Question"""
+    question = ndb.StructuredProperty(Post)
     location = ndb.GeoPtProperty(required=True)
+    accepted_answer = ndb.StructuredProperty(Answer)  # there can only be one!
+
+
+
 
