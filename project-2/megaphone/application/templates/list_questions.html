@@ -25,9 +25,9 @@
             {% set question_id = question.key.id() %}
             <tr>
                 <td>{{ question_id }}</td>
-                <td>{{ question.author }}</td>
+                <td>{{ question.added_by }}</td>
                 <td>{{ question.content }}</td>
-                <td>{{ question.date }}</td>
+                <td>{{ question.timestamp }}</td>
                 <td>{{ question.location }}</td>
             </tr>
             {% else %}
