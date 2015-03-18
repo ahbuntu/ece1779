@@ -40,7 +40,13 @@ app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_exa
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
 
 # Ask a new question
-app.add_url_rule('/new_question', 'new_question', view_func=views.new_question, methods=['POST'])
+app.add_url_rule('/new_question', view_func=views.new_question, methods=['POST'])
+
+# Edit a question
+app.add_url_rule('/questions/<int:question_id>/edit', 'edit_question', view_func=views.edit_question, methods=['GET', 'POST'])
+
+# Delete a question
+app.add_url_rule('/questions/<int:question_id>/delete', view_func=views.delete_question, methods=['POST'])
 
 # Search Questions list page
 app.add_url_rule('/questions/search', 'search_questions', view_func=views.search_questions, methods=['POST'])

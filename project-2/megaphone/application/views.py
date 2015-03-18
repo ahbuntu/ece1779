@@ -190,6 +190,36 @@ def add_question_to_search_index(question):
     index.put(document)
 
 
+@login_required
+def edit_question(question_id):
+    """Edit a question object"""
+    question = Question.get_by_id(question_id)
+    form = QuestionForm(obj=question)
+    if request.method == "POST":
+        if form.validate_on_submit():
+            question.content=form.data.get('content')
+            question.location=get_location()
+            question.put()
+            flash(u'Question %s successfully modified.' % question_id, 'success')
+            return redirect(url_for('list_questions'))
+    return render_template('edit_question.html', question=question, form=form)
+
+
+@login_required
+def delete_question(question_id):
+    """Delete an example object"""
+    question = Question.get_by_id(question_id)
+    if request.method == "POST":
+        try:
+            question.key.delete()
+            flash(u'Example %s successfully deleted.' % question_id, 'success')
+            return redirect(url_for('list_questions'))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('list_questions'))
+
+
+
 @admin_required
 def rebuild_question_search_index():
     questions = Question.all()
