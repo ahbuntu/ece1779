@@ -48,6 +48,10 @@ app.add_url_rule('/questions/<int:question_id>/edit', 'edit_question', view_func
 # Delete a question
 app.add_url_rule('/questions/<int:question_id>/delete', view_func=views.delete_question, methods=['POST'])
 
+# Provide a new answer
+app.add_url_rule('/questions/<int:question_id>/answer', 'new_answer', view_func=views.new_answer, methods=['GET', 'POST'])
+
+
 # Search Questions list page
 app.add_url_rule('/questions/search', 'search_questions', view_func=views.search_questions, methods=['POST'])
 

@@ -20,6 +20,7 @@
                 <th>Location</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
+                <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
@@ -38,6 +39,9 @@
                     <form method="post" action="{{ url_for('delete_question', question_id=question_id) }}">
                         <button class="btn btn-danger">Delete</button>
                     </form>
+                </td>
+                <td>
+                    <a href="{{ url_for('new_answer', question_id=question_id) }}" class="btn btn-default">Answer</a>
                 </td>
             </tr>
             {% else %}

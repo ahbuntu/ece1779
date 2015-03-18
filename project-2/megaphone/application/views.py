@@ -218,7 +218,19 @@ def delete_question(question_id):
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions'))
 
-
+@login_required
+def new_answer(question_id):
+    """Create a new answer corresponding to a question"""
+    question = Question.get_by_id(question_id)
+    form = QuestionForm(obj=question)
+    # if request.method == "POST":
+    #     if form.validate_on_submit():
+    #         question.content=form.data.get('content')
+    #         question.location=get_location()
+    #         question.put()
+    #         flash(u'Question %s successfully modified.' % question_id, 'success')
+    #         return redirect(url_for('list_questions'))
+    return render_template('new_answer.html', question=question, form=form)
 
 @admin_required
 def rebuild_question_search_index():

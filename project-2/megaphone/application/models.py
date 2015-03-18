@@ -25,6 +25,7 @@ class Post(ndb.Model):
 
 class Answer(Post):
     """A User answers a Question"""
+    related_question = ndb.StructuredProperty(Post)
 
     @classmethod
     def answers(self):
