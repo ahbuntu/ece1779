@@ -29,7 +29,7 @@ class Answer(Post):
 
     @classmethod
     def answers_for(self, question):
-        return self.query(self.for_question == question).order(self.timestamp) 
+        return self.query(self.for_question == question).order(self.timestamp)
 
     @classmethod
     def all(self):

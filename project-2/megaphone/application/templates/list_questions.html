@@ -20,7 +20,6 @@
                 <th>Location</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
-                <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
@@ -29,7 +28,10 @@
             <tr>
                 <td>{{ question_id }}</td>
                 <td>{{ question.added_by }}</td>
-                <td>{{ question.content }}</td>
+                <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
+                        {{ question.content }}
+                    </a>
+                </td>
                 <td>{{ question.timestamp }}</td>
                 <td>{{ question.location }}</td>
                 <td>
@@ -39,9 +41,6 @@
                     <form method="post" action="{{ url_for('delete_question', question_id=question_id) }}">
                         <button class="btn btn-danger">Delete</button>
                     </form>
-                </td>
-                <td>
-                    <a href="{{ url_for('answers_for_question', question_id=question_id) }}" class="btn btn-default">Answer</a>
                 </td>
             </tr>
             {% else %}
