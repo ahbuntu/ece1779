@@ -41,7 +41,7 @@
                     </form>
                 </td>
                 <td>
-                    <a href="{{ url_for('new_answer', question_id=question_id) }}" class="btn btn-default">Answer</a>
+                    <a href="{{ url_for('answers_for_question', question_id=question_id) }}" class="btn btn-default">Answer</a>
                 </td>
             </tr>
             {% else %}

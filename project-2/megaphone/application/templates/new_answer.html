@@ -1,34 +1,38 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h3>Provide an answer for the question</h3>
-    <div class="well">
-        {{ question.content }}
+<div class="modal fade" id="new-answer-modal">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal">&times;</button>
+        <h3>Add a New Answer</h3>
     </div>
-    <form id="new-answer" class="well"
-          action="{{ url_for('new_answer', question_id = question.key.id()) }}" method="post" accept-charset="utf-8">
-        <fieldset>
-            {{ form.hidden_tag() }}
-            <div class="control-group">
-                <div class="control-label">{{ form.content.label }}</div>
-                <div class="controls">
-                    {{ form.content|safe }}
-                    {% if form.content.errors %}
+    <div class="modal-body">
+        <form id="new-answer-form" class="well"
+            action="{{ url_for('new_answer', question_id=question.key.id()) }}" method="post" accept-charset="utf-8">
+            <fieldset>
+                {{ form.hidden_tag() }}
+                <div class="control-group">
+                    <div class="control-label">{{ form.content.label }}</div>
+                    <div class="controls">
+                        {{ form.content|safe }}
+                        {% if form.content.errors %}
                         <ul class="errors">
                             {% for error in form.content.errors %}
-                                <li>{{ error }}</li>
+                            <li>{{ error }}</li>
                             {% endfor %}
                         </ul>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-            <div>&nbsp;</div>
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="Post Answer"/>
-                    <a class="btn cancel" href="{{ url_for('list_questions') }}">Cancel</a>
+                <div>&nbsp;</div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="btn btn-primary" type="submit" value="Add Answer"/>
+                        <button class="btn" data-dismiss="modal">Cancel</button>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
-    </form>
-{% endblock content %}
+            </fieldset>
+        </form>
+    </div>
+    </div>
+    </div>
+</div>

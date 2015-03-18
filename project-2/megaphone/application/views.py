@@ -19,11 +19,11 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import ExampleForm, QuestionForm, QuestionSearchForm
+from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm
 
 from google.appengine.api import search
 
-from models import ExampleModel, Question
+from models import ExampleModel, Question, Answer
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -219,18 +219,39 @@ def delete_question(question_id):
             return redirect(url_for('list_questions'))
 
 @login_required
+def answers_for_question(question_id):
+    """Provides a listing of the question and all of its associated answers"""
+    question = Question.get_by_id(question_id)
+    user = users.get_current_user()
+    answerform = AnswerForm()
+
+    # TODO: fix so that it only displays answers associated to this question
+    answers = Answer.all()
+
+    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform)
+
+@login_required
 def new_answer(question_id):
     """Create a new answer corresponding to a question"""
     question = Question.get_by_id(question_id)
-    form = QuestionForm(obj=question)
-    # if request.method == "POST":
-    #     if form.validate_on_submit():
-    #         question.content=form.data.get('content')
-    #         question.location=get_location()
-    #         question.put()
-    #         flash(u'Question %s successfully modified.' % question_id, 'success')
-    #         return redirect(url_for('list_questions'))
-    return render_template('new_answer.html', question=question, form=form)
+    answerform = AnswerForm()
+    if request.method == "POST" and answerform.validate_on_submit():
+        answer = Answer(
+            content=answerform.content.data,
+            added_by=users.get_current_user(),
+            location=get_location(),
+            for_question=question
+        )
+        try:
+            answer.put()
+            answer_id = answer.key.id()
+            flash(u'Answer %s successfully saved.' % answer_id, 'success')
+            return redirect(url_for('answers_for_question', question_id=question_id))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('answers_for_question', question_id=question_id))
+
+    return render_template('new_answer.html', question=question, form=answerform)
 
 @admin_required
 def rebuild_question_search_index():

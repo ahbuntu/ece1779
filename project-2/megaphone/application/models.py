@@ -25,11 +25,15 @@ class Post(ndb.Model):
 
 class Answer(Post):
     """A User answers a Question"""
-    related_question = ndb.StructuredProperty(Post)
+    for_question = ndb.StructuredProperty(Post)
 
     @classmethod
     def answers(self):
         return []  # TODO: list all answers, ordered by date
+
+    @classmethod
+    def all(self):
+        return self.query()
 
     @classmethod
     def can_be_deleted(self):
