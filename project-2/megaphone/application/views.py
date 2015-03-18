@@ -224,9 +224,7 @@ def answers_for_question(question_id):
     question = Question.get_by_id(question_id)
     user = users.get_current_user()
     answerform = AnswerForm()
-
-    # TODO: fix so that it only displays answers associated to this question
-    answers = Answer.all()
+    answers = Answer.answers_for(question)
 
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform)
 

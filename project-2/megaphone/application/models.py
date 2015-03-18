@@ -28,8 +28,8 @@ class Answer(Post):
     for_question = ndb.StructuredProperty(Post)
 
     @classmethod
-    def answers(self):
-        return []  # TODO: list all answers, ordered by date
+    def answers_for(self, question):
+        return self.query(self.for_question == question).order(self.timestamp) 
 
     @classmethod
     def all(self):
