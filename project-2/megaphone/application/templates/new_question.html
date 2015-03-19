@@ -1,4 +1,4 @@
-<div class="modal fade" id="new-question-modal">
+<div class="modal fade" id="new-question-modal" xmlns="http://www.w3.org/1999/html">
     <div class="modal-dialog">
     <div class="modal-content">
     <div class="modal-header">
@@ -21,6 +21,14 @@
                             {% endfor %}
                         </ul>
                         {% endif %}
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">{{ form.location.label }}</div>
+                    <div class="controls">
+                        <input id="locationLat" name="locationLat" type="text"/>
+                        <input id="locationLong" name="locationLong" type="text"/>
+                        <input id="location" name="location" type="hidden"/>
                     </div>
                 </div>
                 <div>&nbsp;</div>

@@ -157,7 +157,7 @@ def new_question():
         question = Question(
             content=form.content.data,
             added_by=users.get_current_user(),
-            location=get_location()
+            location=get_location(form.location.data)
         )
         try:
             question.put()
@@ -170,9 +170,8 @@ def new_question():
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions'))
 
-def get_location():
-    # TODO: this should be moved to client side at some point
-    return ndb.GeoPt("45.45", "23.23")
+def get_location(coords):
+    return ndb.GeoPt(coords)
 
 
 def add_question_to_search_index(question):

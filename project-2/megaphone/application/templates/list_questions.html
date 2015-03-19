@@ -72,6 +72,15 @@
 {% block tail_script %}
     <script>
         var FormHelpers = {
+            geosuccess: function (position) {
+                $('#locationLat').val(position.coords.latitude);
+                $('#locationLong').val(position.coords.longitude);
+                $('#location').val(position.coords.latitude + "," +position.coords.longitude);
+
+            },
+            geoerror: function (msg) {
+                alert(msg);
+            },
             validate: function (form, evt) {
                 // Form validation for modal dialog
                 var question_content = form.find('#content').val();
@@ -79,10 +88,25 @@
                     evt.preventDefault();
                     Utils.renderFieldErrorTooltip('#content', 'Content is required', 'right');
                 }
+                var question_loc_lat = form.find('#locationLat').val();
+                if (!(question_loc_lat)) {
+                    evt.preventDefault();
+                    Utils.renderFieldErrorTooltip('#locationLat', 'Location latitude is required', 'right');
+                }
+                var question_loc_long = form.find('#locationLong').val();
+                if (!(question_loc_long)) {
+                    evt.preventDefault();
+                    Utils.renderFieldErrorTooltip('#locationLong', 'Location longitude is required', 'right');
+                }
             },
             init: function () {
                 var self = this;
                 var question_form = $('#new-question-form');
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(self.geosuccess, self.geoerror);
+                } else {
+                  alert('not supported');
+                }
                 question_form.on('submit', function (evt) {
                     self.validate(question_form, evt)
                 });
