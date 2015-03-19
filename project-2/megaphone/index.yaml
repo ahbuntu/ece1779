@@ -17,3 +17,9 @@ indexes:
   - name: for_question.location
   - name: for_question.timestamp
   - name: timestamp
+
+- kind: Question
+  properties:
+  - name: added_by
+  - name: timestamp
+    direction: desc

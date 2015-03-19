@@ -30,7 +30,11 @@ cache = Cache(app)
 
 
 def home():
-    return redirect(url_for('list_questions'))
+    user = users.get_current_user()
+    if user:
+        return redirect(url_for('list_questions_for_user'))
+    else:
+        return redirect(url_for('list_questions'))
 
 
 def say_hello(username):
@@ -150,6 +154,33 @@ def list_questions():
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
 
 @login_required
+def list_questions_for_user():
+    """Lists all questions posted by a user"""
+    form = QuestionForm()
+    search_form = QuestionSearchForm()
+    user = users.get_current_user()
+    login_url = users.create_login_url(url_for('home'))
+
+    query_string = request.query_string
+    latitude = request.args.get('lat')
+    longitude = request.args.get('lon')
+    radius = request.args.get('r')
+
+    # If searching w/ params (GET)
+    if request.method == 'GET' and all(v is not None for v in (latitude, longitude, radius)):
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (float(latitude), float(longitude), float(radius))
+        index = search.Index(name="myQuestions")
+        results = index.search(q)
+
+        # TODO: replace this with a proper .query
+        questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+    else:
+        questions = Question.all_for(user)
+
+    return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
+
+
+@login_required
 def new_question():
     """Creates a new question"""
     form = QuestionForm()
@@ -165,10 +196,10 @@ def new_question():
             flash(u'Question %s successfully saved.' % question_id, 'success')
             add_question_to_search_index(question)
 
-            return redirect(url_for('list_questions'))
+            return redirect(url_for('list_questions_for_user'))
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
-            return redirect(url_for('list_questions'))
+            return redirect(url_for('list_questions_for_user'))
 
 def get_location(coords):
     return ndb.GeoPt(coords)
@@ -200,7 +231,7 @@ def edit_question(question_id):
             question.location=get_location()
             question.put()
             flash(u'Question %s successfully modified.' % question_id, 'success')
-            return redirect(url_for('list_questions'))
+            return redirect(url_for('list_questions_for_user'))
     return render_template('edit_question.html', question=question, form=form)
 
 
@@ -212,10 +243,10 @@ def delete_question(question_id):
         try:
             question.key.delete()
             flash(u'Example %s successfully deleted.' % question_id, 'success')
-            return redirect(url_for('list_questions'))
+            return redirect(url_for('list_questions_for_user'))
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
-            return redirect(url_for('list_questions'))
+            return redirect(url_for('list_questions_for_user'))
 
 @login_required
 def answers_for_question(question_id):

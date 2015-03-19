@@ -7,21 +7,22 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand" href="#">Megaphone</a>
+    <a class="navbar-brand" href="/">Megaphone</a>
   </div>
 
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
     <ul class="nav navbar-nav">
-      <li><a href="/questions">Questions</a></li>
+      <li><a href="{{ url_for('list_questions') }}">All Questions</a></li>
+      {% if user %}
+        <li><a href="{{ url_for('list_questions_for_user') }}">My Questions</a></li>
+        <li><a href="{{ url_for('authenticate') }}">Logout</a></li>
+      {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+      {% endif %}
       <li><a href="https://cloud.google.com/appengine/docs">App Engine docs</a></li>
       <li><a href="http://flask.pocoo.org/">Flask docs</a></li>
       <li><a href="http://getbootstrap.com">Bootstrap docs</a></li>
-      {% if user %}
-        <li><a href="/logout">Logout</a></li>
-      {% else %}
-        <li><a href="/login">Login</a></li>
-      {% endif %}
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
         <ul class="dropdown-menu">

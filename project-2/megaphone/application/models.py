@@ -29,7 +29,7 @@ class Answer(Post):
 
     @classmethod
     def answers_for(self, question):
-        return self.query(self.for_question == question).order(self.timestamp)
+        return self.query(self.for_question == question).order(self.timestamp) # oldest first
 
     @classmethod
     def all(self):
@@ -49,7 +49,11 @@ class Question(Post):
 
     @classmethod
     def all(self):
-        return self.query()
+        return self.query().order(-self.timestamp) # newest first
+
+    @classmethod
+    def all_for(self, user):
+        return self.query(self.added_by == user).order(-self.timestamp) # newest first
 
 class QuestionSearch(ndb.Model):
     latitude = ndb.FloatProperty(required=True)

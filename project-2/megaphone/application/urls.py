@@ -36,8 +36,11 @@ app.add_url_rule('/examples/<int:example_id>/edit', 'edit_example', view_func=vi
 # Delete an example
 app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_example, methods=['POST'])
 
-# List all questions
+# List all questions for anonymous users
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
+
+# List all questions for logged in user
+app.add_url_rule('/questions/user', 'list_questions_for_user', view_func=views.list_questions_for_user, methods=['GET'])
 
 # Ask a new question
 app.add_url_rule('/new_question', view_func=views.new_question, methods=['POST'])
