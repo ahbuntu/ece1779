@@ -9,8 +9,18 @@
 {% block content %}
 
     <h1 id="">Question Activity</h1>
+    {% set accepted_answer = question.accepted_answer %}
     <div class="well">
         {{ question.content }}
+        {% if accepted_answer is not none %}
+            <div class="control-group well">
+                <div class="control-label">Accepted Answer</div>
+                <div>&nbsp;</div>
+                <div class="controls">
+                    {{ accepted_answer.content|safe }}
+                </div>
+            </div>
+        {% endif %}
     </div>
     <div>&nbsp;</div>
     <table class="table table-bordered table-striped">
@@ -21,10 +31,14 @@
                 <th>Content</th>
                 <th>Replied on</th>
                 <th>Location</th>
+                {% if accepted_answer is none %}
+                    <th>&nbsp;</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
             {% for answer in answers %}
+            {% set question_id = question.key.id() %}
             {% set answer_id = answer.key.id() %}
             <tr>
                 <td>{{ answer_id }}</td>
@@ -32,6 +46,13 @@
                 <td>{{ answer.content }}</td>
                 <td>{{ answer.timestamp }}</td>
                 <td>{{ answer.location }}</td>
+                {% if accepted_answer is none %}
+                    <td>
+                        <form method="post" action="{{ url_for('accept_answer_for_question', question_id=question_id, answer_id=answer.key.id()) }}">
+                            <button class="btn btn-success btn-sm">Accept</button>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
             {% else %}
             <tr><td colspan="5">No answers yet</td></tr>

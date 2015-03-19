@@ -282,6 +282,21 @@ def new_answer(question_id):
 
     return render_template('new_answer.html', question=question, form=answerform)
 
+
+@login_required
+def accept_answer_for_question(question_id, answer_id):
+    """Accept the answer for a questions"""
+    answer = Answer.get_by_id(answer_id)
+    question = Question.get_by_id(question_id)
+    # questionform = QuestionForm(obj=question)
+    if request.method == "POST":
+        # if questionform.validate_on_submit():
+        question.accepted_answer=answer
+        question.put()
+        flash(u'Answer %s successfully accepted.' % question_id, 'success')
+        return redirect(url_for('answers_for_question', question_id=question_id))
+    return redirect(url_for('answers_for_question', question_id=question_id))
+
 @admin_required
 def rebuild_question_search_index():
     questions = Question.all()
