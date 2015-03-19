@@ -265,3 +265,11 @@ def authenticate():
         return redirect(logout_url)
     else:
         return redirect(url_for('home'))
+
+def login():
+    user = users.get_current_user()
+    if user:
+        return redirect('/')
+    else:
+        login_url = users.create_login_url(url_for('home'))
+        return redirect(login_url)

@@ -63,6 +63,9 @@ app.add_url_rule('/admin/rebuild_question_search_index', 'rebuild_question_searc
 # Logout
 app.add_url_rule('/logout', 'authenticate', view_func=views.authenticate, methods=['GET'])
 
+# Login
+app.add_url_rule('/login', 'login', view_func=views.login, methods=['GET'])
+
 
 ## Error handlers
 # Handle 404 errors

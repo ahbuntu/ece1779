@@ -17,7 +17,11 @@
       <li><a href="https://cloud.google.com/appengine/docs">App Engine docs</a></li>
       <li><a href="http://flask.pocoo.org/">Flask docs</a></li>
       <li><a href="http://getbootstrap.com">Bootstrap docs</a></li>
-      <li><a href="/logout">Logout</a></li>
+      {% if user %}
+        <li><a href="/logout">Logout</a></li>
+      {% else %}
+        <li><a href="/login">Login</a></li>
+      {% endif %}
       <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
         <ul class="dropdown-menu">
