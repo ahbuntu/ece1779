@@ -49,4 +49,5 @@ QuestionForm = model_form(Question, wtf.Form, field_args={
 
 AnswerForm = model_form(Answer, wtf.Form, field_args={
     'content': dict(validators=[validators.Required()]),
+    'location': dict(validators=[validators.Required()]),
 })

@@ -60,6 +60,15 @@
 {% block tail_script %}
     <script>
         var FormHelpers = {
+            geosuccess: function (position) {
+                $('#locationLat').val(position.coords.latitude);
+                $('#locationLong').val(position.coords.longitude);
+                $('#location').val(position.coords.latitude + "," +position.coords.longitude);
+
+            },
+            geoerror: function (msg) {
+                alert(msg);
+            },
             validate: function (form, evt) {
                 // Form validation for modal dialog
                 var answer_content = form.find('#content').val();
@@ -67,9 +76,24 @@
                     evt.preventDefault();
                     Utils.renderFieldErrorTooltip('#content', 'Content is required', 'right');
                 }
+                var answer_loc_lat = form.find('#locationLat').val();
+                if (!(answer_loc_lat)) {
+                    evt.preventDefault();
+                    Utils.renderFieldErrorTooltip('#locationLat', 'Latitude is required', 'right');
+                }
+                var answer_loc_long = form.find('#locationLong').val();
+                if (!(answer_loc_long)) {
+                    evt.preventDefault();
+                    Utils.renderFieldErrorTooltip('#locationLong', 'Longitude is required', 'right');
+                }
             },
             init: function () {
                 var self = this;
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(self.geosuccess, self.geoerror);
+                } else {
+                  alert('Geolocation not supported');
+                }
                 var answer_form = $('#new-answer-form');
                 answer_form.on('submit', function (evt) {
                     self.validate(answer_form, evt)

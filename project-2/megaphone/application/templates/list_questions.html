@@ -105,7 +105,7 @@
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(self.geosuccess, self.geoerror);
                 } else {
-                  alert('not supported');
+                  alert('Geolocation not supported');
                 }
                 question_form.on('submit', function (evt) {
                     self.validate(question_form, evt)

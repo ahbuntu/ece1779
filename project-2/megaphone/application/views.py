@@ -236,7 +236,7 @@ def new_answer(question_id):
         answer = Answer(
             content=answerform.content.data,
             added_by=users.get_current_user(),
-            location=get_location(),
+            location=get_location(answerform.location.data),
             for_question=question
         )
         try:
