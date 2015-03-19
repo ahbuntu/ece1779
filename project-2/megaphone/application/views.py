@@ -225,14 +225,15 @@ def edit_question(question_id):
     """Edit a question object"""
     question = Question.get_by_id(question_id)
     form = QuestionForm(obj=question)
+    user = users.get_current_user()
     if request.method == "POST":
         if form.validate_on_submit():
             question.content=form.data.get('content')
-            question.location=get_location()
+            question.location=form.data.get('location')
             question.put()
             flash(u'Question %s successfully modified.' % question_id, 'success')
             return redirect(url_for('list_questions_for_user'))
-    return render_template('edit_question.html', question=question, form=form)
+    return render_template('edit_question.html', question=question, form=form, user=user)
 
 
 @login_required
