@@ -70,6 +70,7 @@ def list_examples():
             return redirect(url_for('list_examples'))
     return render_template('list_examples.html', examples=examples, form=form)
 
+
 # No auth required
 def search_questions():
     """Basic search API for Questions"""
@@ -216,6 +217,7 @@ def new_question():
         flash_errors(form)
         return redirect(url_for('list_questions_for_user'))
 
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
@@ -223,6 +225,7 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ))
+
 
 def get_location(coords):
     return ndb.GeoPt(coords)
@@ -272,6 +275,7 @@ def delete_question(question_id):
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions_for_user'))
 
+
 @login_required
 def answers_for_question(question_id):
     """Provides a listing of the question and all of its associated answers"""
@@ -281,6 +285,7 @@ def answers_for_question(question_id):
     answers = Answer.answers_for(question)
 
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform)
+
 
 @login_required
 def new_answer(question_id):
@@ -335,6 +340,7 @@ def authenticate():
         return redirect(logout_url)
     else:
         return redirect(url_for('home'))
+
 
 def login():
     user = users.get_current_user()
