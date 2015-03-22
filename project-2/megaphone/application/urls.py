@@ -71,6 +71,9 @@ app.add_url_rule('/logout', 'authenticate', view_func=views.authenticate, method
 # Login
 app.add_url_rule('/login', 'login', view_func=views.login, methods=['GET'])
 
+# Channel Presence
+app.add_url_rule('/_ah/channel/connected/', view_func=views.channel_connected, methods=['POST'])
+app.add_url_rule('/_ah/channel/disconnected/', view_func=views.channel_disconnected, methods=['POST'])
 
 ## Error handlers
 # Handle 404 errors

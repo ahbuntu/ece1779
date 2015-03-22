@@ -350,7 +350,6 @@ def login():
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
 
-
 def channel_test(channel_token):
     tries = 1
     logging.info('starting channel_test')
@@ -359,3 +358,13 @@ def channel_test(channel_token):
         channel.send_message('some-channel', message)
         logging.info('just sent: ' + message)
         logging.info(channel_token)
+
+def channel_connected():
+    channel = request.form['from']
+    logging.info('user connected to: ' + str(channel))
+    return '', 200
+
+def channel_disconnected():
+    channel = request.form['from']
+    logging.info('user disconnected from: ' + str(channel))
+    return '', 200
