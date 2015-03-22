@@ -12,6 +12,8 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
+import logging
+
 from flask import request, render_template, flash, url_for, redirect
 
 from flask_cache import Cache
@@ -22,6 +24,11 @@ from decorators import login_required, admin_required
 from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm
 
 from google.appengine.api import search
+from google.appengine.api import channel
+
+# For background jobs
+from google.appengine.ext import deferred
+from google.appengine.runtime import DeadlineExceededError
 
 from models import ExampleModel, Question, Answer
 
@@ -151,7 +158,12 @@ def list_questions():
     else:
         questions = Question.all()
 
-    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
+    channel_token = channel.create_channel('some-channel')
+    deferred.defer(channel_test, channel_token, _countdown=5)
+    # return render_template('Main/cycle.html', form=form, channel_token=channel_token)
+
+    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
+
 
 @login_required
 def list_questions_for_user():
@@ -331,3 +343,13 @@ def login():
     else:
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
+
+
+def channel_test(channel_token):
+    tries = 1
+    logging.info('starting channel_test')
+    for attempt in range(tries):
+        message = 'this is message number: ' + str(attempt)
+        channel.send_message('some-channel', message)
+        logging.info('just sent: ' + message)
+        logging.info(channel_token)
