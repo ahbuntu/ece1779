@@ -200,6 +200,17 @@ def new_question():
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions_for_user'))
+    else:
+        flash_errors(form)
+        return redirect(url_for('list_questions_for_user'))
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ))
 
 def get_location(coords):
     return ndb.GeoPt(coords)
