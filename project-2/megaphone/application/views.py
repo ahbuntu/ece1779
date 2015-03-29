@@ -159,12 +159,21 @@ def list_questions():
     else:
         questions = Question.all()
 
-    channel_token = channel.create_channel('some-channel')
-    deferred.defer(channel_test, channel_token, _countdown=5)
-    # return render_template('Main/cycle.html', form=form, channel_token=channel_token)
+    channel_token = channel.create_channel(all_questions_answers_channel_id())
+
+    # TESTING
+    #deferred.defer(channel_test, channel_id, _countdown=5)
 
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
+
+def all_questions_answers_channel_id():
+    user = users.get_current_user()
+    return str(user.user_id())
+
+
+def question_answers_channel_id(question):
+    return str(question.key.id())
 
 
 @login_required
@@ -285,7 +294,13 @@ def answers_for_question(question_id):
     answerform = AnswerForm()
     answers = Answer.answers_for(question)
 
-    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform)
+    channel_id = question_answers_channel_id(question)
+    channel_token = channel.create_channel(channel_id)
+
+    # TESTING
+    # deferred.defer(channel_test, channel_id, _countdown=5)
+
+    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
 
 
 @login_required
@@ -302,6 +317,15 @@ def new_answer(question_id):
         )
         try:
             answer.put()
+
+            # For the individual question
+            channel_id = question_answers_channel_id(question)
+            deferred.defer(channel_test, channel_id, _countdown=1)
+
+            # For all questions
+            channel_id = all_questions_answers_channel_id()
+            deferred.defer(channel_test, channel_id, _countdown=1)
+
             answer_id = answer.key.id()
             flash(u'Answer %s successfully saved.' % answer_id, 'success')
             return redirect(url_for('answers_for_question', question_id=question_id))
@@ -352,12 +376,13 @@ def login():
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
 
-def channel_test(channel_token):
+def channel_test(channel_id):
     tries = 1
+    channel_token = channel.create_channel(channel_id)
     logging.info('starting channel_test')
     for attempt in range(tries):
         message = 'this is message number: ' + str(attempt)
-        channel.send_message('some-channel', message)
+        channel.send_message(channel_id, message)
         logging.info('just sent: ' + message)
         logging.info(channel_token)
 
