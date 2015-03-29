@@ -15,7 +15,6 @@
                 {% endif %}
             </div>
         </div>
-        <div>&nbsp;</div>
         <div class="control-group">
             <div class="control-label">{{ search_form.longitude.label }}</div>
             <div class="controls">
@@ -30,12 +29,12 @@
             </div>
         </div>
         <div class="control-group">
-            <div class="control-label">{{ search_form.distance.label }}</div>
+            <div class="control-label">{{ search_form.distance_in_km.label }}</div>
             <div class="controls">
-                {{ search_form.distance|safe }}
-                {% if search_form.distance.errors %}
+                {{ search_form.distance_in_km|safe }}
+                {% if search_form.distance_in_km.errors %}
                 <ul class="errors">
-                    {% for error in search_form.distance.errors %}
+                    {% for error in search_form.distance_in_km.errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
@@ -46,7 +45,7 @@
         <div class="control-group">
             <div class="controls">
                 <input class="btn btn-primary" type="submit" value="Search"/>
-{#                        <button class="btn" data-dismiss="modal">Cancel</button>#}
+                <button class="btn" id="cancel" data-dismiss="modal">Clear</button>
             </div>
         </div>
     </fieldset>

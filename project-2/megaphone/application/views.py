@@ -21,7 +21,7 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm, PostUserForm
+from forms import QuestionForm, AnswerForm, QuestionSearchForm, PostUserForm
 
 from google.appengine.api import search
 from google.appengine.api import channel
@@ -30,7 +30,7 @@ from google.appengine.api import channel
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 
-from models import ExampleModel, Question, Answer, PostUser
+from models import Question, Answer, PostUser
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -44,33 +44,6 @@ def home():
         return redirect(url_for('list_questions'))
 
 
-def say_hello(username):
-    """Contrived example to demonstrate Flask's url routing capabilities"""
-    return 'Hello %s' % username
-
-
-@login_required
-def list_examples():
-    """List all examples"""
-    examples = ExampleModel.query()
-    form = ExampleForm()
-    if form.validate_on_submit():
-        example = ExampleModel(
-            example_name=form.example_name.data,
-            example_description=form.example_description.data,
-            added_by=users.get_current_user()
-        )
-        try:
-            example.put()
-            example_id = example.key.id()
-            flash(u'Example %s successfully saved.' % example_id, 'success')
-            return redirect(url_for('list_examples'))
-        except CapabilityDisabledError:
-            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
-            return redirect(url_for('list_examples'))
-    return render_template('list_examples.html', examples=examples, form=form)
-
-
 # No auth required
 def search_questions():
     """Basic search API for Questions"""
@@ -82,50 +55,14 @@ def search_questions():
     # Build the search params and redirect
     latitude = search_form.latitude.data
     longitude = search_form.longitude.data
-    radius = search_form.distance.data
+    radius = search_form.distance_in_km.data
     return redirect(url_for('list_questions', lat=latitude, lon=longitude, r=radius))
-
-
-@login_required
-def edit_example(example_id):
-    example = ExampleModel.get_by_id(example_id)
-    form = ExampleForm(obj=example)
-    if request.method == "POST":
-        if form.validate_on_submit():
-            example.example_name = form.data.get('example_name')
-            example.example_description = form.data.get('example_description')
-            example.put()
-
-            flash(u'Example %s successfully saved.' % example_id, 'success')
-            return redirect(url_for('list_examples'))
-    return render_template('edit_example.html', example=example, form=form)
-
-
-@login_required
-def delete_example(example_id):
-    """Delete an example object"""
-    example = ExampleModel.get_by_id(example_id)
-    if request.method == "POST":
-        try:
-            example.key.delete()
-            flash(u'Example %s successfully deleted.' % example_id, 'success')
-            return redirect(url_for('list_examples'))
-        except CapabilityDisabledError:
-            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
-            return redirect(url_for('list_examples'))
 
 
 @admin_required
 def admin_only():
     """This view requires an admin account"""
     return 'Super-seekrit admin page.'
-
-
-@cache.cached(timeout=60)
-def cached_examples():
-    """This view should be cached for 60 sec"""
-    examples = ExampleModel.query()
-    return render_template('list_examples_cached.html', examples=examples)
 
 
 def warmup():
@@ -136,6 +73,7 @@ def warmup():
     return ''
 
 
+@cache.cached(timeout=5)
 def list_questions():
     """Lists all questions posted on the site - available to anonymous users"""
     form = QuestionForm()
@@ -150,12 +88,23 @@ def list_questions():
 
     # If searching w/ params (GET)
     if request.method == 'GET' and all(v is not None for v in (latitude, longitude, radius)):
-        q = "distance(location, geopoint(%f, %f)) <= %f" % (float(latitude), float(longitude), float(radius))
+        radius_in_metres = float(radius) * 1000.0
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (float(latitude), float(longitude), float(radius_in_metres))
+
+        # build the index if not already done
+        if search.get_indexes().__len__() == 0:
+            rebuild_question_search_index()
+
         index = search.Index(name="myQuestions")
         results = index.search(q)
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = sorted(questions, key=lambda question: question.timestamp)
+
+        search_form.latitude.data = float(latitude)
+        search_form.longitude.data = float(longitude)
+        search_form.distance_in_km.data = radius_in_metres/1000.0
     else:
         questions = Question.all()
 
@@ -208,6 +157,7 @@ def user_profile():
     return render_template('user_profile.html', user=user, post_user=post_user,
                            question_count=question_count, answer_count=answer_count, form=form)
 
+
 @login_required
 def list_questions_for_user():
     """Lists all questions posted by a user"""
@@ -229,6 +179,7 @@ def list_questions_for_user():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = sorted(questions, key=lambda question: question.timestamp)
     else:
         questions = Question.all_for(user)
 
@@ -307,12 +258,12 @@ def edit_question(question_id):
 
 @login_required
 def delete_question(question_id):
-    """Delete an example object"""
+    """Delete a Question"""
     question = Question.get_by_id(question_id)
     if request.method == "POST":
         try:
             question.key.delete()
-            flash(u'Example %s successfully deleted.' % question_id, 'success')
+            flash(u'Question %s successfully deleted.' % question_id, 'success')
             return redirect(url_for('list_questions_for_user'))
         except CapabilityDisabledError:
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
@@ -330,6 +281,7 @@ def answers_for_question(question_id):
     channel_id = question_answers_channel_id(question)
     channel_token = channel.create_channel(channel_id)
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
+
 
 
 @login_required
@@ -441,3 +393,4 @@ def channel_disconnected():
     channel = request.form['from']
     logging.info('user disconnected from: ' + str(channel))
     return '', 200
+
