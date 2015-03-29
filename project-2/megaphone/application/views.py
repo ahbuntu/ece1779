@@ -376,4 +376,7 @@ def subscribe_for_prospective_post(post_id):
 
 def match_prospective_search():
     if request.method == "POST":
-        doc = prospective_search.get_document(request) #TODO: fix this - doesn't work
+        webapp2Request = request.form
+        prospectiveQuestion = prospective_search.get_document(webapp2Request)
+        content = prospectiveQuestion.content
+        # TODO: after taking an action - might consider removing the subscription
