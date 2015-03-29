@@ -8,44 +8,7 @@
 
 {% block content %}
 
-    <!-- The following is a test of the Channel API -->
-    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-
-    <!-- Taken from: http://stackoverflow.com/questions/6589559/appengine-channel-no-messages-arrive -->
-    <script type="text/javascript" charset="utf-8">
-        function tell_user(message) {
-            $('#CycleChannelMessages').append(message + '<br />');
-        }
-
-        function onOpened() {
-            console.log('onOpened');
-            var connected = true;
-            tell_user('ready to take messages');
-            tell_user('{{ channel_token }}');
-        }
-        function onMessage(msg_obj) {
-            console.log('onMessage');
-            tell_user('something');
-            // tell_user(msg_obj.data);
-        }
-        function onError(obj) {
-            console.log('onError');
-        }
-        function onClose(obj) {
-            console.log('onClose');
-        }
-
-        var channel = new goog.appengine.Channel('{{ channel_token }}');
-        var socket = channel.open();
-        socket.onopen = onOpened;
-        socket.onmessage = onMessage;
-        socket.onerror = onError;
-        socket.onclose = onClose;
-    </script>
-    <!-- -->
-
-    <h1>Notices</h1>
-    <div id="CycleChannelMessages">&nbsp;</div>
+    {% include 'includes/notices.html' %}
 
     <h1 id="">All Questions</h1>
     <div>&nbsp;</div>
