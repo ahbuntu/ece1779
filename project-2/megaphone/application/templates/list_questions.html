@@ -11,6 +11,9 @@
     {% include 'includes/notices.html' %}
 
     <h1 id="">All Questions</h1>
+
+    {% include 'search_questions.html' %}
+
     <div>&nbsp;</div>
     <p>
         {% if user %}
@@ -56,8 +59,6 @@
 
 
 {% block footer %}
-    {% include 'search_questions.html' %}
-
     {% include 'new_question.html' %} {# pull in new_question form (modal dialog) #} 
 {% endblock footer %}
 

@@ -8,13 +8,6 @@ App Engine datastore models
 
 from google.appengine.ext import ndb, db
 
-class ExampleModel(ndb.Model):
-    """Example Model"""
-    example_name = ndb.StringProperty(required=True)
-    example_description = ndb.TextProperty(required=True)
-    added_by = ndb.UserProperty()
-    timestamp = ndb.DateTimeProperty(auto_now_add=True)
-
 
 class Post(ndb.Model):
     """Base Model to represent questions and answers that are posted on the site"""
@@ -29,7 +22,7 @@ class Answer(Post):
 
     @classmethod
     def answers_for(self, question):
-        return self.query(self.for_question == question).order(self.timestamp) # oldest first
+        return self.query(self.for_question == question).order(-self.timestamp) # oldest first
 
     @classmethod
     def all(self):
@@ -66,7 +59,7 @@ class Question(Post):
 class QuestionSearch(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
-    distance = ndb.FloatProperty(required=True)
+    distance_in_km = ndb.FloatProperty(required=True)
 
 class RelatedQuestion(db.Model):
     content = db.StringProperty(required=True)
