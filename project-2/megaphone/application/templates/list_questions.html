@@ -79,4 +79,15 @@
         google.maps.event.addDomListener(window, 'load', initialize);
     </script>
 
+    <!-- Hack: move this to the search_questions include? -->
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            $("#cancel").click(function() {
+                window.location.replace('{{ url_for('list_questions') }}');
+                // window.location.href = '{{ url_for('list_questions') }}';
+                return false;
+            });
+        });
+    </script>
+
 {% endblock tail_script %}
