@@ -166,6 +166,7 @@ def list_questions():
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
+
 @login_required
 def list_questions_for_user():
     """Lists all questions posted by a user"""
@@ -324,6 +325,7 @@ def accept_answer_for_question(question_id, answer_id):
         flash(u'Answer %s successfully accepted.' % question_id, 'success')
         return redirect(url_for('answers_for_question', question_id=question_id))
     return redirect(url_for('answers_for_question', question_id=question_id))
+
 
 @admin_required
 def rebuild_question_search_index():

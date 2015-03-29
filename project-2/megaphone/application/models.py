@@ -6,7 +6,7 @@ App Engine datastore models
 """
 
 
-from google.appengine.ext import ndb
+from google.appengine.ext import ndb, db
 
 class ExampleModel(ndb.Model):
     """Example Model"""
@@ -59,3 +59,11 @@ class QuestionSearch(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
     distance = ndb.FloatProperty(required=True)
+
+class RelatedQuestion(db.Model):
+    content = db.StringProperty(required=True)
+
+class SubscriptionRelatedQuestions(db.Model):
+    """Provides information on a subscription for a question."""
+    for_question_id = db.IntegerProperty(required=True)
+    created = db.DateTimeProperty(required=True, auto_now=True)
