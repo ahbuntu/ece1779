@@ -168,7 +168,6 @@ def all_questions_answers_channel_id():
 
 
 def all_user_questions_answers_channel_id(user):
-    user = users.get_current_user()
     return str(user.user_id())
 
 
