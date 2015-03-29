@@ -36,6 +36,10 @@ class Answer(Post):
         return self.query()
 
     @classmethod
+    def count_for(self, user):
+        return self.query(self.added_by == user).count()
+
+    @classmethod
     def can_be_deleted(self):
         return True  # TODO: return false if is an accepted_answer
 
@@ -54,6 +58,10 @@ class Question(Post):
     @classmethod
     def all_for(self, user):
         return self.query(self.added_by == user).order(-self.timestamp) # newest first
+
+    @classmethod
+    def count_for(self, user):
+        return self.query(self.added_by == user).count()
 
 class QuestionSearch(ndb.Model):
     latitude = ndb.FloatProperty(required=True)

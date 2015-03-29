@@ -154,6 +154,14 @@ def list_questions():
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
 
 @login_required
+def user_profile():
+    """Displays the user profile page"""
+    user = users.get_current_user()
+    question_count = Question.count_for(user)
+    answer_count = Answer.count_for(user)
+    return render_template('user_profile.html', user=user, question_count=question_count, answer_count=answer_count)
+
+@login_required
 def list_questions_for_user():
     """Lists all questions posted by a user"""
     form = QuestionForm()

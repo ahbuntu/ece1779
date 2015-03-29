@@ -39,8 +39,11 @@ app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_exa
 # List all questions for anonymous users
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
 
+# Displays the user profile
+app.add_url_rule('/user', 'user_profile', view_func=views.user_profile, methods=['GET'])
+
 # List all questions for logged in user
-app.add_url_rule('/questions/user', 'list_questions_for_user', view_func=views.list_questions_for_user, methods=['GET'])
+app.add_url_rule('/user/questions', 'list_questions_for_user', view_func=views.list_questions_for_user, methods=['GET'])
 
 # Ask a new question
 app.add_url_rule('/new_question', view_func=views.new_question, methods=['POST'])
