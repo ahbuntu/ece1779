@@ -14,7 +14,7 @@ from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
 import logging
 
-from flask import request, render_template, flash, url_for, redirect
+from flask import request, render_template, flash, url_for, redirect, json
 
 from flask_cache import Cache
 
@@ -160,10 +160,6 @@ def list_questions():
         questions = Question.all()
 
     channel_token = channel.create_channel(all_questions_answers_channel_id())
-
-    # TESTING
-    #deferred.defer(channel_test, channel_id, _countdown=5)
-
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
@@ -297,9 +293,6 @@ def answers_for_question(question_id):
     channel_id = question_answers_channel_id(question)
     channel_token = channel.create_channel(channel_id)
 
-    # TESTING
-    # deferred.defer(channel_test, channel_id, _countdown=5)
-
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
 
 
@@ -313,19 +306,12 @@ def new_answer(question_id):
             content=answerform.content.data,
             added_by=users.get_current_user(),
             location=get_location(answerform.location.data),
-            for_question=question
+            for_question=question,
+            parent=question.key
         )
         try:
             answer.put()
-
-            # For the individual question
-            channel_id = question_answers_channel_id(question)
-            deferred.defer(channel_test, channel_id, _countdown=1)
-
-            # For all questions
-            channel_id = all_questions_answers_channel_id()
-            deferred.defer(channel_test, channel_id, _countdown=1)
-
+            notify_new_answer(answer)
             answer_id = answer.key.id()
             flash(u'Answer %s successfully saved.' % answer_id, 'success')
             return redirect(url_for('answers_for_question', question_id=question_id))
@@ -376,20 +362,41 @@ def login():
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
 
-def channel_test(channel_id):
+
+def notify_new_answer(answer):
+    question_key = answer.key.parent().id()
+    question = Question.get_by_id(question_key)
+    question_id = question.key.id()
+    title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
+    message = {'question_id': question_id,
+               'url': url_for('answers_for_question', question_id=str(question_id)),
+               'title': title}
+
+    channel_id = question_answers_channel_id(question)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=5)
+
+    channel_id = all_questions_answers_channel_id()
+    deferred.defer(channel_send_message, channel_id, message, _countdown=5)
+
+
+def channel_send_message(channel_id, message):
     tries = 1
     channel_token = channel.create_channel(channel_id)
-    logging.info('starting channel_test')
+    logging.info('starting channel_send_message')
+    message_json = json.dumps(message)
+
     for attempt in range(tries):
-        message = 'this is message number: ' + str(attempt)
-        channel.send_message(channel_id, message)
-        logging.info('just sent: ' + message)
+        # message = 'this is message number: ' + str(attempt)
+        channel.send_message(channel_id, message_json)
+        logging.info('just sent: ' + message_json)
         logging.info(channel_token)
+
 
 def channel_connected():
     channel = request.form['from']
     logging.info('user connected to: ' + str(channel))
     return '', 200
+
 
 def channel_disconnected():
     channel = request.form['from']
