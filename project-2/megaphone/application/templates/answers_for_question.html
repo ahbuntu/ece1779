@@ -26,13 +26,11 @@
         function onMessage(msg_obj) {
             var json_str = msg_obj["data"];
             var info = JSON.parse(json_str);
-            var question_id = info["question_id"];
             var url = info["url"];
-            var msg = "Question X was answered. Click <a href='" + url + "'>here</a> to view it.";
-
+            var title = info["title"];
+            var msg = "Your question ('" + title + "') received a new answer. Click <a href='" + url + "'>here</a> to view it.";
             console.log('onMessage');
             tell_user('something: ' + msg);
-            // tell_user(msg_obj.data);
         }
         function onError(obj) {
             console.log('onError');
