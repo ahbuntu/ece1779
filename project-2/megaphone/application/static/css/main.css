@@ -6,3 +6,7 @@
 .nowrap { white-space: nowrap; }
 
 /* Your customizations here */
+#map-canvas {
+    width: 500px;
+    height: 400px;
+}
