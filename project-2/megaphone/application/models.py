@@ -60,10 +60,10 @@ class QuestionSearch(ndb.Model):
     longitude = ndb.FloatProperty(required=True)
     distance = ndb.FloatProperty(required=True)
 
-class RelatedQuestion(db.Model):
+class ProspectiveQuestion(db.Model):
     content = db.StringProperty(required=True)
 
-class SubscriptionRelatedQuestions(db.Model):
+class PostSubscription(db.Model):
     """Provides information on a subscription for a question."""
-    for_question_id = db.IntegerProperty(required=True)
+    for_post_id = db.IntegerProperty(required=True)
     created = db.DateTimeProperty(required=True, auto_now=True)

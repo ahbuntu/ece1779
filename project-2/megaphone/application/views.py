@@ -14,16 +14,16 @@ from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
 from flask import request, render_template, flash, url_for, redirect
 
-from flask_cache import Cache
+from lib.flask_cache import Cache
 
 from application import app
 from decorators import login_required, admin_required
 
 from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm
 
-from google.appengine.api import search
+from google.appengine.api import search, prospective_search
 
-from models import ExampleModel, Question, Answer
+from models import ExampleModel, Question, Answer, ProspectiveQuestion, PostSubscription
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -193,8 +193,17 @@ def new_question():
         try:
             question.put()
             question_id = question.key.id()
+
+            # TODO: where should this go?
+            prospectiveQuestion = ProspectiveQuestion(
+                content = question.content
+            )
+            prospectiveQuestion.put()
+            prospective_id = prospectiveQuestion.key().id()
+
             flash(u'Question %s successfully saved.' % question_id, 'success')
             add_question_to_search_index(question)
+            subscribe_for_prospective_question(prospective_id)
 
             return redirect(url_for('list_questions_for_user'))
         except CapabilityDisabledError:
@@ -331,3 +340,37 @@ def login():
     else:
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
+
+
+def list_subscriptions():
+    """List all subscriptions"""
+    subscriptions = prospective_search.list_subscriptions(
+        ProspectiveQuestion,
+        # sub_id_start='debug'
+    )
+    return render_template('list_subscriptions.html', subscriptions=subscriptions)
+
+def match_prospective_search():
+    if request.method == "POST":
+        doc = prospective_search.get_document(request)
+
+
+@login_required
+def subscribe_for_prospective_question(post_id):
+    """Create new subscriptions for the provided question and user"""
+    sub = PostSubscription(
+        for_post_id = post_id
+    )
+    sub.put()
+    post = ProspectiveQuestion.get_by_id(post_id)
+    prospective_search.subscribe(
+        ProspectiveQuestion,
+        # "prospective search",
+        post.content,
+        sub.key(),
+        # "debug",
+        lease_duration_sec=300
+    )
+    # TODO: where should this go?
+    # prospective_search.match(
+    #     related_question)
