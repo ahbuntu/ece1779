@@ -194,16 +194,17 @@ def new_question():
             question.put()
             question_id = question.key.id()
 
-            # TODO: where should this go?
+            # create the question for the subscription
             prospectiveQuestion = ProspectiveQuestion(
                 content = question.content
             )
-            prospectiveQuestion.put()
+            prospectiveQuestion.put() #TODO: determin if this can be removed
             prospective_id = prospectiveQuestion.key().id()
+            subscribe_for_prospective_post(prospective_id) #TODO: investigate if this can be replaced with question_id
 
             flash(u'Question %s successfully saved.' % question_id, 'success')
             add_question_to_search_index(question)
-            subscribe_for_prospective_question(prospective_id)
+
 
             return redirect(url_for('list_questions_for_user'))
         except CapabilityDisabledError:
@@ -294,6 +295,14 @@ def new_answer(question_id):
         try:
             answer.put()
             answer_id = answer.key.id()
+
+            # match the question against all subscriptions to figure out the corresponding question
+            prospectiveQuestion = ProspectiveQuestion(
+                content = question.content
+            )
+            prospective_search.match(
+                prospectiveQuestion)
+
             flash(u'Answer %s successfully saved.' % answer_id, 'success')
             return redirect(url_for('answers_for_question', question_id=question_id))
         except CapabilityDisabledError:
@@ -350,13 +359,8 @@ def list_subscriptions():
     )
     return render_template('list_subscriptions.html', subscriptions=subscriptions)
 
-def match_prospective_search():
-    if request.method == "POST":
-        doc = prospective_search.get_document(request)
 
-
-@login_required
-def subscribe_for_prospective_question(post_id):
+def subscribe_for_prospective_post(post_id):
     """Create new subscriptions for the provided question and user"""
     sub = PostSubscription(
         for_post_id = post_id
@@ -365,12 +369,11 @@ def subscribe_for_prospective_question(post_id):
     post = ProspectiveQuestion.get_by_id(post_id)
     prospective_search.subscribe(
         ProspectiveQuestion,
-        # "prospective search",
         post.content,
         sub.key(),
-        # "debug",
-        lease_duration_sec=300
+        lease_duration_sec=600
     )
-    # TODO: where should this go?
-    # prospective_search.match(
-    #     related_question)
+
+def match_prospective_search():
+    if request.method == "POST":
+        doc = prospective_search.get_document(request) #TODO: fix this - doesn't work
