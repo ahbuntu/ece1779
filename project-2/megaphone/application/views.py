@@ -12,7 +12,9 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
-from flask import request, render_template, flash, url_for, redirect
+import logging
+
+from flask import request, render_template, flash, url_for, redirect, json
 
 from flask_cache import Cache
 
@@ -22,6 +24,11 @@ from decorators import login_required, admin_required
 from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm
 
 from google.appengine.api import search
+from google.appengine.api import channel
+
+# For background jobs
+from google.appengine.ext import deferred
+from google.appengine.runtime import DeadlineExceededError
 
 from models import ExampleModel, Question, Answer
 
@@ -62,6 +69,7 @@ def list_examples():
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_examples'))
     return render_template('list_examples.html', examples=examples, form=form)
+
 
 # No auth required
 def search_questions():
@@ -151,7 +159,21 @@ def list_questions():
     else:
         questions = Question.all()
 
-    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
+    channel_token = channel.create_channel(all_questions_answers_channel_id())
+    return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
+
+
+def all_questions_answers_channel_id():
+    return 'all-questions'
+
+
+def all_user_questions_answers_channel_id(user):
+    return str(user.user_id())
+
+
+def question_answers_channel_id(question):
+    return str(question.key.id())
+
 
 @login_required
 def user_profile():
@@ -185,7 +207,8 @@ def list_questions_for_user():
     else:
         questions = Question.all_for(user)
 
-    return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
+    channel_token = channel.create_channel(all_user_questions_answers_channel_id(user))
+    return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
 @login_required
@@ -212,6 +235,7 @@ def new_question():
         flash_errors(form)
         return redirect(url_for('list_questions_for_user'))
 
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
@@ -219,6 +243,7 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ))
+
 
 def get_location(coords):
     return ndb.GeoPt(coords)
@@ -268,6 +293,7 @@ def delete_question(question_id):
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('list_questions_for_user'))
 
+
 @login_required
 def answers_for_question(question_id):
     """Provides a listing of the question and all of its associated answers"""
@@ -276,7 +302,10 @@ def answers_for_question(question_id):
     answerform = AnswerForm()
     answers = Answer.answers_for(question)
 
-    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform)
+    channel_id = question_answers_channel_id(question)
+    channel_token = channel.create_channel(channel_id)
+    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
+
 
 @login_required
 def new_answer(question_id):
@@ -288,10 +317,12 @@ def new_answer(question_id):
             content=answerform.content.data,
             added_by=users.get_current_user(),
             location=get_location(answerform.location.data),
-            for_question=question
+            for_question=question,
+            parent=question.key
         )
         try:
             answer.put()
+            notify_new_answer(answer)
             answer_id = answer.key.id()
             flash(u'Answer %s successfully saved.' % answer_id, 'success')
             return redirect(url_for('answers_for_question', question_id=question_id))
@@ -316,6 +347,7 @@ def accept_answer_for_question(question_id, answer_id):
         return redirect(url_for('answers_for_question', question_id=question_id))
     return redirect(url_for('answers_for_question', question_id=question_id))
 
+
 @admin_required
 def rebuild_question_search_index():
     questions = Question.all()
@@ -332,6 +364,7 @@ def authenticate():
     else:
         return redirect(url_for('home'))
 
+
 def login():
     user = users.get_current_user()
     if user:
@@ -339,3 +372,47 @@ def login():
     else:
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
+
+
+def notify_new_answer(answer):
+    question_key = answer.key.parent().id()
+    question = Question.get_by_id(question_key)
+    question_id = question.key.id()
+    title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
+    message = {'question_id': question_id,
+               'url': url_for('answers_for_question', question_id=str(question_id)),
+               'title': title}
+
+    channel_id = question_answers_channel_id(question)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+
+    channel_id = all_user_questions_answers_channel_id(question.added_by)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+
+    channel_id = all_questions_answers_channel_id()
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+
+
+def channel_send_message(channel_id, message):
+    tries = 1
+    channel_token = channel.create_channel(channel_id)
+    logging.info('starting channel_send_message')
+    message_json = json.dumps(message)
+
+    for attempt in range(tries):
+        # message = 'this is message number: ' + str(attempt)
+        channel.send_message(channel_id, message_json)
+        logging.info('just sent: ' + message_json)
+        logging.info(channel_token)
+
+
+def channel_connected():
+    channel = request.form['from']
+    logging.info('user connected to: ' + str(channel))
+    return '', 200
+
+
+def channel_disconnected():
+    channel = request.form['from']
+    logging.info('user disconnected from: ' + str(channel))
+    return '', 200
