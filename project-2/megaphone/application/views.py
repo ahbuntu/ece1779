@@ -30,7 +30,7 @@ from google.appengine.api import channel
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 
-from models import , Question, Answer
+from models import Question, Answer
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
