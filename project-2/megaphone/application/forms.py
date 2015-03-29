@@ -13,7 +13,7 @@ from flaskext.wtf import validators
 from wtforms.ext.appengine.ndb import model_form
 
 from .models import QuestionSearch
-from .models import ExampleModel, Question, Answer
+from .models import ExampleModel, Question, Answer, PostUser
 
 
 class ClassicExampleForm(wtf.Form):
@@ -38,6 +38,12 @@ QuestionSearchForm = model_form(QuestionSearch, wtf.Form, field_args={
     'distance': dict(validators=[validators.Required()]),
 })
 
+
+PostUserForm = model_form(PostUser, wtf.Form, field_args={
+    'login': dict(validators=[validators.Required()]),
+    'screen_name': dict(validators=[validators.Required()]),
+    'home_location': dict(validators=[validators.Required()]),
+})
 
 class PostForm(wtf.Form):
     content = wtf.TextField('Content', validators=[validators.Required()])

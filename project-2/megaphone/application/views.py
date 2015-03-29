@@ -21,7 +21,7 @@ from flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm
+from forms import ExampleForm, QuestionForm, AnswerForm, QuestionSearchForm, PostUserForm
 
 from google.appengine.api import search
 from google.appengine.api import channel
@@ -30,7 +30,7 @@ from google.appengine.api import channel
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 
-from models import ExampleModel, Question, Answer
+from models import ExampleModel, Question, Answer, PostUser
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -181,7 +181,32 @@ def user_profile():
     user = users.get_current_user()
     question_count = Question.count_for(user)
     answer_count = Answer.count_for(user)
-    return render_template('user_profile.html', user=user, question_count=question_count, answer_count=answer_count)
+    form = PostUserForm()
+    post_users = PostUser.get_for(user)
+    post_user = post_users.get()
+
+    if request.method == 'POST':
+        if post_user is None:
+            post_user = PostUser (
+                login = user,
+                home_location = get_location(form.home_location.data),
+                screen_name = form.screen_name.data
+            )
+        else:
+            post_user.home_location = get_location(form.home_location.data)
+            post_user.screen_name = form.screen_name.data
+        try:
+            # TODO: create subscription for nearby prospective search
+            post_user.put()
+            flash(u'Home location successfully saved.', 'success')
+
+            return redirect(url_for('user_profile'))
+        except CapabilityDisabledError:
+            flash(u'App Engine Datastore is currently in read-only mode.', 'info')
+            return redirect(url_for('user_profile'))
+
+    return render_template('user_profile.html', user=user, post_user=post_user,
+                           question_count=question_count, answer_count=answer_count, form=form)
 
 @login_required
 def list_questions_for_user():

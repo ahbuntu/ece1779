@@ -11,13 +11,22 @@
     <h1 id="">Welcome {{ user }}</h1>
     <div>&nbsp;</div>
 
-    <h3>Current location</h3>
-    <div>Your home location is not set.</div>
-    <div id="map-canvas-profile"></div>
-    <p>
-        <button>Set as home location</button>
-        <div>Click the button to receive notications for new questions.</div>
-    </p>
+    {% if post_user is none %}
+        <h3>Current location</h3>
+        <div>Your home location is not set.</div>
+        <div id="map-canvas-profile"></div>
+        <p>
+            <form id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
+                <input id="home_location" name="home_location" type="text"/>
+                <button class="btn btn-default">Set as home location</button>
+            </form>
+
+            <div>Click the button to receive notifications for new questions near you.</div>
+        </p>
+    {% else %}
+        <h3>Home location</h3>
+        <div id="map-canvas-profile"></div>
+    {% endif %}
 
     <div>&nbsp;</div>
     <h3>Recent Activity</h3>
@@ -52,6 +61,7 @@
 
         function geosuccess(position) {
             displayonmap(position);
+            $('#home_location').val(position.coords.latitude + "," +position.coords.longitude);
         }
         function geoerror(msg) {
             alert(msg);
@@ -63,8 +73,18 @@
                 alert('Geolocation not supported');
             }
         }
+
+        var FormHelpers = {
+            init: function () {
+                var self = this;
+                var location_form = $('#post-user-form');
+                location_form.on('submit', function (evt) {
+                });
+            }
+        };
         $(document).ready(function() {
             getgeolocation();
+            FormHelpers.init();
         });
     </script>
 

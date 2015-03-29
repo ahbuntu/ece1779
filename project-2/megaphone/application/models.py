@@ -15,6 +15,15 @@ class ExampleModel(ndb.Model):
     added_by = ndb.UserProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
 
+class PostUser(ndb.Model):
+    """Model to store user preferences"""
+    login = ndb.UserProperty(required=True)
+    home_location = ndb.GeoPtProperty(required=True, indexed=True)
+    screen_name = ndb.StringProperty(required=False)
+
+    @classmethod
+    def get_for(self, user):
+        return self.query(self.login == user)
 
 class Post(ndb.Model):
     """Base Model to represent questions and answers that are posted on the site"""
