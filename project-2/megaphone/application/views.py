@@ -164,6 +164,10 @@ def list_questions():
 
 
 def all_questions_answers_channel_id():
+    return 'all-questions'
+
+
+def all_user_questions_answers_channel_id(user):
     user = users.get_current_user()
     return str(user.user_id())
 
@@ -196,7 +200,8 @@ def list_questions_for_user():
     else:
         questions = Question.all_for(user)
 
-    return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form)
+    channel_token = channel.create_channel(all_user_questions_answers_channel_id(user))
+    return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
 @login_required
@@ -292,7 +297,6 @@ def answers_for_question(question_id):
 
     channel_id = question_answers_channel_id(question)
     channel_token = channel.create_channel(channel_id)
-
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
 
 
@@ -373,10 +377,13 @@ def notify_new_answer(answer):
                'title': title}
 
     channel_id = question_answers_channel_id(question)
-    deferred.defer(channel_send_message, channel_id, message, _countdown=5)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+
+    channel_id = all_user_questions_answers_channel_id(question.added_by)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
 
     channel_id = all_questions_answers_channel_id()
-    deferred.defer(channel_send_message, channel_id, message, _countdown=5)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
 
 
 def channel_send_message(channel_id, message):
