@@ -16,6 +16,7 @@
       <li><a href="{{ url_for('list_questions') }}">All Questions</a></li>
       {% if user %}
         <li><a href="{{ url_for('list_questions_for_user') }}">My Questions</a></li>
+        <li><a href="{{ url_for('user_profile') }}">Profile</a></li>
         <li><a href="{{ url_for('authenticate') }}">Logout</a></li>
       {% else %}
         <li><a href="{{ url_for('login') }}">Login</a></li>

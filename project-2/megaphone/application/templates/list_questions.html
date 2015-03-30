@@ -8,7 +8,20 @@
 
 {% block content %}
 
+    {% include 'includes/notices.html' %}
+
     <h1 id="">All Questions</h1>
+
+    {% include 'search_questions.html' %}
+
+    <div>&nbsp;</div>
+    <p>
+        {% if user %}
+            <h4><a href="{{ url_for('list_questions_for_user') }}">Ask a new question</a></h4>
+        {% else %}
+            <h4><a href="{{ url_for('login') }}">Login to ask a question</a></h4>
+        {% endif %}
+    </p>
     <div>&nbsp;</div>
     <table class="table table-bordered table-striped">
         <thead>
@@ -38,21 +51,43 @@
             {% endfor %}
         </tbody>
     </table>
-    <p>
-        {% if user %}
-            <h4><a href="{{ url_for('list_questions_for_user') }}">Ask a question</a></h4>
-        {% else %}
-            <h4><a href="{{ url_for('login') }}">Login to ask a question</a></h4>
-        {% endif %}
-    </p>
 
+    <div id="map-canvas">
 
+    </div>
 {% endblock content %}
 
 
 {% block footer %}
-    {% include 'search_questions.html' %}
-
     {% include 'new_question.html' %} {# pull in new_question form (modal dialog) #} 
 {% endblock footer %}
 
+
+{% block tail_script %}
+    <script src="https://maps.googleapis.com/maps/api/js">
+    </script>
+    <script>
+        function initialize() {
+            var mapCanvas = document.getElementById('map-canvas');
+            var mapOptions = {
+              center: new google.maps.LatLng(44.5403, -78.5463),
+              zoom: 8,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+            var map = new google.maps.Map(mapCanvas, mapOptions)
+        }
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <!-- Hack: move this to the search_questions include? -->
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            $("#cancel").click(function() {
+                window.location.replace('{{ url_for('list_questions') }}');
+                // window.location.href = '{{ url_for('list_questions') }}';
+                return false;
+            });
+        });
+    </script>
+
+{% endblock tail_script %}

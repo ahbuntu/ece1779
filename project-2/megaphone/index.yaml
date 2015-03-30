@@ -18,6 +18,15 @@ indexes:
   - name: for_question.timestamp
   - name: timestamp
 
+- kind: Answer
+  properties:
+  - name: for_question.added_by
+  - name: for_question.content
+  - name: for_question.location
+  - name: for_question.timestamp
+  - name: timestamp
+    direction: desc
+
 - kind: Question
   properties:
   - name: added_by

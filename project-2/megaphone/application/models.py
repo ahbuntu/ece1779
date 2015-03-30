@@ -8,13 +8,15 @@ App Engine datastore models
 
 from google.appengine.ext import ndb, db
 
-class ExampleModel(ndb.Model):
-    """Example Model"""
-    example_name = ndb.StringProperty(required=True)
-    example_description = ndb.TextProperty(required=True)
-    added_by = ndb.UserProperty()
-    timestamp = ndb.DateTimeProperty(auto_now_add=True)
+class PostUser(ndb.Model):
+    """Model to store user preferences"""
+    login = ndb.UserProperty(required=True)
+    home_location = ndb.GeoPtProperty(required=True, indexed=True)
+    screen_name = ndb.StringProperty(required=False)
 
+    @classmethod
+    def get_for(self, user):
+        return self.query(self.login == user)
 
 class Post(ndb.Model):
     """Base Model to represent questions and answers that are posted on the site"""
@@ -29,11 +31,15 @@ class Answer(Post):
 
     @classmethod
     def answers_for(self, question):
-        return self.query(self.for_question == question).order(self.timestamp) # oldest first
+        return self.query(self.for_question == question).order(-self.timestamp) # oldest first
 
     @classmethod
     def all(self):
         return self.query()
+
+    @classmethod
+    def count_for(self, user):
+        return self.query(self.added_by == user).count()
 
     @classmethod
     def can_be_deleted(self):
@@ -55,10 +61,14 @@ class Question(Post):
     def all_for(self, user):
         return self.query(self.added_by == user).order(-self.timestamp) # newest first
 
+    @classmethod
+    def count_for(self, user):
+        return self.query(self.added_by == user).count()
+
 class QuestionSearch(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
-    distance = ndb.FloatProperty(required=True)
+    distance_in_km = ndb.FloatProperty(required=True)
 
 class ProspectiveQuestion(db.Model):
     content = db.StringProperty(required=True)

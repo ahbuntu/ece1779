@@ -6,3 +6,12 @@
 .nowrap { white-space: nowrap; }
 
 /* Your customizations here */
+#map-canvas {
+    width: 500px;
+    height: 400px;
+}
+
+#map-canvas-profile {
+    width: 300px;
+    height: 200px;
+}

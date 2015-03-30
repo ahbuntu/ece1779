@@ -18,29 +18,17 @@ app.add_url_rule('/_ah/warmup', 'warmup', view_func=views.warmup)
 # Home page
 app.add_url_rule('/', 'home', view_func=views.home)
 
-# Say hello
-app.add_url_rule('/hello/<username>', 'say_hello', view_func=views.say_hello)
-
-# Examples list page
-app.add_url_rule('/examples', 'list_examples', view_func=views.list_examples, methods=['GET', 'POST'])
-
-# Examples list page (cached)
-app.add_url_rule('/examples/cached', 'cached_examples', view_func=views.cached_examples, methods=['GET'])
-
 # Contrived admin-only view example
 app.add_url_rule('/admin_only', 'admin_only', view_func=views.admin_only)
-
-# Edit an example
-app.add_url_rule('/examples/<int:example_id>/edit', 'edit_example', view_func=views.edit_example, methods=['GET', 'POST'])
-
-# Delete an example
-app.add_url_rule('/examples/<int:example_id>/delete', view_func=views.delete_example, methods=['POST'])
 
 # List all questions for anonymous users
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
 
+# Displays the user profile
+app.add_url_rule('/user', 'user_profile', view_func=views.user_profile, methods=['GET', 'POST'])
+
 # List all questions for logged in user
-app.add_url_rule('/questions/user', 'list_questions_for_user', view_func=views.list_questions_for_user, methods=['GET'])
+app.add_url_rule('/user/questions', 'list_questions_for_user', view_func=views.list_questions_for_user, methods=['GET'])
 
 # Ask a new question
 app.add_url_rule('/new_question', view_func=views.new_question, methods=['POST'])
@@ -77,6 +65,9 @@ app.add_url_rule('/subscriptions', 'list_subscriptions', view_func=views.list_su
 # Match all subscriptions
 app.add_url_rule('/_ah/prospective_search', view_func=views.match_prospective_search, methods=['POST'])
 
+# Channel Presence
+app.add_url_rule('/_ah/channel/connected/', view_func=views.channel_connected, methods=['POST'])
+app.add_url_rule('/_ah/channel/disconnected/', view_func=views.channel_disconnected, methods=['POST'])
 
 ## Error handlers
 # Handle 404 errors
