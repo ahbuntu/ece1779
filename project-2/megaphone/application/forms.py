@@ -12,7 +12,7 @@ from flaskext import wtf
 from flaskext.wtf import validators
 from wtforms.ext.appengine.ndb import model_form
 
-from .models import Question, Answer, QuestionSearch, PostUser
+from .models import Question, Answer, QuestionSearch, ProspectiveUser
 
 class ClassicQuestionSearchForm(wtf.Form):
     latitude = wtf.DecimalField('Latitude',  validators=[validators.Required()])
@@ -25,12 +25,13 @@ QuestionSearchForm = model_form(QuestionSearch, wtf.Form, field_args={
     'distance_in_km': dict(validators=[validators.Required()]),
 })
 
-
-PostUserForm = model_form(PostUser, wtf.Form, field_args={
+ProspectiveUserForm = model_form(ProspectiveUser, wtf.Form, field_args={
     'login': dict(validators=[validators.Required()]),
+    'origin_location': dict(validators=[validators.Required()]),
+    'notification_radius_in_km': dict(validators=[validators.Required()]),
     'screen_name': dict(validators=[validators.Required()]),
-    'home_location': dict(validators=[validators.Required()]),
 })
+
 
 class PostForm(wtf.Form):
     content = wtf.TextField('Content', validators=[validators.Required()])

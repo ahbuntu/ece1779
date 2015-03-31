@@ -12,7 +12,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
-import logging
+import logging, math
 
 from flask import request, render_template, flash, url_for, redirect, json
 
@@ -21,7 +21,7 @@ from lib.flask_cache import Cache
 from application import app
 from decorators import login_required, admin_required
 
-from forms import QuestionForm, AnswerForm, QuestionSearchForm, PostUserForm
+from forms import QuestionForm, AnswerForm, QuestionSearchForm, ProspectiveUserForm
 
 from google.appengine.api import search, prospective_search
 from google.appengine.api import channel
@@ -30,7 +30,7 @@ from google.appengine.api import channel
 from google.appengine.ext import deferred
 from google.appengine.runtime import DeadlineExceededError
 
-from models import Question, Answer, PostUser, ProspectiveQuestion, PostSubscription
+from models import Question, Answer, ProspectiveUser, ProspectiveSubscription, NearbyQuestion
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
@@ -130,23 +130,27 @@ def user_profile():
     user = users.get_current_user()
     question_count = Question.count_for(user)
     answer_count = Answer.count_for(user)
-    form = PostUserForm()
-    post_users = PostUser.get_for(user)
-    post_user = post_users.get()
+    form = ProspectiveUserForm()
+    all_prospective_users = ProspectiveUser.get_for(user)
+    prospective_user = all_prospective_users.get()
 
     if request.method == 'POST':
-        if post_user is None:
-            post_user = PostUser (
+        if prospective_user is None:
+            prospective_user = ProspectiveUser (
                 login = user,
-                home_location = get_location(form.home_location.data),
+                origin_location = get_location(form.origin_location.data),
+                notification_radius_in_km = form.notification_radius_in_km.data, #TODO: make this dynamic
                 screen_name = form.screen_name.data
             )
         else:
-            post_user.home_location = get_location(form.home_location.data)
-            post_user.screen_name = form.screen_name.data
+            # all_post_users = ProspectiveUser.get_for(users.get_current_user())
+            # post_user = all_post_users.get()
+            prospective_user.origin_location = get_location(form.origin_location.data)
+            prospective_user.notification_radius_in_km = get_location(form.notification_radius_in_km.data), #TODO: make this dynamic
+            prospective_user.screen_name = form.screen_name.data
         try:
-            # TODO: create subscription for nearby prospective search
-            post_user.put()
+            prospective_user.put()
+            subscribe_user_for_nearby_questions(prospective_user.key.id())
             flash(u'Home location successfully saved.', 'success')
 
             return redirect(url_for('user_profile'))
@@ -154,7 +158,7 @@ def user_profile():
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('user_profile'))
 
-    return render_template('user_profile.html', user=user, post_user=post_user,
+    return render_template('user_profile.html', user=user, post_user=prospective_user,
                            question_count=question_count, answer_count=answer_count, form=form)
 
 
@@ -195,19 +199,15 @@ def new_question():
         question = Question(
             content=form.content.data,
             added_by=users.get_current_user(),
-            location=get_location(form.location.data)
+            # location=get_location(form.location.data) //TODO: fix stub
+            location=get_location('43.7,-80.5667')
+
         )
         try:
             question.put()
             question_id = question.key.id()
 
-            # create the question for the subscription
-            prospectiveQuestion = ProspectiveQuestion(
-                content = question.content
-            )
-            prospectiveQuestion.put() #TODO: determin if this can be removed
-            prospective_id = prospectiveQuestion.key().id()
-            subscribe_for_prospective_post(prospective_id) #TODO: investigate if this can be replaced with question_id
+            create_nearby_question(question_id)
 
             flash(u'Question %s successfully saved.' % question_id, 'success')
             add_question_to_search_index(question)
@@ -312,13 +312,6 @@ def new_answer(question_id):
             notify_new_answer(answer)
             answer_id = answer.key.id()
 
-            # match the question against all subscriptions to figure out the corresponding question
-            prospectiveQuestion = ProspectiveQuestion(
-                content = question.content
-            )
-            prospective_search.match(
-                prospectiveQuestion)
-
             flash(u'Answer %s successfully saved.' % answer_id, 'success')
             return redirect(url_for('answers_for_question', question_id=question_id))
         except CapabilityDisabledError:
@@ -368,35 +361,97 @@ def login():
         login_url = users.create_login_url(url_for('home'))
         return redirect(login_url)
 
+
 def list_subscriptions():
     """List all subscriptions"""
     subscriptions = prospective_search.list_subscriptions(
-        ProspectiveQuestion,
-        # sub_id_start='debug'
+        NearbyQuestion
     )
     return render_template('list_subscriptions.html', subscriptions=subscriptions)
 
-
-def subscribe_for_prospective_post(post_id):
-    """Create new subscriptions for the provided question and user"""
-    sub = PostSubscription(
-        for_post_id = post_id
-    )
-    sub.put()
-    post = ProspectiveQuestion.get_by_id(post_id)
-    prospective_search.subscribe(
-        ProspectiveQuestion,
-        post.content,
-        sub.key(),
-        lease_duration_sec=600
-    )
+#
+# def subscribe_for_prospective_post(post_id):
+#     """Create new subscriptions for the provided question and user"""
+#     sub = Pros(
+#         for_post_id = post_id
+#     )
+#     sub.put()
+#     post = ProspectiveQuestion.get_by_id(post_id)
+#     prospective_search.subscribe(
+#         ProspectiveQuestion,
+#         post.content,
+#         sub.key(),
+#         lease_duration_sec=600
+#     )
 
 def match_prospective_search():
     if request.method == "POST":
+        logging.info("received a match")
         webapp2Request = request.form
-        prospectiveQuestion = prospective_search.get_document(webapp2Request)
-        content = prospectiveQuestion.content
-        # TODO: after taking an action - might consider removing the subscription
+        nearby_question = prospective_search.get_document(webapp2Request)
+        prospective_user = ProspectiveUser.get_by_id(nearby_question.for_prospective_user_id)
+        question = Question.get_by_id(nearby_question.for_question_id)
+        if (prospective_user.login == question.added_by):
+            logging.info("TO BE IGNORED")
+        else:
+            logging.info("GOTCHA")
+
+        logging.info(question.content)
+        # TODO: send channel notification to the user(s)
+
+
+def deg2rad(deg):
+    return deg * (math.pi/180)
+
+
+def get_location_distance_in_km(lat1, lon1, lat2, lon2):
+    earth_radius = 6371 # Radius of the earth in km
+    d_lat = deg2rad(lat2 - lat1)
+    d_lon = deg2rad(lon2 - lon1)
+    a = math.sin(d_lat/2) * math.sin(d_lat/2) + math.cos(deg2rad(lat1)) * math.cos(deg2rad(lat2)) * math.sin(d_lon/2) * math.sin(d_lon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = earth_radius * c # Distance in km
+    return d
+
+def create_nearby_question(question_id):
+    prospective_users = ProspectiveUser.all()
+    question = Question.get_by_id(question_id)
+    for user_to_test in prospective_users:
+        # create a new document and subscribe to it
+        distance_to_origin = get_location_distance_in_km(user_to_test.origin_location.lat,
+                                                         user_to_test.origin_location.lon,
+                                                         question.location.lat,
+                                                         question.location.lon)
+        nearby_prospective_question = NearbyQuestion(
+            for_prospective_user_id = user_to_test.key.id(),
+            for_question_id = question_id,
+            origin_latitude = user_to_test.origin_location.lat,
+            origin_longitude = user_to_test.origin_location.lon,
+            origin_radius = user_to_test.notification_radius_in_km,
+            origin_distance_in_km = distance_to_origin
+        )
+        nearby_prospective_question.put() #TODO: only required for debugging purposes - can be removed
+
+        prospective_search.match(
+            nearby_prospective_question
+        )
+
+def subscribe_user_for_nearby_questions(prospective_user_id):
+    """Create new subscriptions for the provided question and user"""
+    sub = ProspectiveSubscription(
+        prospective_user_id = prospective_user_id
+    )
+    sub.put()
+    prospective_user = ProspectiveUser.get_by_id(prospective_user_id)
+    # nearby_question = NearbyQuestion.get_by_id(nearby_question_id)
+    query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
+        .format(prospective_user.origin_location.lat, prospective_user.origin_location.lon, prospective_user.notification_radius_in_km)
+    prospective_search.subscribe(
+        NearbyQuestion,
+        query,
+        sub.key(),
+        lease_duration_sec=300
+    )
 
 def notify_new_answer(answer):
     question_key = answer.key.parent().id()

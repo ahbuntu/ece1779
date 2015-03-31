@@ -17,7 +17,8 @@
         <div id="map-canvas-profile"></div>
         <p>
             <form id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
-                <input id="home_location" name="home_location" type="text"/>
+                <input id="origin_location" name="origin_location" type="text"/>
+                <input id="notification_radius_in_km" name="notification_radius_in_km" type="text"/>
                 <button class="btn btn-default">Set as home location</button>
             </form>
 
@@ -61,7 +62,7 @@
 
         function geosuccess(position) {
             displayonmap(position);
-            $('#home_location').val(position.coords.latitude + "," +position.coords.longitude);
+            $('#origin_location').val(position.coords.latitude + "," +position.coords.longitude);
         }
         function geoerror(msg) {
             alert(msg);
@@ -79,6 +80,7 @@
                 var self = this;
                 var location_form = $('#post-user-form');
                 location_form.on('submit', function (evt) {
+                    $('#notification_radius_in_km').val(100);
                 });
             }
         };
