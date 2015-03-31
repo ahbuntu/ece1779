@@ -158,7 +158,7 @@ def user_profile():
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('user_profile'))
 
-    return render_template('user_profile.html', user=user, post_user=prospective_user,
+    return render_template('user_profile.html', user=user, prospective_user=prospective_user,
                            question_count=question_count, answer_count=answer_count, form=form)
 
 
