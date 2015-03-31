@@ -431,8 +431,11 @@ def create_nearby_question(question_id):
             origin_radius=user_to_test.notification_radius_in_km,
             origin_distance_in_km=distance_to_origin
         )
-        nearby_prospective_question.put() #TODO: only required for debugging purposes - can be removed
 
+        # TODO: (potentially) only required for debugging purposes. Prospective_search.match might not required a saved entity.
+        nearby_prospective_question.put()
+
+        # "Documents are assigned to a particular topic when calling match()"
         prospective_search.match(
             nearby_prospective_question
         )
