@@ -439,10 +439,14 @@ def create_nearby_question(question_id):
 
 def subscribe_user_for_nearby_questions(prospective_user_id):
     """Create new subscriptions for the provided question and user"""
-    sub = ProspectiveSubscription(
-        prospective_user_id = prospective_user_id
-    )
-    sub.put()
+    active_subscriptions = ProspectiveSubscription.get_for(prospective_user_id)
+    sub = active_subscriptions.get()
+    if sub is None:
+        sub = ProspectiveSubscription(
+            prospective_user_id=prospective_user_id
+        )
+        sub.put()
+
     prospective_user = ProspectiveUser.get_by_id(prospective_user_id)
     # nearby_question = NearbyQuestion.get_by_id(nearby_question_id)
     # query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
@@ -454,7 +458,7 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
     prospective_search.subscribe(
         NearbyQuestion,
         query,
-        sub.key(),
+        sub.key,
         lease_duration_sec=300
     )
 
