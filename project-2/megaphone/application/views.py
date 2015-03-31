@@ -449,8 +449,11 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
     sub.put()
     prospective_user = ProspectiveUser.get_by_id(prospective_user_id)
     # nearby_question = NearbyQuestion.get_by_id(nearby_question_id)
-    query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
-        .format(prospective_user.origin_location.lat, prospective_user.origin_location.lon, prospective_user.notification_radius_in_km)
+    # query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
+    #     .format(prospective_user.origin_location.lat, prospective_user.origin_location.lon, prospective_user.notification_radius_in_km)
+
+    query = 'origin_distance_in_km < {:d}'.format(prospective_user.notification_radius_in_km)
+
     # "Topics are not defined as a separate step; instead, topics are created as a side effect of the subscribe() call."
     prospective_search.subscribe(
         NearbyQuestion,
