@@ -68,17 +68,17 @@
     <script src="https://maps.googleapis.com/maps/api/js">
     </script>
     <script>
-        function displayonmap(position) {
+        function displayonmap(homeLatLng) {
             var mapCanvas = document.getElementById('map-canvas-profile');
             var mapOptions = {
-              center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+              center: homeLatLng,
               zoom: 13,
               mapTypeId: google.maps.MapTypeId.ROADMAP
             };
             var map = new google.maps.Map(mapCanvas, mapOptions);
             // To add the marker to the map, use the 'map' property
             var marker = new google.maps.Marker({
-                position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                position: homeLatLng,
                 map: map,
                 draggable: true,
                 title:"Me"
@@ -94,18 +94,23 @@
         }
 
         function geosuccess(position) {
-            displayonmap(position);
+            displayonmap(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
             $('#origin_location').val(position.coords.latitude + "," +position.coords.longitude);
         }
         function geoerror(msg) {
             alert(msg);
         }
         function getgeolocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(geosuccess, geoerror);
-            } else {
-                alert('Geolocation not supported');
-            }
+            {% if prospective_user is none %}
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(geosuccess, geoerror);
+                } else {
+                    alert('Geolocation not supported');
+                }
+            {% else %}
+                displayonmap(new google.maps.LatLng( {{ prospective_user.origin_location.lat }},{{ prospective_user.origin_location.lon }} ));
+                $('#origin_location').val({{ prospective_user.origin_location.lat }} + "," + {{ prospective_user.origin_location.lon }});
+            {% endif %}
         }
 
         var FormHelpers = {
