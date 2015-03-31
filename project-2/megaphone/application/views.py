@@ -398,6 +398,7 @@ def match_prospective_search():
 
         logging.info(question.content)
         # TODO: send channel notification to the user(s)
+    return '', 200
 
 
 def deg2rad(deg):
