@@ -1,0 +1,16 @@
+{% set question_id = question.key.id() %}
+{% set answer_id = answer.key.id() %}
+<tr>
+    <td>{{ answer_id }}</td>
+    <td>{{ answer.added_by }}</td>
+    <td>{{ answer.content }}</td>
+    <td>{{ answer.timestamp }}</td>
+    <td>{{ answer.location }}</td>
+    {% if accepted_answer is none %}
+        <td>
+            <form method="post" action="{{ url_for('accept_answer_for_question', question_id=question_id, answer_id=answer.key.id()) }}">
+                <button class="btn btn-success btn-sm">Accept</button>
+            </form>
+        </td>
+    {% endif %}
+</tr>
