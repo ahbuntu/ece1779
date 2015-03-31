@@ -69,7 +69,7 @@ class ProspectiveUser(ndb.Model):
     """Model to store user preferences"""
     login = ndb.UserProperty(required=True)
     origin_location = ndb.GeoPtProperty(required=True, indexed=True)
-    notification_radius_in_km = ndb.IntegerProperty (required=False)
+    notification_radius_in_km = ndb.IntegerProperty(required=False)
     screen_name = ndb.StringProperty(required=False)
 
     @classmethod
