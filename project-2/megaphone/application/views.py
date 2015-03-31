@@ -108,20 +108,22 @@ def list_questions():
     else:
         questions = Question.all()
 
-    channel_token = channel.create_channel(all_questions_answers_channel_id())
+    channel_token = None
+    if (user):
+        channel_token = channel.create_channel(user_channel_id(user))
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
-def all_questions_answers_channel_id():
-    return 'all-questions'
-
-
 def all_user_questions_answers_channel_id(user):
-    return str(user.user_id())
+    return 'answers-' + str(user.user_id())
 
 
 def question_answers_channel_id(question):
     return str(question.key.id())
+
+
+def user_channel_id(user):
+    return str(user.user_id())
 
 
 @login_required
@@ -389,13 +391,8 @@ def match_prospective_search():
         nearby_question = prospective_search.get_document(webapp2Request)
         prospective_user = ProspectiveUser.get_by_id(nearby_question.for_prospective_user_id)
         question = Question.get_by_id(nearby_question.for_question_id)
-        if (prospective_user.login == question.added_by):
-            logging.info("TO BE IGNORED")
-        else:
-            logging.info("GOTCHA")
 
-        logging.info(question.content)
-        # TODO: send channel notification to the user(s)
+        notify_new_question(prospective_user.login, question)
     return '', 200
 
 
@@ -412,10 +409,26 @@ def get_location_distance_in_km(lat1, lon1, lat2, lon2):
     d = earth_radius * c # Distance in km
     return d
 
+
+# Why do we need to create a NearbyQuestion for each ProspectiveUser/Question combo? It's obviously inefficient.
+#
+# Why not:
+# - Questions are the documents being matched against
+# - Each ProspectiveUser has a subscription (query) that matches against (new) Questions in a given radius
+# - New question triggers Channel notification based on ID of ProspectiveUser
+#
+# Problem is that a query is static and doesn't perform any calculations/joins with other objects.
+# So, if we want to search by distance to X then we have to calculate the distance for each Question
+# beforehand and define a query that matches on that. This, of course, is ridiculous...but it's part
+# of an experiment with Prospective Search.
 def create_nearby_question(question_id):
     prospective_users = ProspectiveUser.all()
     question = Question.get_by_id(question_id)
     for user_to_test in prospective_users:
+
+        if user_to_test.login == question.added_by:
+            continue # No need to create a search for your own questions
+
         # create a new document and subscribe to it
         distance_to_origin = get_location_distance_in_km(user_to_test.origin_location.lat,
                                                          user_to_test.origin_location.lon,
@@ -446,8 +459,12 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
     sub.put()
     prospective_user = ProspectiveUser.get_by_id(prospective_user_id)
     # nearby_question = NearbyQuestion.get_by_id(nearby_question_id)
-    query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
-        .format(prospective_user.origin_location.lat, prospective_user.origin_location.lon, prospective_user.notification_radius_in_km)
+    # query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
+    #     .format(prospective_user.origin_location.lat, prospective_user.origin_location.lon, prospective_user.notification_radius_in_km)
+
+    query = 'origin_distance_in_km < {:d}'.format(prospective_user.notification_radius_in_km)
+
+    # "Topics are not defined as a separate step; instead, topics are created as a side effect of the subscribe() call."
     prospective_search.subscribe(
         NearbyQuestion,
         query,
@@ -455,14 +472,36 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
         lease_duration_sec=300
     )
 
+def notify_new_question(user, question):
+    question_id = question.key.id()
+    title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
+    url = url_for('answers_for_question', question_id=str(question_id))
+    message = {'question_id': question_id,
+               'url': url,
+               'title': title,
+               'msg': "A new question was posted ('" + title + "'). Click <a href='" + url + "'>here</a> to view it."
+               }
+
+    # For now, only broadcast to the specific user; otherwise we risk
+    # duplicate notifications if this method gets called in succession
+
+    channel_id = user_channel_id(user)
+    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+
+
 def notify_new_answer(answer):
     question_key = answer.key.parent().id()
     question = Question.get_by_id(question_key)
     question_id = question.key.id()
     title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
+    url = url_for('answers_for_question', question_id=str(question_id))
     message = {'question_id': question_id,
-               'url': url_for('answers_for_question', question_id=str(question_id)),
-               'title': title}
+               'url': url,
+               'title': title,
+               'msg': "The question ('" + title + "') received a new answer. Click <a href='" + url + "'>here</a> to view it."
+               }
+
+    # Broadcast to all channels that care about new answers
 
     channel_id = question_answers_channel_id(question)
     deferred.defer(channel_send_message, channel_id, message, _countdown=2)
@@ -470,7 +509,7 @@ def notify_new_answer(answer):
     channel_id = all_user_questions_answers_channel_id(question.added_by)
     deferred.defer(channel_send_message, channel_id, message, _countdown=2)
 
-    channel_id = all_questions_answers_channel_id()
+    channel_id = user_channel_id(question.added_by)
     deferred.defer(channel_send_message, channel_id, message, _countdown=2)
 
 

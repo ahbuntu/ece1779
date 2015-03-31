@@ -18,7 +18,7 @@
         var info = JSON.parse(json_str);
         var url = info["url"];
         var title = info["title"];
-        var msg = "The question ('" + title + "') received a new answer. Click <a href='" + url + "'>here</a> to view it.";
+        var msg = info["msg"];
         console.log('onMessage');
         tell_user(msg);
     }
