@@ -369,20 +369,6 @@ def list_subscriptions():
     )
     return render_template('list_subscriptions.html', subscriptions=subscriptions)
 
-#
-# def subscribe_for_prospective_post(post_id):
-#     """Create new subscriptions for the provided question and user"""
-#     sub = Pros(
-#         for_post_id = post_id
-#     )
-#     sub.put()
-#     post = ProspectiveQuestion.get_by_id(post_id)
-#     prospective_search.subscribe(
-#         ProspectiveQuestion,
-#         post.content,
-#         sub.key(),
-#         lease_duration_sec=600
-#     )
 
 def match_prospective_search():
     if request.method == "POST":
