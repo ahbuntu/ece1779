@@ -411,6 +411,18 @@ def get_location_distance_in_km(lat1, lon1, lat2, lon2):
     d = earth_radius * c # Distance in km
     return d
 
+
+# Why do we need to create a NearbyQuestion for each ProspectiveUser/Question combo? It's obviously inefficient.
+#
+# Why not:
+# - Questions are the documents being matched against
+# - Each ProspectiveUser has a subscription (query) that matches against (new) Questions in a given radius
+# - New question triggers Channel notification based on ID of ProspectiveUser
+#
+# Problem is that a query is static and doesn't perform any calculations/joins with other objects.
+# So, if we want to search by distance to X then we have to calculate the distance for each Question
+# beforehand and define a query that matches on that. This, of course, is ridiculous...but it's part
+# of an experiment with Prospective Search.
 def create_nearby_question(question_id):
     prospective_users = ProspectiveUser.all()
     question = Question.get_by_id(question_id)
