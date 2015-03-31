@@ -139,14 +139,12 @@ def user_profile():
             prospective_user = ProspectiveUser (
                 login = user,
                 origin_location = get_location(form.origin_location.data),
-                notification_radius_in_km = form.notification_radius_in_km.data, #TODO: make this dynamic
+                notification_radius_in_km = form.notification_radius_in_km.data,
                 screen_name = form.screen_name.data
             )
         else:
-            # all_post_users = ProspectiveUser.get_for(users.get_current_user())
-            # post_user = all_post_users.get()
             prospective_user.origin_location = get_location(form.origin_location.data)
-            prospective_user.notification_radius_in_km = get_location(form.notification_radius_in_km.data), #TODO: make this dynamic
+            prospective_user.notification_radius_in_km = form.notification_radius_in_km.data
             prospective_user.screen_name = form.screen_name.data
         try:
             prospective_user.put()

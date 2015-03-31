@@ -17,16 +17,41 @@
         <div id="map-canvas-profile"></div>
         <p>
             <form id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
-                <input id="origin_location" name="origin_location" type="text"/>
-                <input id="notification_radius_in_km" name="notification_radius_in_km" type="text"/>
+                <div class="control-group">
+                    <div class="control-label">Coordinates of marker</div>
+                    <div class="controls">
+                        <input id="origin_location" name="origin_location" type="text"/>
+                    </div>
+                    <div class="control-label">Notification radius (km)</div>
+                    <div class="controls">
+                        <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
+                    </div>
+                </div>
+                <div>&nbsp;</div>
                 <button class="btn btn-default">Set as home location</button>
             </form>
-
             <div>Click the button to receive notifications for new questions near you.</div>
         </p>
     {% else %}
         <h3>Home location</h3>
+        <div>Drag the marker to select a new location.</div>
         <div id="map-canvas-profile"></div>
+        <p>
+            <form id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
+                <div class="control-group">
+                    <div class="control-label">Coordinates of marker</div>
+                    <div class="controls">
+                        <input id="origin_location" name="origin_location" type="text"/>
+                    </div>
+                    <div class="control-label">Notification radius (km)</div>
+                    <div class="controls">
+                        <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
+                    </div>
+                </div>
+                <div>&nbsp;</div>
+                <button class="btn btn-default">Update</button>
+            </form>
+        </p>
     {% endif %}
 
     <div>&nbsp;</div>
@@ -58,6 +83,14 @@
                 draggable: true,
                 title:"Me"
             });
+
+            google.maps.event.addListener(marker, 'dragstart', function() {
+                $('#origin_location').val("");
+            });
+
+            google.maps.event.addListener(marker, 'dragend', function() {
+                $('#origin_location').val(marker.getPosition().toUrlValue());
+            });
         }
 
         function geosuccess(position) {
@@ -80,7 +113,7 @@
                 var self = this;
                 var location_form = $('#post-user-form');
                 location_form.on('submit', function (evt) {
-                    $('#notification_radius_in_km').val(100);
+                    //alert($('#origin_location').val());
                 });
             }
         };
