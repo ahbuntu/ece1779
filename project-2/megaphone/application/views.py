@@ -424,12 +424,12 @@ def create_nearby_question(question_id):
                                                          question.location.lat,
                                                          question.location.lon)
         nearby_prospective_question = NearbyQuestion(
-            for_prospective_user_id = user_to_test.key.id(),
-            for_question_id = question_id,
-            origin_latitude = user_to_test.origin_location.lat,
-            origin_longitude = user_to_test.origin_location.lon,
-            origin_radius = user_to_test.notification_radius_in_km,
-            origin_distance_in_km = distance_to_origin
+            for_prospective_user_id=user_to_test.key.id(),
+            for_question_id=question_id,
+            origin_latitude=user_to_test.origin_location.lat,
+            origin_longitude=user_to_test.origin_location.lon,
+            origin_radius=user_to_test.notification_radius_in_km,
+            origin_distance_in_km=distance_to_origin
         )
         nearby_prospective_question.put() #TODO: only required for debugging purposes - can be removed
 
