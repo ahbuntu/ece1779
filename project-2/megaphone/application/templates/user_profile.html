@@ -12,9 +12,14 @@
     <div class="row">
         <div class="col-md-6">
             {% if prospective_user is none %}
-                <h3>Current location</h3>
-                <div>&nbsp;</div>
-                <div>Your home location is not set.</div>
+                <h3>Notification location is not set</h3>
+                <p>
+                    <div>Drag the marker to select a new location or search for a new address.</div>
+                    <label class="sr-only" for="address_geolocation">Enter address</label>
+                    <input id="address_geolocation" name="address_geolocation" type="text" placeholder="Enter address">
+                    <button class="btn btn-default" onclick="findAddress()">Find on map</button>
+                    <button class="btn btn-default" onclick="getgeolocation()">Get current location</button>
+                </p>
                 <div id="map-canvas-profile"></div>
                 <p>
                     <form class="well" id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
@@ -34,8 +39,7 @@
                     <div>Click the button to receive notifications for new questions near you.</div>
                 </p>
             {% else %}
-                <h3>Home location</h3>
-                <div>&nbsp;</div>
+                <h3>Notification location</h3>
                 <p>
                     <div>Drag the marker to select a new location or search for a new address.</div>
                     <label class="sr-only" for="address_geolocation">Enter address</label>
