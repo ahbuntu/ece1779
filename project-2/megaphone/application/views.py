@@ -114,18 +114,6 @@ def list_questions():
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
-def all_user_questions_answers_channel_id(user):
-    return 'answers-' + str(user.user_id())
-
-
-def question_answers_channel_id(question):
-    return str(question.key.id())
-
-
-def user_channel_id(user):
-    return str(user.user_id())
-
-
 @login_required
 def user_profile():
     """Displays the user profile page"""
@@ -290,10 +278,23 @@ def answers_for_question(question_id):
     answerform = AnswerForm()
     answers = Answer.answers_for(question)
 
-    channel_id = question_answers_channel_id(question)
-    channel_token = channel.create_channel(channel_id)
+    # If the user owns the question then register for Channel notifications
+    channel_token = None
+    if (question.added_by == user):
+        channel_id = question_answers_channel_id(user, question)
+        channel_token = channel.create_channel(channel_id)
+
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
 
+
+@login_required
+def answer(safe_answer_key):
+    """Provides a single answer. Used for AJAX calls."""
+    rev_key = ndb.Key(urlsafe=safe_answer_key)
+    answer = rev_key.get()
+    question_id = answer.key.parent().id()
+    question = Question.get_by_id(question_id)
+    return render_template('includes/answer.html', answer=answer, question=question)
 
 
 @login_required
@@ -474,11 +475,18 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
         lease_duration_sec=300
     )
 
+
+#####################
+# Channel API Stuff #
+#####################
+
+
 def notify_new_question(user, question):
     question_id = question.key.id()
     title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
     url = url_for('answers_for_question', question_id=str(question_id))
-    message = {'question_id': question_id,
+    message = {'type': 'new_question',
+               'question_id': question_id,
                'url': url,
                'title': title,
                'msg': "A new question was posted ('" + title + "'). Click <a href='" + url + "'>here</a> to view it."
@@ -492,27 +500,30 @@ def notify_new_question(user, question):
 
 
 def notify_new_answer(answer):
-    question_key = answer.key.parent().id()
-    question = Question.get_by_id(question_key)
+    question = answer.key.parent().get()
     question_id = question.key.id()
     title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
-    url = url_for('answers_for_question', question_id=str(question_id))
-    message = {'question_id': question_id,
-               'url': url,
-               'title': title,
-               'msg': "The question ('" + title + "') received a new answer. Click <a href='" + url + "'>here</a> to view it."
+
+    safe_answer_key = answer.key.urlsafe()
+
+    load_answer_ajax_url = url_for('answer', safe_answer_key=safe_answer_key)
+    goto_answer_url = url_for('answers_for_question', question_id=str(question_id))
+
+    message = {'type': 'new_answer',
+               'url': load_answer_ajax_url,
+               'msg': "The question ('" + title + "') received a new answer. Click <a href='" + goto_answer_url + "'>here</a> to view it."
                }
 
-    # Broadcast to all channels that care about new answers
+    # Broadcast to the owner of the question, unless they answered it.
+    if (question.added_by != answer.added_by):
+        channel_id = question_answers_channel_id(question.added_by, question)
+        deferred.defer(channel_send_message, channel_id, message, _countdown=4)
 
-    channel_id = question_answers_channel_id(question)
-    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+        channel_id = all_user_questions_answers_channel_id(question.added_by)
+        deferred.defer(channel_send_message, channel_id, message, _countdown=5)
 
-    channel_id = all_user_questions_answers_channel_id(question.added_by)
-    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
-
-    channel_id = user_channel_id(question.added_by)
-    deferred.defer(channel_send_message, channel_id, message, _countdown=2)
+        channel_id = user_channel_id(question.added_by)
+        deferred.defer(channel_send_message, channel_id, message, _countdown=6)
 
 
 def channel_send_message(channel_id, message):
@@ -539,3 +550,21 @@ def channel_disconnected():
     logging.info('user disconnected from: ' + str(channel))
     return '', 200
 
+
+# Channels don't support fan-out (and you can only have one active per page),
+# but we have multiple ones defined for different contexts. After some
+# experimentation it probably makes a lot more sense to have just a single
+# channel per user and a JavaScript service that interprets and handles
+# different message payloads accordingly.
+
+
+def all_user_questions_answers_channel_id(user):
+    return 'answers-' + str(user.user_id())
+
+
+def question_answers_channel_id(user, question):
+    return str(user.user_id()) + str(question.key.id())
+
+
+def user_channel_id(user):
+    return str(user.user_id())

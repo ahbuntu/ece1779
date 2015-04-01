@@ -38,7 +38,7 @@
                 {% endif %}
             </tr>
         </thead>
-        <tbody>
+        <tbody id="answers">
             {% for answer in answers %}
                 {% include 'includes/answer.html' %}
             {% else %}
@@ -72,7 +72,6 @@
                 $('#locationLat').val(position.coords.latitude);
                 $('#locationLong').val(position.coords.longitude);
                 $('#location').val(position.coords.latitude + "," +position.coords.longitude);
-
             },
             geoerror: function (msg) {
                 alert(msg);

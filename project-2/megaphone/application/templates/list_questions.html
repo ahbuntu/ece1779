@@ -35,19 +35,19 @@
         </thead>
         <tbody>
             {% for question in questions %}
-            {% set question_id = question.key.id() %}
-            <tr>
-                <td>{{ question_id }}</td>
-                <td>{{ question.added_by }}</td>
-                <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
-                        {{ question.content }}
-                    </a>
-                </td>
-                <td>{{ question.timestamp }}</td>
-                <td>{{ question.location }}</td>
-            </tr>
+                {% set question_id = question.key.id() %}
+                <tr>
+                    <td>{{ question_id }}</td>
+                    <td>{{ question.added_by }}</td>
+                    <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
+                            {{ question.content }}
+                        </a>
+                    </td>
+                    <td>{{ question.timestamp }}</td>
+                    <td>{{ question.location }}</td>
+                </tr>
             {% else %}
-            <tr><td colspan="5">No questions yet</td></tr>
+                <tr><td colspan="5">No questions yet</td></tr>
             {% endfor %}
         </tbody>
     </table>

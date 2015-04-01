@@ -42,6 +42,9 @@ app.add_url_rule('/questions/<int:question_id>/delete', view_func=views.delete_q
 # List all answers related to a question
 app.add_url_rule('/questions/<int:question_id>/answers', 'answers_for_question', view_func=views.answers_for_question, methods=['GET'])
 
+# Get a single answer, used for AJAX calls
+app.add_url_rule('/answers/<string:safe_answer_key>', 'answer', view_func=views.answer, methods=['GET'])
+
 # Provide a new answer
 app.add_url_rule('/questions/<int:question_id>/new_answer', view_func=views.new_answer, methods=['POST'])
 

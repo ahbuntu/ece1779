@@ -44,5 +44,14 @@
     <script src="/static/js/main.js"></script>
     {% block tail_script %}{# defer-capable JS block #}{% endblock %}
     {{ profiler_includes|safe }}
+
+    <!-- The following is a test of the Channel API -->
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <script type="text/javascript">
+        // HACKY!
+        var CHANNEL_TOKEN = '{{ channel_token }}';
+    </script>
+    <script src="/static/js/channel_notifications.js"></script>
+
 </body>
 </html>
