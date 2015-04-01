@@ -7,10 +7,9 @@
 {% endblock %}
 
 {% block content %}
-
     {% include 'includes/notices.html' %}
 
-    <h1 id="">All Questions</h1>
+    <h1 class="page-header">All Questions</h1>
 
     {% include 'search_questions.html' %}
 
@@ -23,36 +22,41 @@
         {% endif %}
     </p>
     <div>&nbsp;</div>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Author</th>
-                <th>Content</th>
-                <th>Asked on</th>
-                <th>Location</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for question in questions %}
-                {% set question_id = question.key.id() %}
-                <tr>
-                    <td>{{ question_id }}</td>
-                    <td>{{ question.added_by }}</td>
-                    <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
-                            {{ question.content }}
-                        </a>
-                    </td>
-                    <td>{{ question.timestamp }}</td>
-                    <td>{{ question.location }}</td>
-                </tr>
-            {% else %}
-                <tr><td colspan="5">No questions yet</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <div id="map-canvas">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+        {#                <th>ID</th>#}
+                        <th>Author</th>
+                        <th>Content</th>
+                        <th>Asked on</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in questions %}
+                        {% set question_id = question.key.id() %}
+                        <tr>
+        {#                    <td>{{ question_id }}</td>#}
+                            <td>{{ question.added_by }}</td>
+                            <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
+                                    {{ question.content }}
+                                </a>
+                            </td>
+                            <td>{{ question.timestamp }}</td>
+                            <td>{{ question.location }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5">No questions yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="map-canvas" class="col-md-6">
+        </div>
     </div>
 
 {% endblock content %}
