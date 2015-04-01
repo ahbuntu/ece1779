@@ -81,9 +81,14 @@ def get_questions():
 
     if lat == 0 and lon == 0 and radius == 0:
         questions = Question.all()
-
+        
     dataset = []
     for question in questions:
+        # This conversion can be performed using a custom JsonEncoder implementation,
+        # but I didn't have much success. Some good links below -
+        # http://stackoverflow.com/questions/1531501/json-serialization-of-google-app-engine-models
+        # https://gist.github.com/erichiggins/8969259
+        # https://gist.github.com/bengrunfeld/062d0d8360667c47bc5b
         details = {'key': question.key.id(),
                    'added_by': question.added_by.nickname(),
                    'content': question.content,
