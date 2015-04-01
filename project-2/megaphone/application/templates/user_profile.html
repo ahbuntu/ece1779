@@ -143,14 +143,23 @@
         });
         function findAddress() {
             var inputAddress = $("#address_geolocation").val();
+            if (!inputAddress) {
+                alert("Please enter address.");
+                return;
+            }
             var geocoder = new google.maps.Geocoder();
             geocoder.geocode({
                 "address": inputAddress
-            }, function(results) {
-                var markerLatLng = (results[0].geometry.location); //LatLng
-                profileMapMarker.setPosition(markerLatLng);
-                map.setCenter(markerLatLng);
-                $('#origin_location').val(profileMapMarker.getPosition().toUrlValue());
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    var markerLatLng = (results[0].geometry.location); //LatLng
+                    profileMapMarker.setPosition(markerLatLng);
+                    map.setCenter(markerLatLng);
+                    $('#origin_location').val(profileMapMarker.getPosition().toUrlValue());
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+
             });
         }
     </script>
