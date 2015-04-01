@@ -47,6 +47,11 @@ function onMessage(msg_obj) {
             // Prepend the new answer and slideDown. This works in conjunction with answer.html
             var url = info["url"];
             $.get(url, function(data, status){
+
+                // if there were no answers before, delete the placeholder
+                $("#answers tr#empty").fadeOut();
+                $("#answers tr#empty").remove();
+
                 $('tbody#answers').prepend(data);
                 $(".answer_td").slideDown(1000);
             });
