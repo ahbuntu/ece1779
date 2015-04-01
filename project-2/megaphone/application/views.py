@@ -12,9 +12,9 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
-import logging, math
+import logging, math, datetime
 
-from flask import request, render_template, flash, url_for, redirect, json
+from flask import request, render_template, flash, url_for, redirect, json, jsonify
 
 from lib.flask_cache import Cache
 
@@ -72,6 +72,28 @@ def warmup():
     """
     return ''
 
+
+def get_questions():
+    """returns the questions in JSON format"""
+    lat = request.args.get('lat', 0, type=float)
+    lon = request.args.get('lon', 0, type=float)
+    radius = request.args.get('radius', 0, type=float)
+
+    if lat == 0 and lon == 0 and radius == 0:
+        questions = Question.all()
+
+    dataset = []
+    for question in questions:
+        details = {'key': question.key.id(),
+                   'added_by': question.added_by.nickname(),
+                   'content': question.content,
+                   'timestamp': question.timestamp.strftime('%m-%d-%y'),
+                   'location': {'lat': question.location.lat,
+                                'lon': question.location.lon}
+                   }
+        dataset.append(details)
+
+    return jsonify(result=dataset)
 
 @cache.cached(timeout=5)
 def list_questions():

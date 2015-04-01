@@ -53,8 +53,8 @@
     </table>
 
     <div id="map-canvas">
-
     </div>
+
 {% endblock content %}
 
 
@@ -64,20 +64,8 @@
 
 
 {% block tail_script %}
-    <script src="https://maps.googleapis.com/maps/api/js">
-    </script>
-    <script>
-        function initialize() {
-            var mapCanvas = document.getElementById('map-canvas');
-            var mapOptions = {
-              center: new google.maps.LatLng(44.5403, -78.5463),
-              zoom: 8,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
-            }
-            var map = new google.maps.Map(mapCanvas, mapOptions)
-        }
-        google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
+    <script src="https://maps.googleapis.com/maps/api/js"/>
+    <script src="/static/js/questions_mapper.js"/>
 
     <!-- Hack: move this to the search_questions include? -->
     <script type="text/javascript" charset="utf-8">
@@ -87,7 +75,8 @@
                 // window.location.href = '{{ url_for('list_questions') }}';
                 return false;
             });
+
+
         });
     </script>
-
 {% endblock tail_script %}

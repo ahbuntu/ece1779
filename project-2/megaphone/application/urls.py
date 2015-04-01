@@ -72,6 +72,9 @@ app.add_url_rule('/_ah/prospective_search', view_func=views.match_prospective_se
 app.add_url_rule('/_ah/channel/connected/', view_func=views.channel_connected, methods=['POST'])
 app.add_url_rule('/_ah/channel/disconnected/', view_func=views.channel_disconnected, methods=['POST'])
 
+app.add_url_rule('/_get_questions', view_func=views.get_questions, methods=['GET'])
+
+
 ## Error handlers
 # Handle 404 errors
 @app.errorhandler(404)

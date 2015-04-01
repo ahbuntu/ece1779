@@ -21,6 +21,9 @@
     <link rel="shortcut icon" href="/static/img/favicon.ico" />
     {% block style_block %}{# page-specific CSS #}{% endblock %}
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/{{ modernizer_version }}/modernizr.min.js"></script>{# Modernizr must be here, above body tag. #}
+    <script type="text/javascript">
+      var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
     {% block head_script %}{# defer-incapable JS block #}{% endblock %}
 </head>
 <body>
