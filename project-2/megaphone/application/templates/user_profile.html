@@ -41,7 +41,7 @@
                     <label class="sr-only" for="address_geolocation">Enter address</label>
                     <input id="address_geolocation" name="address_geolocation" type="text" placeholder="Enter address">
                     <button class="btn btn-default" onclick="findAddress()">Find on map</button>
-                    <button class="btn btn-default">Get current location</button>
+                    <button class="btn btn-default" onclick="getgeolocation()">Get current location</button>
                 </p>
                 <div id="map-canvas-profile"></div>
                 <p>
@@ -111,16 +111,11 @@
             alert(msg);
         }
         function getgeolocation() {
-            {% if prospective_user is none %}
-                if (navigator.geolocation) {
+            if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(geosuccess, geoerror);
-                } else {
-                    alert('Geolocation not supported');
-                }
-            {% else %}
-                displayonmap(new google.maps.LatLng( {{ prospective_user.origin_location.lat }},{{ prospective_user.origin_location.lon }} ));
-                $('#origin_location').val({{ prospective_user.origin_location.lat }} + "," + {{ prospective_user.origin_location.lon }});
-            {% endif %}
+            } else {
+                alert('Geolocation not supported. Use the address instead');
+            }
         }
 
         var FormHelpers = {
@@ -133,11 +128,20 @@
             }
         };
         $(document).ready(function() {
-            getgeolocation();
+            {% if prospective_user is none %}
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(geosuccess, geoerror);
+                } else {
+                    alert('Geolocation not supported');
+                }
+            {% else %}
+                displayonmap(new google.maps.LatLng( {{ prospective_user.origin_location.lat }},{{ prospective_user.origin_location.lon }} ));
+                $('#origin_location').val({{ prospective_user.origin_location.lat }} + "," + {{ prospective_user.origin_location.lon }});
+            {% endif %}
+            //getgeolocation();
             FormHelpers.init();
         });
         function findAddress() {
-
             var inputAddress = $("#address_geolocation").val();
             var geocoder = new google.maps.Geocoder();
             geocoder.geocode({
