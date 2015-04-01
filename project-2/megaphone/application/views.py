@@ -129,14 +129,12 @@ def user_profile():
             prospective_user = ProspectiveUser (
                 login = user,
                 origin_location = get_location(form.origin_location.data),
-                notification_radius_in_km = form.notification_radius_in_km.data, #TODO: make this dynamic
+                notification_radius_in_km = form.notification_radius_in_km.data,
                 screen_name = form.screen_name.data
             )
         else:
-            # all_post_users = ProspectiveUser.get_for(users.get_current_user())
-            # post_user = all_post_users.get()
             prospective_user.origin_location = get_location(form.origin_location.data)
-            prospective_user.notification_radius_in_km = get_location(form.notification_radius_in_km.data), #TODO: make this dynamic
+            prospective_user.notification_radius_in_km = form.notification_radius_in_km.data
             prospective_user.screen_name = form.screen_name.data
         try:
             prospective_user.put()
@@ -148,7 +146,7 @@ def user_profile():
             flash(u'App Engine Datastore is currently in read-only mode.', 'info')
             return redirect(url_for('user_profile'))
 
-    return render_template('user_profile.html', user=user, post_user=prospective_user,
+    return render_template('user_profile.html', user=user, prospective_user=prospective_user,
                            question_count=question_count, answer_count=answer_count, form=form)
 
 
@@ -372,20 +370,6 @@ def list_subscriptions():
     )
     return render_template('list_subscriptions.html', subscriptions=subscriptions)
 
-#
-# def subscribe_for_prospective_post(post_id):
-#     """Create new subscriptions for the provided question and user"""
-#     sub = Pros(
-#         for_post_id = post_id
-#     )
-#     sub.put()
-#     post = ProspectiveQuestion.get_by_id(post_id)
-#     prospective_search.subscribe(
-#         ProspectiveQuestion,
-#         post.content,
-#         sub.key(),
-#         lease_duration_sec=600
-#     )
 
 def match_prospective_search():
     if request.method == "POST":
@@ -456,10 +440,14 @@ def create_nearby_question(question_id):
 
 def subscribe_user_for_nearby_questions(prospective_user_id):
     """Create new subscriptions for the provided question and user"""
-    sub = ProspectiveSubscription(
-        prospective_user_id = prospective_user_id
-    )
-    sub.put()
+    active_subscriptions = ProspectiveSubscription.get_for(prospective_user_id)
+    sub = active_subscriptions.get()
+    if sub is None:
+        sub = ProspectiveSubscription(
+            prospective_user_id=prospective_user_id
+        )
+        sub.put()
+
     prospective_user = ProspectiveUser.get_by_id(prospective_user_id)
     # nearby_question = NearbyQuestion.get_by_id(nearby_question_id)
     # query = 'origin_latitude = {:f} AND origin_longitude = {:f} AND origin_distance_in_km < {:d}'\
@@ -471,7 +459,7 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
     prospective_search.subscribe(
         NearbyQuestion,
         query,
-        sub.key(),
+        sub.key,
         lease_duration_sec=300
     )
 

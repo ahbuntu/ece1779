@@ -81,11 +81,14 @@ class ProspectiveUser(ndb.Model):
         return self.query()
 
 
-class ProspectiveSubscription(db.Model):
+class ProspectiveSubscription(ndb.Model):
     """Provides information on a subscription for a question."""
-    prospective_user_id = db.IntegerProperty(required=True)
-    created = db.DateTimeProperty(required=True, auto_now=True)
+    prospective_user_id = ndb.IntegerProperty(required=True)
+    created = ndb.DateTimeProperty(required=True, auto_now=True)
 
+    @classmethod
+    def get_for(self, prospective_user_id):
+        return self.query(self.prospective_user_id == prospective_user_id)
 
 class NearbyQuestion(db.Model):
     """Represents distance of a post to the specified origin.
