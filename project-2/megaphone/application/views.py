@@ -542,12 +542,14 @@ def channel_send_message(channel_id, message):
 def channel_connected():
     channel = request.form['from']
     logging.info('user connected to: ' + str(channel))
+    # TODO: use this to maintain a list of active channels
     return '', 200
 
 
 def channel_disconnected():
     channel = request.form['from']
     logging.info('user disconnected from: ' + str(channel))
+    # TODO: use this to maintain a list of active channels
     return '', 200
 
 
