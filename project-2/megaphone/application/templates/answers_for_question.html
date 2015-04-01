@@ -42,16 +42,16 @@
             {% for answer in answers %}
                 {% include 'includes/answer.html' %}
             {% else %}
-                <tr><td colspan="5">No answers yet</td></tr>
+                <tr id="empty"><td colspan="5">No answers yet</td></tr>
             {% endfor %}
         </tbody>
     </table>
     <p>
         {% if user %}
-        <a class="btn btn-primary" data-toggle="modal" data-target="#new-answer-modal">
-            <i class="icon-plus-sign icon-white"></i>
-            Post an answer
-        </a>
+            <a class="btn btn-primary" data-toggle="modal" data-target="#new-answer-modal">
+                <i class="icon-plus-sign icon-white"></i>
+                Post an answer
+            </a>
         {% else %}
             <h4><a href={{ login_url }}>Login to post an answer</a></h4>
         {% endif %}
