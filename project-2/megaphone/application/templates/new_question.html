@@ -3,43 +3,38 @@
     <div class="modal-content">
     <div class="modal-header">
         <button class="close" data-dismiss="modal">&times;</button>
-        <h3>Add a New Question</h3>
+        <h3>Ask a Question</h3>
     </div>
     <div class="modal-body">
-        <form id="new-question-form" class="well"
-            action="{{ url_for('new_question') }}" method="post" accept-charset="utf-8">
-            <fieldset>
-                {{ form.hidden_tag() }}
-                <div class="control-group">
-                    <div class="control-label">{{ form.content.label }}</div>
-                    <div class="controls">
-                        {{ form.content|safe }}
-                        {% if form.content.errors %}
-                        <ul class="errors">
-                            {% for error in form.content.errors %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label">{{ form.location.label }}</div>
-                    <div class="controls">
-                        <input id="locationLat" name="locationLat" type="text"/>
-                        <input id="locationLong" name="locationLong" type="text"/>
-                        <input id="location" name="location" type="hidden"/>
-                    </div>
-                </div>
-                <div>&nbsp;</div>
-                <div class="control-group">
-                    <div class="controls">
-                        <input class="btn btn-primary" type="submit" value="Add Question"/>
+        <div class="row">
+            <div class="col-md-8">
+                <form id="new-question-form"
+                    action="{{ url_for('new_question') }}" method="post" accept-charset="utf-8">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ form.content.label(class_="sr-only") }}
+                            {{ form.content(placeholder="enter your question", rows='5')|safe }}
+                            {% if form.content.errors %}
+                            <ul class="errors">
+                                {% for error in form.content.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <input id="locationLat" name="locationLat" type="text" width="100%"/>
+                            <input id="locationLong" name="locationLong" type="text"/>
+                            <input id="location" name="location" type="hidden"/>
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Post"/>
                         <button class="btn" data-dismiss="modal">Cancel</button>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <label>map goes here</label>
+            </div>
+        </div>
     </div>
     </div>
     </div>

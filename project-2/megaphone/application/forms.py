@@ -33,13 +33,19 @@ ProspectiveUserForm = model_form(ProspectiveUser, wtf.Form, field_args={
 })
 
 
-class PostForm(wtf.Form):
-    content = wtf.TextField('Content', validators=[validators.Required()])
+class QuestionForm(wtf.Form):
+    content = wtf.TextAreaField('Content', validators=[validators.Required()])
+    location = wtf.TextField('Location', validators=[validators.Required()])
 
-QuestionForm = model_form(Question, wtf.Form, field_args={
-    'content': dict(validators=[validators.Required()]),
-    'location': dict(validators=[validators.Required()]),
-})
+
+
+class PostForm(wtf.Form):
+    content = wtf.TextAreaField('Content', validators=[validators.Required()])
+
+# QuestionForm = model_form(Question, wtf.Form, field_args={
+#     'content': dict(validators=[validators.Required()]),
+#     'location': dict(validators=[validators.Required()]),
+# })
 
 AnswerForm = model_form(Answer, wtf.Form, field_args={
     'content': dict(validators=[validators.Required()]),

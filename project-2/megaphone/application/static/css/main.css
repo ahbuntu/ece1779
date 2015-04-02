@@ -15,3 +15,12 @@
     width: 400px;
     height: 300px;
 }
+
+#map-canvas-question {
+    width: 200px;
+    height: 100px;
+}
+
+#content{
+    width: 100%
+}
