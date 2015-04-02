@@ -214,9 +214,7 @@ def new_question():
         question = Question(
             content=form.content.data,
             added_by=users.get_current_user(),
-            # location=get_location(form.location.data) //TODO: fix stub
-            location=get_location('43.7,-80.5667')
-
+            location=get_location(form.location.data)
         )
         try:
             question.put()
