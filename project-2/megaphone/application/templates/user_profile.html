@@ -8,68 +8,53 @@
 
 {% block content %}
     <h1 class="page-header">Welcome {{ user }}</h1>
-
+    <div>&nbsp;</div>
+    {% if prospective_user is none %}
+        <h3>Notification location is not set</h3>
+    {% else %}
+        <h3>Notification location</h3>
+    {% endif %}
     <div class="row">
         <div class="col-md-6">
-            {% if prospective_user is none %}
-                <h3>Notification location is not set</h3>
+            <div class="well">
+                <h5><b>Drag the marker to select a new location or search for a new address.</b></h5>
                 <p>
-                    <div>Drag the marker to select a new location or search for a new address.</div>
                     <label class="sr-only" for="address_geolocation">Enter address</label>
                     <input id="address_geolocation" name="address_geolocation" type="text" placeholder="Enter address">
                     <button class="btn btn-default" onclick="findAddress()">Find on map</button>
                     <button class="btn btn-default" onclick="getgeolocation()">Get current location</button>
-                </p>
-                <div id="map-canvas-profile"></div>
                 <p>
-                    <form class="well" id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
-                        <div class="control-group">
-                            <div class="control-label">Coordinates of marker</div>
-                            <div class="controls">
-                                <input id="origin_location" name="origin_location" type="text"/>
-                            </div>
-                            <div class="control-label">Notification radius (km)</div>
-                            <div class="controls">
-                                <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
-                            </div>
+                <div>&nbsp;</div>
+                <div>&nbsp;</div>
+                <h5><b>Click the button to receive notifications for new questions near you.</b></h5>
+                <p>
+                    <form class="form-inline" id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
+                        <div class="form-group">
+                            <input id="origin_location" name="origin_location" type="hidden"/>
                         </div>
-                        <div>&nbsp;</div>
-                        <button class="btn btn-default">Set as home location</button>
-                    </form>
-                    <div>Click the button to receive notifications for new questions near you.</div>
-                </p>
-            {% else %}
-                <h3>Notification location</h3>
-                <p>
-                    <div>Drag the marker to select a new location or search for a new address.</div>
-                    <label class="sr-only" for="address_geolocation">Enter address</label>
-                    <input id="address_geolocation" name="address_geolocation" type="text" placeholder="Enter address">
-                    <button class="btn btn-default" onclick="findAddress()">Find on map</button>
-                    <button class="btn btn-default" onclick="getgeolocation()">Get current location</button>
-                </p>
-                <div id="map-canvas-profile"></div>
-                <p>
-                    <form class="well" id="post-user-form" method="post" action="{{ url_for('user_profile') }}">
-                        <div class="control-group">
-                            <div class="control-label">Coordinates of marker</div>
-                            <div class="controls">
-                                <input id="origin_location" name="origin_location" type="text"/>
-                            </div>
-                            <div class="control-label">Notification radius (km)</div>
-                            <div class="controls">
-                                <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
-                            </div>
+                        <div class="form-group">
+                            <label> Notification radius (km)</label>
+                            <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
                         </div>
-                        <div>&nbsp;</div>
+                        {% if prospective_user is none %}
+                        <button class="btn btn-default">Set location</button>
+                        {% else %}
                         <button class="btn btn-default">Update</button>
+                        {% endif %}
                     </form>
                 </p>
-            {% endif %}
+            </div>
         </div>
 
         <div class="col-md-6">
+            <div id="map-canvas-profile"></div>
+        </div>
+    </div>
+
+    <div>&nbsp;</div>
+    <div class="row">
+        <div class="col-md-6">
             <h3>Recent Activity</h3>
-            <div>&nbsp;</div>
             <h4><a href="{{ url_for('list_questions_for_user') }}">{{ question_count }} questions</a> asked.</h4>
             <h4>{{ answer_count }} answers provided.</h4>
         </div>
