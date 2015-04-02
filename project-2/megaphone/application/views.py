@@ -456,7 +456,7 @@ def create_nearby_question(question_id):
         )
 
         # TODO: (potentially) only required for debugging purposes. Prospective_search.match might not required a saved entity.
-        nearby_prospective_question.put()
+        # nearby_prospective_question.put()
 
         # "Documents are assigned to a particular topic when calling match()"
         prospective_search.match(
