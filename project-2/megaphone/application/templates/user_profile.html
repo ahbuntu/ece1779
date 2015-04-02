@@ -32,13 +32,17 @@
                         <div class="form-group">
                             <input id="origin_location" name="origin_location" type="hidden"/>
                         </div>
+                        {% if prospective_user is none %}
                         <div class="form-group">
                             <label> Notification radius (km)</label>
                             <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value="100"/>
                         </div>
-                        {% if prospective_user is none %}
                         <button class="btn btn-default">Set location</button>
                         {% else %}
+                        <div class="form-group">
+                            <label> Notification radius (km)</label>
+                            <input id="notification_radius_in_km" name="notification_radius_in_km" type="number" value={{ prospective_user.notification_radius_in_km }}>
+                        </div>
                         <button class="btn btn-default">Update</button>
                         {% endif %}
                     </form>
