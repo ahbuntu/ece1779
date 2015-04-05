@@ -260,7 +260,7 @@ def add_question_to_search_index(question):
             search.DateField(name='timestamp', value=question.timestamp),
             search.GeoField(name='location', value=search.GeoPoint(question.location.lat, question.location.lon))
             ])
-    index.put(document)
+    index.put_async(document)
 
 
 @login_required
