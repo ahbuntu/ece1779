@@ -75,7 +75,7 @@
 
     <!-- Hack: move this to the search_questions include? -->
     <script type="text/javascript" charset="utf-8">
-    var FormHelpers = {
+        var FormHelpers = {
             validate: function (form, evt) {
                 // Form validation for modal dialog
                 var search_address = form.find('#address_geolocation').val();
@@ -86,15 +86,14 @@
                 var search_radius = form.find('#distance_in_km').val();
                 if (!(search_radius)) {
                     evt.preventDefault();
-                    Utils.renderFieldErrorTooltip('#map-canvas-distance_in_km', 'Radius is required', 'left');
+                    Utils.renderFieldErrorTooltip('#distance_in_km', 'Radius is required', 'right');
                 }
             },
             init: function () {
                 var self = this;
                 var search_form = $('#search-questions-form');
-                findAddressLatLng();
                 search_form.on('submit', function (evt) {
-                    self.validate(search_form, evt)
+                    self.validate(search_form, evt);
                 });
             }
         };

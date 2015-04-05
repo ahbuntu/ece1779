@@ -3,7 +3,7 @@
         {{ search_form.hidden_tag() }}
         <div class="form-group">
             <label for="address_geolocation">Search origin address</label>
-            <input id="address_geolocation" name="address_geolocation" type="text">
+            <input id="address_geolocation" name="address_geolocation" type="text" onblur="findAddressLatLng()">
             <button class="btn btn-xs" type="button" onclick="findAddressLatLng()" >Show on map</button>
         </div>
 

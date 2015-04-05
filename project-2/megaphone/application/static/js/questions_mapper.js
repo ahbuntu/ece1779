@@ -42,7 +42,7 @@ function displayMap() {
         position: defaultLoc,
         icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
         map: map,
-        title: "Centre of Search"
+        title: "Search Origin"
     });
     displayQuestionMarkers();
 
@@ -74,7 +74,7 @@ function displayQuestionMarkers() {
 function findAddressLatLng() {
     var inputAddress = $("#address_geolocation").val();
     if (!inputAddress) {
-        //alert("Please enter address.");
+        alert("Please enter address.");
         return;
     }
     var geocoder = new google.maps.Geocoder();
