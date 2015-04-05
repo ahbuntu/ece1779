@@ -121,8 +121,6 @@
         }
         var FormHelpers = {
             geosuccess: function (position) {
-                $('#locationLat').val(position.coords.latitude);
-                $('#locationLong').val(position.coords.longitude);
                 $('#location').val(position.coords.latitude + "," +position.coords.longitude);
                 currentLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 displayMap();
