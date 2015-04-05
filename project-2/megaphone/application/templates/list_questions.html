@@ -75,24 +75,12 @@
 
     <!-- Hack: move this to the search_questions include? -->
     <script type="text/javascript" charset="utf-8">
-        function getParameterByName(name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(location.search);
-            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        }
-
         $(document).ready(function() {
             $("#cancel").click(function() {
                 window.location.replace('{{ url_for('list_questions') }}');
                 // window.location.href = '{{ url_for('list_questions') }}';
                 return false;
             });
-            var latParam = getParameterByName("lat");
-            var lonParam = getParameterByName("lon");
-            if (latParam && lonParam) {
-                latLonAddress(latParam, lonParam)
-            }
         });
 
     </script>
