@@ -7,22 +7,22 @@
 
 /* Your customizations here */
 #map-canvas {
-    width: 500px;
+    width:  555px;
     height: 400px;
 }
 
 #map-canvas-profile {
-    width: 400px;
+    width:  400px;
     height: 300px;
 }
 
 #map-canvas-question {
-    width: 250px;
+    width:  250px;
     height: 150px;
 }
 
 #map-canvas-answer {
-    width: 250px;
+    width:  250px;
     height: 150px;
 }
 
