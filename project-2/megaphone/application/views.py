@@ -405,7 +405,8 @@ def accept_answer(safe_answer_key):
     return redirect(url_for('answers_for_question', question_id=question_id, accepted_answer=accepted_answer))
 
 
-@admin_required
+# @admin_required
+# FIXME: normal users shouldn't be able to execute this
 def rebuild_question_search_index():
     questions = Question.all()
     [add_question_to_search_index(q) for q in questions]
