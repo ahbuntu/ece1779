@@ -10,6 +10,7 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
 """
 from google.appengine.api import users
 from google.appengine.ext import ndb
+from google.appengine.runtime import apiproxy_errors
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 
 import logging, math, datetime
@@ -95,7 +96,8 @@ def get_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
 
     dataset = []
     for question in questions:
@@ -142,7 +144,8 @@ def list_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
 
         search_form.latitude.data = float(latitude)
         search_form.longitude.data = float(longitude)
@@ -152,7 +155,7 @@ def list_questions():
 
     channel_token = None
     if (user):
-        channel_token = channel.create_channel(user_channel_id(user))
+        channel_token = safe_channel_create(user_channel_id(user))
     return render_template('list_questions.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
@@ -213,11 +216,12 @@ def list_questions_for_user():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
     else:
         questions = Question.all_for(user)
 
-    channel_token = channel.create_channel(all_user_questions_answers_channel_id(user))
+    channel_token = safe_channel_create(all_user_questions_answers_channel_id(user))
     return render_template('list_questions_for_user.html', questions=questions, form=form, user=user, login_url=login_url, search_form=search_form, channel_token=channel_token)
 
 
@@ -325,9 +329,20 @@ def answers_for_question(question_id):
     channel_token = None
     if (question.added_by == user):
         channel_id = question_answers_channel_id(user, question)
-        channel_token = channel.create_channel(channel_id)
+        channel_token = safe_channel_create(channel_id)
 
     return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token, accepted_answer=accepted_answer)
+
+
+def safe_channel_create(channel_id):
+    try:
+        channel_token = channel.create_channel(channel_id)
+    except apiproxy_errors.OverQuotaError, message:
+        # Log the error.
+        logging.error(message)
+        channel_token = None
+    finally:
+        return channel_token
 
 
 @login_required
@@ -573,7 +588,7 @@ def notify_new_answer(answer):
 
 def channel_send_message(channel_id, message):
     tries = 1
-    channel_token = channel.create_channel(channel_id)
+    channel_token = safe_channel_create(channel_id)
     logging.info('[CHANNEL] starting channel_send_message to channel: ' + str(channel_id))
     message_json = json.dumps(message)
 

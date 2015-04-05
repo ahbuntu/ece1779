@@ -2,7 +2,7 @@
 
 {% block style_block %}
     <style type="text/css">
-        table.table { width: 60%; }
+        table.table { width: 100%; }
     </style>
 {% endblock %}
 
@@ -22,9 +22,9 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>ID</th>
+{#                <th>ID</th>#}
                 <th>Author</th>
-                <th>Content</th>
+                <th style="width:45%";>Content</th>
                 <th>Asked on</th>
                 <th>Location</th>
                 <th>&nbsp;</th>
@@ -35,14 +35,14 @@
             {% for question in questions %}
             {% set question_id = question.key.id() %}
             <tr>
-                <td>{{ question_id }}</td>
+{#                <td>{{ question_id }}</td>#}
                 <td>{{ question.added_by }}</td>
                 <td><a href="{{ url_for('answers_for_question', question_id=question_id) }}">
                         {{ question.content }}
                     </a>
                 </td>
-                <td>{{ question.timestamp }}</td>
-                <td>{{ question.location }}</td>
+                <td>{{ question.timestamp.strftime('%c') }}</td>
+                <td><a href="{{ question.formatted_location }}" target="_blank">(open)</a></td>
                 <td>
                     <a href="{{ url_for('edit_question', question_id=question_id) }}" class="btn btn-default">Edit</a>
                 </td>

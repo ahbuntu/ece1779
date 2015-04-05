@@ -15,6 +15,15 @@ class Post(ndb.Model):
     content = ndb.StringProperty(indexed=True)
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
     location = ndb.GeoPtProperty(required=False, indexed=True)
+    formatted_location = ndb.ComputedProperty(lambda self: self.location_url())
+
+    def location_url(self):
+        if self.location is None:
+            return ""
+        else:
+            lat = self.location.lat
+            lon = self.location.lon
+            return 'http://maps.google.com/maps?z=12&t=m&q=loc:' + str(lat) + '+' + str(lon)
 
 
 class Answer(Post):

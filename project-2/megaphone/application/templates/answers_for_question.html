@@ -2,7 +2,7 @@
 
 {% block style_block %}
     <style type="text/css">
-        table.table { width: 60%; }
+        table.table { width: 100%; }
     </style>
 {% endblock %}
 
@@ -27,14 +27,12 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>ID</th>
+{#                <th>ID</th>#}
                 <th>Author</th>
-                <th>Content</th>
+                <th style="width:50%;">Content</th>
                 <th>Replied on</th>
                 <th>Location</th>
-                {% if accepted_answer is none %}
-                    <th>&nbsp;</th>
-                {% endif %}
+                <th>Status</th>
             </tr>
         </thead>
         <tbody id="answers">
