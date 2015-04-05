@@ -38,6 +38,9 @@ class QuestionForm(wtf.Form):
     location = wtf.TextField('Location', validators=[validators.Required()])
 
 
+class AnswerForm(wtf.Form):
+    content = wtf.TextAreaField('Content', validators=[validators.Required()])
+    location = wtf.TextField('Location', validators=[validators.Required()])
 
 class PostForm(wtf.Form):
     content = wtf.TextAreaField('Content', validators=[validators.Required()])
@@ -47,7 +50,3 @@ class PostForm(wtf.Form):
 #     'location': dict(validators=[validators.Required()]),
 # })
 
-AnswerForm = model_form(Answer, wtf.Form, field_args={
-    'content': dict(validators=[validators.Required()]),
-    'location': dict(validators=[validators.Required()]),
-})
