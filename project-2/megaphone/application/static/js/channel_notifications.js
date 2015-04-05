@@ -54,6 +54,8 @@ function onMessage(msg_obj) {
 
                 $('tbody#answers').prepend(data);
                 $(".answer_td").slideDown(1000);
+
+                tell_user('A new answer has been submitted. See below.');
             });
         }
         break;
