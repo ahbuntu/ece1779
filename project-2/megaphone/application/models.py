@@ -40,7 +40,7 @@ class Answer(Post):
 
 class Question(Post):
     """A User asks a Question"""
-    accepted_answer = ndb.StructuredProperty(Answer)  # there can only be one!
+    accepted_answer_key = ndb.KeyProperty(kind=Answer)# ndb.StructuredProperty(Answer)  # there can only be one!
 
     @classmethod
     def can_be_deleted(self):

@@ -49,7 +49,7 @@ app.add_url_rule('/answers/<string:safe_answer_key>', 'answer', view_func=views.
 app.add_url_rule('/questions/<int:question_id>/new_answer', view_func=views.new_answer, methods=['POST'])
 
 # Accept answer for a question
-app.add_url_rule('/questions/<int:question_id>/answers/<int:answer_id>/accept', view_func=views.accept_answer_for_question, methods=['POST'])
+app.add_url_rule('/answers/<string:safe_answer_key>/accept', view_func=views.accept_answer, methods=['POST'])
 
 # Search Questions list page
 app.add_url_rule('/questions/search', 'search_questions', view_func=views.search_questions, methods=['POST'])
