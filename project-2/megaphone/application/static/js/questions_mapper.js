@@ -3,12 +3,30 @@
  */
 
 $().ready(function() {
+    latParam = getParameterByName("lat");
+    lonParam = getParameterByName("lon");
+    if (latParam && lonParam) {
+        findLatLonAddress(latParam, lonParam);
+    } else {
+        latParam = 0;
+        lonParam = 0;
+    }
+
     displayMap();
-    displayQuestionMarkers();
+    //displayQuestionMarkers();
 });
 
 var map;
 var centreMarker;
+var latParam;
+var lonParam;
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        parVals = regex.exec(location.search);
+    return parVals === null ? "" : decodeURIComponent(parVals[1].replace(/\+/g, " "));
+}
 
 function displayMap() {
     var mapCanvas = document.getElementById('map-canvas');
@@ -34,9 +52,9 @@ function displayMap() {
 function displayQuestionMarkers() {
     $.getJSON($SCRIPT_ROOT + '/_get_questions', {
         //values of 0 returns all questions
-        lat: 0,
-        lon: 0,
-        radius: 0
+        lat: latParam,
+        lon: lonParam,
+        radius: $("#distance_in_km").val()
     }, function(data) {
         var questions = data.result;
         for (var idx in questions) {
@@ -76,7 +94,7 @@ function findAddressLatLng() {
     });
 }
 
-function latLonAddress(latVal, lonVal) {
+function findLatLonAddress(latVal, lonVal) {
     var latlng = new google.maps.LatLng(latVal, lonVal);
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode({'latLng': latlng}, function(results, status) {

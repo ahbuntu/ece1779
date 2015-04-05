@@ -82,7 +82,21 @@ def get_questions():
 
     if lat == 0 and lon == 0 and radius == 0:
         questions = Question.all()
-        
+    else:
+        radius_in_metres = float(radius) * 1000.0
+        q = "distance(location, geopoint(%f, %f)) <= %f" % (float(lat), float(lon), float(radius_in_metres))
+
+        # build the index if not already done
+        if search.get_indexes().__len__() == 0:
+            rebuild_question_search_index()
+
+        index = search.Index(name="myQuestions")
+        results = index.search(q)
+
+        # TODO: replace this with a proper .query
+        questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = sorted(questions, key=lambda question: question.timestamp)
+
     dataset = []
     for question in questions:
         # This conversion can be performed using a custom JsonEncoder implementation,
