@@ -66,12 +66,59 @@
 {% endblock footer %}
 
 {% block tail_script %}
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
     <script>
+        var map, marker, currentLatLng;
+        function displayMap() {
+            var mapCanvas = document.getElementById('map-canvas-answer');
+            var mapOptions = {
+                center: currentLatLng,
+                disableDefaultUI: true,
+                zoom: 13,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(mapCanvas, mapOptions);
+            marker = new google.maps.Marker({
+                position: currentLatLng,
+                map: map,
+                draggable: true,
+                title:"Me"
+            });
+            map.panBy(-125,-100);
+        }
+        function findAddress() {
+            var inputAddress = $("#address_geolocation").val();
+            if (!inputAddress) {
+                alert("Please enter address.");
+                return;
+            }
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                "address": inputAddress
+            }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    var markerLatLng = (results[0].geometry.location); //LatLng
+                    marker.setPosition(markerLatLng);
+                    map.setCenter(markerLatLng);
+                    $('#location').val(marker.getPosition().toUrlValue());
+                    map.panBy(-125,-100);
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        }
+        function getgeolocation() {
+            if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(FormHelpers.geosuccess, FormHelpers.geoerror);
+            } else {
+                alert('Geolocation not supported. Use the address instead');
+            }
+        }
         var FormHelpers = {
             geosuccess: function (position) {
-                $('#locationLat').val(position.coords.latitude);
-                $('#locationLong').val(position.coords.longitude);
                 $('#location').val(position.coords.latitude + "," +position.coords.longitude);
+                currentLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                displayMap();
             },
             geoerror: function (msg) {
                 alert(msg);
@@ -83,15 +130,10 @@
                     evt.preventDefault();
                     Utils.renderFieldErrorTooltip('#content', 'Content is required', 'right');
                 }
-                var answer_loc_lat = form.find('#locationLat').val();
+                var answer_loc = form.find('#location').val();
                 if (!(answer_loc_lat)) {
                     evt.preventDefault();
-                    Utils.renderFieldErrorTooltip('#locationLat', 'Latitude is required', 'right');
-                }
-                var answer_loc_long = form.find('#locationLong').val();
-                if (!(answer_loc_long)) {
-                    evt.preventDefault();
-                    Utils.renderFieldErrorTooltip('#locationLong', 'Longitude is required', 'right');
+                    Utils.renderFieldErrorTooltip('#map-canvas-answer', 'Location is required', 'left');
                 }
             },
             init: function () {
