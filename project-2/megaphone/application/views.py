@@ -497,7 +497,7 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
     prospective_search.subscribe(
         NearbyQuestion,
         query,
-        sub.key,
+        sub.key.id(),
         lease_duration_sec=300
     )
 
