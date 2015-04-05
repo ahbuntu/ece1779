@@ -74,7 +74,7 @@ function displayQuestionMarkers() {
 function findAddressLatLng() {
     var inputAddress = $("#address_geolocation").val();
     if (!inputAddress) {
-        alert("Please enter address.");
+        //alert("Please enter address.");
         return;
     }
     var geocoder = new google.maps.Geocoder();
