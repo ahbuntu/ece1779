@@ -12,7 +12,7 @@
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             {{ form.content.label(class_="sr-only") }}
-                            {{ form.content(placeholder="Enter answer", rows='7')|safe }}
+                            {{ form.content(placeholder="Enter details", rows='7')|safe }}
                             {% if form.content.errors %}
                             <ul class="errors">
                                 {% for error in form.content.errors %}

@@ -12,7 +12,7 @@
                     {{ form.hidden_tag() }}
                     <div class="form-group">
                         {{ form.content.label(class_="sr-only") }}
-                        {{ form.content(placeholder="enter your question", rows='5')|safe }}
+                        {{ form.content(placeholder="Enter details", rows='7')|safe }}
                         {% if form.content.errors %}
                         <ul class="errors">
                             {% for error in form.content.errors %}
@@ -24,8 +24,9 @@
                     <div class="form-group">
                         <input id="location" name="location" type="hidden"/>
                     </div>
-                    <input class="btn btn-primary" type="submit" value="Post"/>
-                    <button class="btn" data-dismiss="modal">Cancel</button>
+                    <div>&nbsp;</div>
+                    <input class="btn btn-primary btn-sm" type="submit" value="Post"/>
+                    <button class="btn btn-sm" data-dismiss="modal">Cancel</button>
                 </form>
             </div>
             <div class="col-md-6">
