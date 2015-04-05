@@ -543,7 +543,7 @@ def notify_new_answer(answer):
 
     # Broadcast to the owner of the question, unless they answered it.
     if (question.added_by != answer.added_by):
-        logging.info('[CHANNEL] Sending notifications about new answer: ' + answer.key.id())
+        logging.info('[CHANNEL] Sending notifications about new answer: ' + str(answer.key.id()))
 
         channel_id = question_answers_channel_id(question.added_by, question)
         deferred.defer(channel_send_message, channel_id, message, _countdown=1)
@@ -560,13 +560,13 @@ def notify_new_answer(answer):
 def channel_send_message(channel_id, message):
     tries = 1
     channel_token = channel.create_channel(channel_id)
-    logging.info('[CHANNEL] starting channel_send_message to channel: ' + channel_id)
+    logging.info('[CHANNEL] starting channel_send_message to channel: ' + str(channel_id))
     message_json = json.dumps(message)
 
     for attempt in range(tries):
         # message = 'this is message number: ' + str(attempt)
         channel.send_message(channel_id, message_json)
-        logging.info('[CHANNEL] just sent to: + channel_id + '() + message_json + ')')
+        logging.info('[CHANNEL] just sent to: ' + str(channel_id) + '(' + message_json + ')')
         logging.info(channel_token)
 
 
