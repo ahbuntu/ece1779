@@ -21,6 +21,11 @@
     height: 150px;
 }
 
+#map-canvas-answer {
+    width: 250px;
+    height: 150px;
+}
+
 #content{
     width: 100%
 }
