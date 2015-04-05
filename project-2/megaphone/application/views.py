@@ -96,7 +96,8 @@ def get_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
 
     dataset = []
     for question in questions:
@@ -143,7 +144,8 @@ def list_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
 
         search_form.latitude.data = float(latitude)
         search_form.longitude.data = float(longitude)
@@ -214,7 +216,8 @@ def list_questions_for_user():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
-        questions = sorted(questions, key=lambda question: question.timestamp)
+        if questions:
+            questions = sorted(questions, key=lambda question: question.timestamp)
     else:
         questions = Question.all_for(user)
 
