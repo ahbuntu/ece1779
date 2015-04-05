@@ -300,6 +300,9 @@ def answers_for_question(question_id):
     user = users.get_current_user()
     answerform = AnswerForm()
     answers = Answer.answers_for(question)
+    accepted_answer = None
+    if question.accepted_answer_key:
+        accepted_answer = question.accepted_answer_key.get()
 
     # If the user owns the question then register for Channel notifications
     channel_token = None
@@ -307,7 +310,7 @@ def answers_for_question(question_id):
         channel_id = question_answers_channel_id(user, question)
         channel_token = channel.create_channel(channel_id)
 
-    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token)
+    return render_template('answers_for_question.html', answers=answers, question=question, user=user, form=answerform, channel_token=channel_token, accepted_answer=accepted_answer)
 
 
 @login_required
@@ -348,18 +351,26 @@ def new_answer(question_id):
 
 
 @login_required
-def accept_answer_for_question(question_id, answer_id):
+def accept_answer(safe_answer_key):
     """Accept the answer for a questions"""
-    answer = Answer.get_by_id(answer_id)
+
+    rev_key = ndb.Key(urlsafe=safe_answer_key)
+    answer = rev_key.get()
+    question_id = answer.key.parent().id()
     question = Question.get_by_id(question_id)
+
     # questionform = QuestionForm(obj=question)
+    accepted_answer=None
     if request.method == "POST":
         # if questionform.validate_on_submit():
-        question.accepted_answer=answer
+        question.accepted_answer_key=answer.key
+        accepted_answer=answer
         question.put()
         flash(u'Answer %s successfully accepted.' % question_id, 'success')
-        return redirect(url_for('answers_for_question', question_id=question_id))
-    return redirect(url_for('answers_for_question', question_id=question_id))
+    elif question.accepted_answer_key:
+        accepted_answer=question.accepted_answer_key.get()
+
+    return redirect(url_for('answers_for_question', question_id=question_id, accepted_answer=accepted_answer))
 
 
 @admin_required
