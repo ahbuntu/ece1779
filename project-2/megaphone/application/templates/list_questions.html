@@ -2,7 +2,7 @@
 
 {% block style_block %}
     <style type="text/css">
-        table.table { width: 60%; }
+        table.table { width: 100%; }
     </style>
 {% endblock %}
 
@@ -43,8 +43,8 @@
                                     {{ question.content }}
                                 </a>
                             </td>
-                            <td>{{ question.timestamp }}</td>
-                            <td>{{ question.location }}</td>
+                            <td>{{ question.timestamp.strftime('%c') }}</td>
+                            <td><a href="{{ question.formatted_location }}" target="_blank">(open)</a></td>
                         </tr>
                     {% else %}
                         <tr><td colspan="5">No questions yet</td></tr>
