@@ -249,6 +249,8 @@ def get_location(coords):
 
 
 def add_question_to_search_index(question):
+    """Build a custom search index for geo-based searched."""
+    # FIXME: is this really necessary? Perhaps the Search API can infer this and built it automatically.
     index = search.Index(name="myQuestions")
     question_id = question.key.id()
     document = search.Document(
