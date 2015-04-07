@@ -277,7 +277,7 @@ def add_question_to_search_index(question):
     index = search.Index(name="myQuestions")
     question_id = question.key.id()
     document = search.Document(
-        doc_id=str(question_id),  # optional
+        doc_id=unicode(question_id),  # optional
         fields=[
             # search.TextField(name='customer', value='Joe Jackson'),
             # search.HtmlField(name='comment', value='this is <em>marked up</em> text'),
@@ -286,6 +286,13 @@ def add_question_to_search_index(question):
             search.GeoField(name='location', value=search.GeoPoint(question.location.lat, question.location.lon))
             ])
     index.put_async(document)
+
+
+def remove_question_from_search_index(question):
+    index = search.Index(name="myQuestions")
+    question_id = question.key.id()
+    doc_id = unicode(question_id)
+    index.delete_async(doc_id)
 
 
 @login_required
@@ -310,6 +317,7 @@ def delete_question(question_id):
     question = Question.get_by_id(question_id)
     if request.method == "POST":
         try:
+            remove_question_from_search_index(question)
             question.key.delete()
             flash(u'Question %s successfully deleted.' % question_id, 'success')
             return redirect(url_for('list_questions_for_user'))
