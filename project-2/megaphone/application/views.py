@@ -96,6 +96,7 @@ def get_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = filter(None, questions) # filter deleted questions
         if questions:
             questions = sorted(questions, key=lambda question: question.timestamp)
 
@@ -144,6 +145,7 @@ def list_questions():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = filter(None, questions) # filter deleted questions
         if questions:
             questions = sorted(questions, key=lambda question: question.timestamp)
 
@@ -216,6 +218,7 @@ def list_questions_for_user():
 
         # TODO: replace this with a proper .query
         questions = [Question.get_by_id(long(r.doc_id)) for r in results]
+        questions = filter(None, questions) # filter deleted questions
         if questions:
             questions = sorted(questions, key=lambda question: question.timestamp)
     else:
