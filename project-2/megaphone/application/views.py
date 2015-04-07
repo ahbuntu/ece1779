@@ -200,6 +200,7 @@ def user_profile():
 @login_required
 def list_questions_for_user():
     """Lists all questions posted by a user"""
+
     form = QuestionForm()
     search_form = QuestionSearchForm()
     user = users.get_current_user()
@@ -509,6 +510,7 @@ def create_nearby_question(question_id):
         prospective_search.match(
             nearby_prospective_question
         )
+
 
 def subscribe_user_for_nearby_questions(prospective_user_id):
     """Create new subscriptions for the provided question and user"""
