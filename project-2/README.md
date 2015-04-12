@@ -1,4 +1,6 @@
-# ECE1779 Project #2
+# ECE1779 Project #2: Megaphone
+
+_A location-based, community-driven question and answer service built atop Google App Engine._
 
 ## Group Information
 
@@ -6,6 +8,10 @@
 - Group members:
     - David Carney
     - Ahmadul Hassan
+
+## Account Instructions
+
+Provided by email.
 
 ## Presentation
 
@@ -15,49 +21,146 @@ https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMj
 
 We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the (long list of) tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
 
-## Applicatinon Overview
+## Application Overview
 
-## Configuration
+Megaphone is designed to be a simple service that allows (authenticated) users
+to post and receive answers to location-based questions. In our initial 
+implementation we only provide location-based search for world-readable questions.
+Answers can only be submitted by any authenticated user.
 
-Project application stack:
+All users see the following links in the header after logging in:
+
+- **Nearby Activity**: Provides a list of nearby questions, with a location-based search interface.
+- **My Activity**: Provides a list of the user's questions, with a location-based filter.
+- **Profile**: Used to configure user settings. Currently, limited to configuring the Prospective Search area (see below for details).
+- **Logout**
+
+
+## Main Features
+
+**User Authentication**
+
+Though not really feature per se, this is important component. For this Megaphone
+leverages Google App Engine's *Users API*.
+
+
+**Ask Question, Post Answers, Accept Answer**
+
+Users can ask multiple 
+questions. Doing so is encapsulated by creating a `Question` object. In addition
+to the body of the question and a timestamp, each question has a location 
+obtained from the browser (i.e. the HTML5 Geolocation API). Once created, any 
+authenticated user can post `Answers` to any question. Answers also have a 
+location associated with them. The owner of a question can *accept* one if 
+its answers.
+
+Note that objects (entities) are persisted using the *NDB Datastore* (and the
+corresponding Python API).
+
+
+**(Retroactive) Location-based Question Search**
+
+The *Nearby Activity* page contains a simple, location-based search form that,
+when submitted, performs a geo-location based search and returns all matching 
+questions. On the backend this is accomplished by building a custom search
+index and leveraging the built-in geo-location *Search API* provided by Google
+App Engine.
+
+
+**(Prospective) Location-based Question Search**
+
+*Prospective Search* is an alpha-release feature provided by Google. It allows
+for the real-time document-based search. When Prospective Search is configured
+a callback is included, specifying the method called when a match occurs.
+Within Megaphone, Prospective Search is configured to match against new 
+questions that fall within each users' specified search area (configured on the
+*Profile* page).
+
+Limitations of Propspective Search, however, complicated this implementation.
+In particular, there are two issues at hand:
+
+- location-based search is not available in the Prospective Search API. This
+means that for each User-Question pair an intermediate object needs to be 
+created to contain the distance from one to the other. This is expensive and slow.
+
+- search queries are static (and match against static documents). That is, 
+queries cannot be defined to take an input variable. This means that distances
+must be recalculated each time a given user changes their search parameters.
+Again, this requires the intermediate object mentioned above.
+
+[TODO: Ahmad, can you fill in these details and mention the related Models?]
+
+
+**Real-time Notifications**
+
+Using the *Channels API*  and the *Deferred* library, Megaphone posts 
+notifications about certain events:
+
+- Users are notified about new questions matching Prospective Search.
+- Users are notified of new answers to their questions.
+
+In both cases, JavaScript parses a JSON payload sent over a channel and
+performs the necessary DOM manipualtions client-side to inform the user of the
+event. Generally, notifications about new questions include a URL to the question,
+whereas notifications about new answers trigger an AJAX fetch of the answer,
+which is then inserted into the DOM using a custom animation.
+
+## Additional Application Usage Instructions
+
+[TODO: if any]
+
+## High-Level Application Stack
 
 - Google App Engine
-- Python (Flask)
+- Python 2.7
+- Flask (micro) web framework
+- Jinja2 templates (HTML, JavaScript, jQuery)
+- Twitter Bootstrap (CSS)
 
-## Account Instructions
-Provided by email.
+## Project Organization
 
-## Application Architecture
+The project takes its form from the Flask example project, located here: [TODO].
+As such, it does not follow a model-view-controller (MVC) model. While this
+could be done, it was deemed not required for a project of this small size.
 
-...
+For a thorough introduction to Flask, see http://flask.pocoo.org/docs/0.10/
 
-## Application Usage Instructions
+Files that saw a lot of changes during the development of Megaphone include the 
+following:
 
-...
+- `views.py`: for simplicity, all logic bridging the views and models lies herein.
+- `urls.py`: speficies URL endpoints and routing information.
+- `models.py`: contains model definitions for Question, Answer, etc.
+- `forms.py`: specifies the various `WTForms` used in the project.
 
 ## Employed Technologies/Services
+
+Here is the summary of (previously mentioned) Google App Engine technologies 
+employed by Megaphone:
 
 - Users [https://cloud.google.com/appengine/docs/python/users/]
 - Deferred background jobs [https://cloud.google.com/appengine/articles/deferred]
 - Channel API [https://cloud.google.com/appengine/docs/python/channel/]
 - Search (specifically, building an index for use with GeoPoint searches) [https://cloud.google.com/appengine/docs/python/search/]
-- 
-
-### Later?
-
-- https://cloud.google.com/appengine/docs/python/memcache/ (we're already using https://pythonhosted.org/Flask-Cache/, but I don't know if it's configured)
-- Prospective Search [https://cloud.google.com/appengine/docs/python/prospectivesearch/]
-- ...
+- Prospective Search
+- [TODO: more]
 
 ## Known Issues
 
-...
+- Channel API handling needs to be overhauled to better track created channels
+and reuse tokens, as opposed to always creating new channels/tokens. Otherwise,
+the Google App Engine free-tier quotas are quickly exceeded. In a production
+application, this would instead translate to a waste of money.
+
+- [TODO]
 
 ## Future Work
 
 Some ideas for future work include the following:
 
-- ...
+- https://cloud.google.com/appengine/docs/python/memcache/ (we're already using https://pythonhosted.org/Flask-Cache/, but I don't know if it's configured)
+
+- [TODO]
 
 ## Python Flask Resources
 
