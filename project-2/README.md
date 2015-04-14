@@ -221,9 +221,17 @@ and then match to see if the posted question is within a user's noification radi
 
 Some ideas for future work include the following:
 
-- https://cloud.google.com/appengine/docs/python/memcache/ (we're already using https://pythonhosted.org/Flask-Cache/, but I don't know if it's configured)
+- Make better use of [Memcache](https://cloud.google.com/appengine/docs/python/memcache/)
 
-- Use MapReduce to iterate over all questions and answers, determine trending/popular ones, to help identify hot activity zones
+- Use MapReduce to iterate over all questions and answers, determine trending/popular ones, to help identify hot activity zones.
+
+- Benchmark performance/load characteristics to expose bottlenecks
+
+- Improve Search & Prospective Search features
+
+- Multiple Prospective Search locations per user
+
+- Add more features for a richer user experience
 
 ## Python Flask Resources
 
