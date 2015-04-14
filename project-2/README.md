@@ -9,17 +9,23 @@ _A location-based, community-driven question and answer service built atop Googl
     - David Carney
     - Ahmadul Hassan
 
+## Work Breakdown
+
+We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the (long list of) tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
+
 ## Account Instructions
 
 Provided by email.
 
-## Presentation
+## In-Class Presentation
 
 https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing
 
-## Work Breakdown
+## Code Repository
 
-We feel that there was a 50-50 split in work/effort between the two group memebers. Please don't hesitate to ask for further details about the (long list of) tasks. We believe, however, that this is immaterial since we both agree that work was evenly divided.
+https://github.com/dfcarney/ece1779
+
+This document: https://github.com/dfcarney/ece1779/tree/master/project-2
 
 ## Application Overview
 
@@ -135,7 +141,8 @@ the methods prefixed with `@cache.cached`.
 
 ## Additional Application Usage Instructions
 
-[TODO: if any]
+![Nearby Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png =200px)
+
 
 ## Project Organization
 
@@ -148,10 +155,10 @@ For a thorough introduction to Flask, see http://flask.pocoo.org/docs/0.10/
 Files that saw a lot of changes during the development of Megaphone include the 
 following:
 
-- `views.py`: for simplicity, all logic bridging the views and models lies herein.
-- `urls.py`: speficies URL endpoints and routing information.
-- `models.py`: contains model definitions for Question, Answer, etc.
-- `forms.py`: specifies the various `WTForms` used in the project.
+- [`views.py`](https://github.com/dfcarney/ece1779/blob/master/project-2/megaphone/application/views.py): for simplicity, all logic bridging the views and models lies herein.
+- [`urls.py`](https://github.com/dfcarney/ece1779/blob/master/project-2/megaphone/application/urls.py): speficies URL endpoints and routing information.
+- [`models.py`](https://github.com/dfcarney/ece1779/blob/master/project-2/megaphone/application/models.py): contains model definitions for Question, Answer, etc.
+- [`forms.py`](https://github.com/dfcarney/ece1779/blob/master/project-2/megaphone/application/forms.py): specifies the various `WTForms` used in the project.
 
 ## Known Issues
 
