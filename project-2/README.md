@@ -35,6 +35,17 @@ All users see the following links in the header after logging in:
 - **Profile**: Used to configure user settings. Currently, limited to configuring the Prospective Search area (see below for details).
 - **Logout**
 
+## Employed Technologies/Services
+
+Here is the summary of (previously mentioned) Google App Engine technologies 
+employed by Megaphone:
+
+- Users [https://cloud.google.com/appengine/docs/python/users/]
+- Deferred background jobs [https://cloud.google.com/appengine/articles/deferred]
+- Channel API [https://cloud.google.com/appengine/docs/python/channel/]
+- Search (specifically, building an index for use with GeoPoint searches) [https://cloud.google.com/appengine/docs/python/search/]
+- Prospective Search [https://cloud.google.com/appengine/docs/python/prospectivesearch/]
+- Memcached [https://cloud.google.com/appengine/docs/python/memcache/]
 
 ## Main Features
 
@@ -42,6 +53,8 @@ All users see the following links in the header after logging in:
 
 Though not really feature per se, this is important component. For this Megaphone
 leverages Google App Engine's *Users API*.
+
+_APIs employed: Users._
 
 
 **Ask Question, Post Answers, Accept Answer**
@@ -57,6 +70,8 @@ its answers.
 Note that objects (entities) are persisted using the *NDB Datastore* (and the
 corresponding Python API).
 
+_APIs employed: NDB Datastore (synchronous, asynchronous)._
+
 
 **(Retroactive) Location-based Question Search**
 
@@ -65,6 +80,8 @@ when submitted, performs a geo-location based search and returns all matching
 questions. On the backend this is accomplished by building a custom search
 index and leveraging the built-in geo-location *Search API* provided by Google
 App Engine.
+
+_APIs employed: Search (geo-location based search, custom index), NDB Datastore._
 
 
 **(Prospective) Location-based Question Search**
@@ -90,6 +107,8 @@ Again, this requires the intermediate object mentioned above.
 
 [TODO: Ahmad, can you fill in these details and mention the related Models?]
 
+_APIs employed: Prospective Search, NDB Datastore._
+
 
 **Real-time Notifications**
 
@@ -105,17 +124,18 @@ event. Generally, notifications about new questions include a URL to the questio
 whereas notifications about new answers trigger an AJAX fetch of the answer,
 which is then inserted into the DOM using a custom animation.
 
+_APIs employed: Channel, Deferred Tasks._
+
+
+**Other**
+
+- Memcached was used sparingly (within `views.py`) as a proof-of-concept. See
+the methods prefixed with `@cache.cached`.
+
+
 ## Additional Application Usage Instructions
 
 [TODO: if any]
-
-## High-Level Application Stack
-
-- Google App Engine
-- Python 2.7
-- Flask (micro) web framework
-- Jinja2 templates (HTML, JavaScript, jQuery)
-- Twitter Bootstrap (CSS)
 
 ## Project Organization
 
@@ -132,18 +152,6 @@ following:
 - `urls.py`: speficies URL endpoints and routing information.
 - `models.py`: contains model definitions for Question, Answer, etc.
 - `forms.py`: specifies the various `WTForms` used in the project.
-
-## Employed Technologies/Services
-
-Here is the summary of (previously mentioned) Google App Engine technologies 
-employed by Megaphone:
-
-- Users [https://cloud.google.com/appengine/docs/python/users/]
-- Deferred background jobs [https://cloud.google.com/appengine/articles/deferred]
-- Channel API [https://cloud.google.com/appengine/docs/python/channel/]
-- Search (specifically, building an index for use with GeoPoint searches) [https://cloud.google.com/appengine/docs/python/search/]
-- Prospective Search
-- [TODO: more]
 
 ## Known Issues
 
