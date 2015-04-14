@@ -141,7 +141,8 @@ the methods prefixed with `@cache.cached`.
 
 ## Additional Application Usage Instructions
 
-[TODO: if any]
+[[ https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png | height = 200px ]]
+
 
 ## Project Organization
 
