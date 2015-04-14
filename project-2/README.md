@@ -139,7 +139,7 @@ the methods prefixed with `@cache.cached`.
 
 ## Project Organization
 
-The project takes its form from the Flask example project, located here: [TODO].
+The project takes its form from the Flask example project, located here: https://github.com/kamalgill/flask-appengine-template.
 As such, it does not follow a model-view-controller (MVC) model. While this
 could be done, it was deemed not required for a project of this small size.
 
