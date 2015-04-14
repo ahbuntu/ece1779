@@ -148,6 +148,20 @@ there are three main views that a logged-in user can access.
 
 ![Nearby Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png)
 
+This page shows:
+
+- **Notices**: Channel API notifications that are handled via JavaScript. Current 
+notification types are limited to (new) questions matching the user's Prospective
+Search criteria (configured on their Profile page).
+- **Nearby Questions**:
+    - A search interface: for performing location-based searches for questions.
+    - A list of search results.
+    - A map, showing the locations of search results.
+
+Clicking on the 'Content' of a particular question brings you to its 
+own [Question Page](https://github.com/dfcarney/ece1779/tree/master/project-2#question-page). 
+Clicking on '(open)' opens a map that shows the question's location.
+
 ### My Activity
 
 ![My Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/my%20activity.png)
@@ -155,6 +169,11 @@ there are three main views that a logged-in user can access.
 ### Profile
 
 ![Profile](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/profile.png)
+
+### Question Page
+
+![Question Page](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/question%20page.png)
+
 
 ## Project Organization
 
