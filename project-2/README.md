@@ -166,7 +166,10 @@ and reuse tokens, as opposed to always creating new channels/tokens. Otherwise,
 the Google App Engine free-tier quotas are quickly exceeded. In a production
 application, this would instead translate to a waste of money.
 
-- [TODO]
+- Prospective Search should be performed only for registered users within the prospective search notification area. 
+The current implementation naively tries to match against all registered users in the system. In a production application,
+this will quickly become a bottleneck. A better approach would be to first identify users within the prospective notification area,
+and then matching to see if the posted question is within a user's noification radius.
 
 ## Future Work
 
