@@ -19,13 +19,13 @@ Provided by email.
 
 ## In-Class Presentation
 
-https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing
+![Here](https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing)
 
 ## Code Repository
 
 https://github.com/dfcarney/ece1779
 
-This document: https://github.com/dfcarney/ece1779/tree/master/project-2
+([This document](https://github.com/dfcarney/ece1779/tree/master/project-2))
 
 ## Application Overview
 
@@ -141,8 +141,20 @@ the methods prefixed with `@cache.cached`.
 
 ## Additional Application Usage Instructions
 
-![Nearby Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png =200px)
+As mentioned in the [Application Overview](https://github.com/dfcarney/ece1779/tree/master/project-2#application-overview),
+there are three main views that a logged-in user can access.
 
+### Nearby Activity
+
+![Nearby Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png)
+
+### My Activity
+
+![My Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/my%20activity.png)
+
+### Profile
+
+![Profile](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/profile.png)
 
 ## Project Organization
 
