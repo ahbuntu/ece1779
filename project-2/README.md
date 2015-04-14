@@ -19,13 +19,13 @@ Provided by email.
 
 ## In-Class Presentation
 
-[Here](https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing)
+Available [here](https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing).
 
 ## Code Repository
 
-https://github.com/dfcarney/ece1779
+See https://github.com/dfcarney/ece1779
 
-([This document](https://github.com/dfcarney/ece1779/tree/master/project-2))
+<!-- ([This document](https://github.com/dfcarney/ece1779/tree/master/project-2) is also on GitHub). -->
 
 ## Application Overview
 
