@@ -51,7 +51,7 @@ employed by Megaphone:
 
 **User Authentication**
 
-Though not really feature per se, this is important component. For this Megaphone
+Though not really a feature per se, this is an important component. For this Megaphone
 leverages Google App Engine's *Users API*.
 
 _APIs employed: Users._
@@ -64,8 +64,8 @@ questions. Doing so is encapsulated by creating a `Question` object. In addition
 to the body of the question and a timestamp, each question has a location 
 obtained from the browser (i.e. the HTML5 Geolocation API). Once created, any 
 authenticated user can post `Answers` to any question. Answers also have a 
-location associated with them. The owner of a question can *accept* one if 
-its answers.
+location associated with them. The owner of a question can *accept* one of 
+the provided answers.
 
 Note that objects (entities) are persisted using the *NDB Datastore* (and the
 corresponding Python API).
@@ -87,7 +87,7 @@ _APIs employed: Search (geo-location based search, custom index), NDB Datastore.
 **(Prospective) Location-based Question Search**
 
 *Prospective Search* is an alpha-release feature provided by Google. It allows
-for the real-time document-based search. When Prospective Search is configured
+for real-time document-based search. When Prospective Search is configured
 a callback is included, specifying the method called when a match occurs.
 Within Megaphone, Prospective Search is configured to match against new 
 questions that fall within each users' specified search area (configured on the
@@ -163,7 +163,7 @@ application, this would instead translate to a waste of money.
 - Prospective Search should be performed only for registered users within the prospective search notification area. 
 The current implementation naively tries to match against all registered users in the system. In a production application,
 this will quickly become a bottleneck. A better approach would be to first identify users within the prospective notification area,
-and then matching to see if the posted question is within a user's noification radius.
+and then match to see if the posted question is within a user's noification radius.
 
 ## Future Work
 
