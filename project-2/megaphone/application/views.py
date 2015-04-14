@@ -61,12 +61,6 @@ def search_questions():
     return redirect(url_for('list_questions', lat=latitude, lon=longitude, r=radius))
 
 
-@admin_required
-def admin_only():
-    """This view requires an admin account"""
-    return 'Super-seekrit admin page.'
-
-
 def warmup():
     """App Engine warmup handler
     See http://code.google.com/appengine/docs/python/config/appconfig.html#Warming_Requests

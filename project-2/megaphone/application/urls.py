@@ -18,9 +18,6 @@ app.add_url_rule('/_ah/warmup', 'warmup', view_func=views.warmup)
 # Home page
 app.add_url_rule('/', 'home', view_func=views.home)
 
-# Contrived admin-only view example
-app.add_url_rule('/admin_only', 'admin_only', view_func=views.admin_only)
-
 # List all questions for anonymous users
 app.add_url_rule('/questions', 'list_questions', view_func=views.list_questions, methods=['GET'])
 
