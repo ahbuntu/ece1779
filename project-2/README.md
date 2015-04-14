@@ -53,6 +53,8 @@ employed by Megaphone:
 - Prospective Search [https://cloud.google.com/appengine/docs/python/prospectivesearch/]
 - Memcached [https://cloud.google.com/appengine/docs/python/memcache/]
 
+_**IMPORTANT**: the user must grant the browser permission to access his/her location for Megaphone to work as intended._
+
 ## Main Features
 
 **User Authentication**
@@ -142,7 +144,7 @@ the methods prefixed with `@cache.cached`.
 ## Additional Application Usage Instructions
 
 As mentioned in the [Application Overview](https://github.com/dfcarney/ece1779/tree/master/project-2#application-overview),
-there are three main views that a logged-in user can access.
+there are several main views that a logged-in user can access.
 
 ### Nearby Activity
 
@@ -166,14 +168,26 @@ Clicking on '(open)' opens a map that shows the question's location.
 
 ![My Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/my%20activity.png)
 
+This page is nearly identical to [Nearby Activity](https://github.com/dfcarney/ece1779/tree/master/project-2#nearby-activity)
+with the exception that its content (including Notices) limited to the user's own questions. In particular, Notices
+only shows notifications for new answers to the user's questions.
+
 ### Profile
 
 ![Profile](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/profile.png)
+
+On the Profile page a logged-in user can configure the search area to be used
+in Prospective Search (i.e. for notifications about new questions).
 
 ### Question Page
 
 ![Question Page](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/question%20page.png)
 
+The Question Page (for a given question) lists any and all answers posted by users.
+The owner of a question may additionally accept one of the answers. The Notices header
+is a placeholder and (currently) unused (except as a trigger to initialize 
+JavaScript routines). Users viewing their own question will have new answers 
+automatically prepended to the list via an AJAX callback.
 
 ## Project Organization
 
