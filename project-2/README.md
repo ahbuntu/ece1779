@@ -100,7 +100,7 @@ for real-time document-based search. Prospective Search is configured by creatin
 and trying to match against the subscription query. When a match is found, 
 a callback url is triggered through the App Engine Task Queue.
 
-Within Megaphone, a subscription for Prospective Search is created. Then a user visits the *Profile* 
+Within Megaphone, a subscription for Prospective Search is created when a user visits the *Profile* 
 page and sets/updates a notification location and radius. The subscription is created for a duration
 of 5 minutes. This duration was picked to enable ease and repeatability of testing. There is no technical 
 limitation that prevents us from creating subscriptions that never expire. The created subscription 
@@ -109,9 +109,9 @@ in the creation of `ProspectiveUser` and `ProspectiveSubscription` objects.
 
 When a new question is creted, an interim `NearbyQuestion` search document is created, but not saved to the 
 datastore. Note that this document does not need to be stored in order for prospective search to work. This 
-interim search document is created for each prospective user. The document contains the coordinates of the 
+interim search document is created for each prospective user in the system. The document contains the coordinates of the 
 user notification location and radius, along with the distance of the posted question to the notification point.
-The subscription query tests whether the distance is within the notification radius, and if so, a match is found,
+The subscription query tests whether the distance is within the notification radius; if the condition is satisfied, a match is found
 resulting in a document being placed in the Task Queue. The appropriate handler for the task queue url sends a
 notice to the matched prospective user.
 
