@@ -19,7 +19,7 @@ Provided by email.
 
 ## In-Class Presentation
 
-![Here](https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing)
+[Here](https://docs.google.com/presentation/d/1F7dg6Mazm-ZZaqPfnyF5OAsLoArRABiZPpyZ2iMjHOE/edit?usp=sharing)
 
 ## Code Repository
 
