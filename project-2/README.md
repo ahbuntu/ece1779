@@ -15,7 +15,8 @@ We feel that there was a 50-50 split in work/effort between the two group memebe
 
 ## Account Instructions
 
-Provided by email.
+Provided by email. Assuming you have the necessary permissions, you can access
+the project [here](http://valued-pact-89315.appspot.com/).
 
 ## In-Class Presentation
 
