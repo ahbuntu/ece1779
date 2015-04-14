@@ -38,6 +38,7 @@ cache = Cache(app)
 
 
 def home():
+    """The main landing page."""
     user = users.get_current_user()
     if user:
         return redirect(url_for('list_questions_for_user'))
@@ -259,6 +260,7 @@ def new_question():
 
 
 def flash_errors(form):
+    """Generates flash context for nice error display."""
     for field, errors in form.errors.items():
         for error in errors:
             flash(u"Error in the %s field - %s" % (
@@ -268,6 +270,7 @@ def flash_errors(form):
 
 
 def get_location(coords):
+    """Returns a NDB GeoPt from coordinates."""
     return ndb.GeoPt(coords)
 
 
@@ -289,6 +292,7 @@ def add_question_to_search_index(question):
 
 
 def remove_question_from_search_index(question):
+    """Remove a question from the geo-search index."""
     index = search.Index(name="myQuestions")
     question_id = question.key.id()
     doc_id = unicode(question_id)
@@ -297,7 +301,7 @@ def remove_question_from_search_index(question):
 
 @login_required
 def edit_question(question_id):
-    """Edit a question object"""
+    """Edit a question."""
     question = Question.get_by_id(question_id)
     form = QuestionForm(obj=question)
     user = users.get_current_user()
@@ -313,7 +317,7 @@ def edit_question(question_id):
 
 @login_required
 def delete_question(question_id):
-    """Delete a Question"""
+    """Delete a question."""
     question = Question.get_by_id(question_id)
     if request.method == "POST":
         try:
@@ -328,7 +332,7 @@ def delete_question(question_id):
 
 @login_required
 def answers_for_question(question_id):
-    """Provides a listing of the question and all of its associated answers"""
+    """Provides a listing of the question and all of its associated answers."""
     question = Question.get_by_id(question_id)
     user = users.get_current_user()
     answerform = AnswerForm()
@@ -347,6 +351,7 @@ def answers_for_question(question_id):
 
 
 def safe_channel_create(channel_id):
+    """Creates a Channel token; handles OverQuotaError exceptions."""
     try:
         channel_token = channel.create_channel(channel_id)
     except apiproxy_errors.OverQuotaError, message:
@@ -369,7 +374,7 @@ def answer(safe_answer_key):
 
 @login_required
 def new_answer(question_id):
-    """Create a new answer corresponding to a question"""
+    """Create a new answer corresponding to a question."""
     question = Question.get_by_id(question_id)
     answerform = AnswerForm()
     if request.method == "POST" and answerform.validate_on_submit():
@@ -396,7 +401,7 @@ def new_answer(question_id):
 
 @login_required
 def accept_answer(safe_answer_key):
-    """Accept the answer for a questions"""
+    """Accept the answer for a question."""
 
     rev_key = ndb.Key(urlsafe=safe_answer_key)
     answer = rev_key.get()
@@ -420,12 +425,14 @@ def accept_answer(safe_answer_key):
 # @admin_required
 # FIXME: normal users shouldn't be able to execute this
 def rebuild_question_search_index():
+    """Used to generate/build the geo-search index."""
     questions = Question.all()
     [add_question_to_search_index(q) for q in questions]
     return redirect(url_for('list_questions'))
 
 
 def authenticate():
+    """Force the user to authenticate, if not already done."""
     user = users.get_current_user()
     if user:
         login_url = users.create_login_url(url_for('home'))
@@ -436,6 +443,7 @@ def authenticate():
 
 
 def login():
+    """Force the user to login, if not already done."""
     user = users.get_current_user()
     if user:
         return redirect('/')
@@ -445,7 +453,7 @@ def login():
 
 
 def list_subscriptions():
-    """List all subscriptions"""
+    """List all subscriptions."""
     subscriptions = prospective_search.list_subscriptions(
         NearbyQuestion
     )
@@ -453,6 +461,7 @@ def list_subscriptions():
 
 
 def match_prospective_search():
+    """Callback on prospective search match."""
     if request.method == "POST":
         logging.info("received a match")
         webapp2Request = request.form
@@ -465,10 +474,12 @@ def match_prospective_search():
 
 
 def deg2rad(deg):
+    """Helper to convert degrees to radians."""
     return deg * (math.pi/180)
 
 
 def get_location_distance_in_km(lat1, lon1, lat2, lon2):
+    """Get the geo-spatial distance between two lat/long pairs."""
     earth_radius = 6371 # Radius of the earth in km
     d_lat = deg2rad(lat2 - lat1)
     d_lon = deg2rad(lon2 - lon1)
@@ -490,6 +501,8 @@ def get_location_distance_in_km(lat1, lon1, lat2, lon2):
 # beforehand and define a query that matches on that. This, of course, is ridiculous...but it's part
 # of an experiment with Prospective Search.
 def create_nearby_question(question_id):
+    """Workaround for Prospective Searchs shortcomings; we need to create 
+    NearbyQuestion objects for each User/Question pair."""
     prospective_users = ProspectiveUser.all()
     question = Question.get_by_id(question_id)
     for user_to_test in prospective_users:
@@ -521,7 +534,7 @@ def create_nearby_question(question_id):
 
 
 def subscribe_user_for_nearby_questions(prospective_user_id):
-    """Create new subscriptions for the provided question and user"""
+    """Create new subscriptions for the provided question and user."""
     active_subscriptions = ProspectiveSubscription.get_for(prospective_user_id)
     sub = active_subscriptions.get()
     if sub is None:
@@ -552,6 +565,7 @@ def subscribe_user_for_nearby_questions(prospective_user_id):
 
 
 def notify_new_question(user, question):
+    """Notify relevant subscribers to a new question."""
     question_id = question.key.id()
     title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
     url = url_for('answers_for_question', question_id=str(question_id))
@@ -570,6 +584,7 @@ def notify_new_question(user, question):
 
 
 def notify_new_answer(answer):
+    """Notify relevant subscribers to a new answer."""
     question = answer.key.parent().get()
     question_id = question.key.id()
     title = (question.content[:20] + '...') if len(question.content) > 20 else question.content
@@ -601,6 +616,7 @@ def notify_new_answer(answer):
 
 
 def channel_send_message(channel_id, message):
+    """Send a message to a given Channel."""
     tries = 1
     channel_token = safe_channel_create(channel_id)
     logging.info('[CHANNEL] starting channel_send_message to channel: ' + str(channel_id))
@@ -614,6 +630,7 @@ def channel_send_message(channel_id, message):
 
 
 def channel_connected():
+    """Channel API callback (from JS client) when connection occurs."""
     channel = request.form['from']
     logging.info('user connected to: ' + str(channel))
     # TODO: use this to maintain a list of active channels
@@ -621,6 +638,7 @@ def channel_connected():
 
 
 def channel_disconnected():
+    """Channel API callback (from JS client) when disconnection occurs."""
     channel = request.form['from']
     logging.info('user disconnected from: ' + str(channel))
     # TODO: use this to maintain a list of active channels
