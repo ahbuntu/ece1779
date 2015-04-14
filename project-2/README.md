@@ -209,7 +209,7 @@ Some ideas for future work include the following:
 
 - https://cloud.google.com/appengine/docs/python/memcache/ (we're already using https://pythonhosted.org/Flask-Cache/, but I don't know if it's configured)
 
-- [TODO]
+- Use MapReduce to iterate over all questions and answers, determine trending/popular ones, to help identify hot activity zones
 
 ## Python Flask Resources
 
