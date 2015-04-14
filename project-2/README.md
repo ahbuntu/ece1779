@@ -96,11 +96,25 @@ _APIs employed: Search (geo-location based search, custom index), NDB Datastore.
 **(Prospective) Location-based Question Search**
 
 *Prospective Search* is an alpha-release feature provided by Google. It allows
-for real-time document-based search. When Prospective Search is configured
-a callback is included, specifying the method called when a match occurs.
-Within Megaphone, Prospective Search is configured to match against new 
-questions that fall within each users' specified search area (configured on the
-*Profile* page).
+for real-time document-based search. Prospective Search is configured by creating a subscription
+and trying to match against the subscription query. When a match is found, 
+a callback url is triggered through the App Engine Task Queue.
+
+Within Megaphone, a subscription for Prospective Search is created. Then a user visits the *Profile* 
+page and sets/updates a notification location and radius. The subscription is created for a duration
+of 5 minutes. This duration was picked to enable ease and repeatability of testing. There is no technical 
+limitation that prevents us from creating subscriptions that never expire. The created subscription 
+notifies the user whenever a new question is posted within the notification radius. These steps result
+in the creation of `ProspectiveUser` and `ProspectiveSubscription` objects.
+
+When a new question is creted, an interim `NearbyQuestion` search document is created, but not saved to the 
+datastore. Note that this document does not need to be stored in order for prospective search to work. This 
+interim search document is created for each prospective user. The document contains the coordinates of the 
+user notification location and radius, along with the distance of the posted question to the notification point.
+The subscription query tests whether the distance is within the notification radius, and if so, a match is found,
+resulting in a document being placed in the Task Queue. The appropriate handler for the task queue url sends a
+notice to the matched prospective user.
+
 
 Limitations of Propspective Search, however, complicated this implementation.
 In particular, there are two issues at hand:
@@ -114,7 +128,6 @@ queries cannot be defined to take an input variable. This means that distances
 must be recalculated each time a given user changes their search parameters.
 Again, this requires the intermediate object mentioned above.
 
-[TODO: Ahmad, can you fill in these details and mention the related Models?]
 
 _APIs employed: Prospective Search, NDB Datastore._
 
