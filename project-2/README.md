@@ -164,11 +164,12 @@ there are several main views that a logged-in user can access.
 
 ![Nearby Activity](https://raw.githubusercontent.com/dfcarney/ece1779/master/project-2/doc/nearby%20activity.png)
 
-This page shows:
+This page shows the following:
 
 - **Notices**: Channel API notifications that are handled via JavaScript. Current 
 notification types are limited to (new) questions matching the user's Prospective
 Search criteria (configured on their Profile page).
+
 - **Nearby Questions**:
     - A search interface: for performing location-based searches for questions.
     - A list of search results.
